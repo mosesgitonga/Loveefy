@@ -1,11 +1,11 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy import Column, String, Integer
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from .base_model import Base
 
 class User_profile(Base):
     __tablename__ = 'users_profile'
-    id = Column(String, primary_key=True)
-    gender = Column(String, nullable=False)
+    id = Column(String(120), primary_key=True)
+    gender = Column(String(120), nullable=False)
     age = Column(Integer, nullable=False)
-    mobile_no = Column(String, unique=True, nullable=False)
+    mobile_no = Column(String(120), unique=True, nullable=False)

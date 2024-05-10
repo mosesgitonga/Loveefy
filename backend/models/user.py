@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 from sqlalchemy import Column, String
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from .base_model import Base
 
 class User(Base):
     __tablename__ = 'users'
@@ -10,3 +8,5 @@ class User(Base):
     username = Column(String(120), nullable=False, unique=True)
     email = Column(String(120), nullable=False, unique=True)
     subscription_type = Column(String(60), nullable=False)
+    password = Column(String(150), nullable=False)
+    
