@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask import jsonify
 import os
 import random
 import bcrypt
 import uuid
 import sys
 import re
+
 
 current_file_path = os.path.abspath(__file__)
 project_root = os.path.abspath(os.path.join(current_file_path, '..', '..', '..'))
@@ -22,8 +25,6 @@ def is_valid_email_format(email):
     if not re.match(email_regex, email):
         print('invalid email format')
         return False
-    else:
-        print('valid email')
 
 """ 
 Handles user authentication
@@ -32,47 +33,66 @@ class User_auth:
     def __init__(self):
         self.storage = DbStorage()
 
-    def register_by_email(self, **kwargs):
-        username = kwargs.get('username')
-        password = kwargs['password']
-        email = kwargs['email']
+    def register_by_email(self, data):
+        password = data.get('password')
+        email = data.get('email')
         if is_valid_email_format(email) is False:
-            return
-        if not username or not password or not email:
-            raise ValueError('Error: Username, password, and email are required')
+            return jsonify('invalid email format'), 400
 
+        if not password or not email:
+            return jsonify({'error': 'Username, password, and email are required'}), 400
         try:
-            # Check if username and email already exist
+            # Check if email already exist
             if self.storage.get(User, email=email):
-                raise ValueError('Error: Email already exists')
-            if self.storage.get(User, username=username):
-                raise ValueError('Error: Username already exists')
-            print(username)
+                return jsonify({'error': 'Email already exists'}), 400
             # Hash the password
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(10))
 
             # Create the user
             new_user = User(
                 id=str(uuid.uuid4()),
-                username=username,
                 email=email,
                 password=hashed_password.decode('utf-8')
             )
+            access_token = create_access_token(identity=new_user.id)
 
+            if not new_user:
+                return jsonify({'error': 'did not create user'})
             # Save the user to the database
             self.storage.new(new_user)
             self.storage.save()
             print('user has been registered')
-
-            return new_user
+            print(type(new_user))
+            return jsonify({'message' :'user has been registerd'}), 200
         except Exception as e:
             # Log the error
             print(f'Error during registration: {e}')
-            return None
+            return jsonify({'error': 'An error occurred during registration'}), 500
+
+    def user_login(self, data):
+        email = data['email']
+        password = data['password']
+
+        try:
+            existing_user = self.storage.get(User, email=email)
+            # check if user exists in the db
+            if existing_user is None:
+                return jsonify(message="User not found")
+
+            # verify password
+            encoded_pwd = password.encode('utf-8')
+            result = bcrypt.checkpw(encoded_pwd, existing_user.password.encode('utf-8'))
+            if result is False:
+                return jsonify(message='wrong password or email')
+
+            # create access token
+            access_token = create_access_token(identity=existing_user.id)
+            if isinstance(access_token, str):
+                return jsonify({"access_token": access_token}), 200
+            return access_token
+        except Exception as e:
+            print(e)
+            return jsonify(message="An error occured while trying to login "), 501
 
 if __name__ == '__main__':
-    user_auth = User_auth()
-    try:
-        user = user_auth.register_by_email(password='123', email='andrew@axample.com', username='andrew')
-    except Exception as e:
-        print(e)
+    pass 
