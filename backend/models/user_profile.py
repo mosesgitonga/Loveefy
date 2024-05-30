@@ -1,11 +1,12 @@
 from sqlalchemy import create_engine, ForeignKey
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, DateTime
 from .base_model import Base
 
 class User_profile(Base):
     __tablename__ = 'users_profile'
     id = Column(String(120), primary_key=True)
+    created_at = Column(DateTime)
     username = Column(String(80), unique=True, nullable=False)
     gender = Column(String(120), nullable=False)
     age = Column(Integer, nullable=False)

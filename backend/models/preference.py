@@ -13,6 +13,6 @@ class Preference(Base):
     country = Column(String(120), nullable=True)
     region = Column(String(120), nullable=True)
 
-    user_profile_id = Column(String(120), ForeignKey('user_profile.id'), nullable=False)
+    user_profile_id = Column(String(120), ForeignKey('users_profile.id'), nullable=False)
 
     user_profile = relationship('User_profile', uselist=False, backref='preferences')

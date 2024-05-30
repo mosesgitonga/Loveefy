@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, redirect, url_for, request, jsonify, request
+from flask import Flask, Blueprint, redirect, url_for, request, jsonify, request, render_template
 import os
 import sys 
 current_file_path = os.path.abspath(__file__)
@@ -11,6 +11,10 @@ user_auth = User_auth()
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
+@auth_bp.route('/register/', methods=['GET'], strict_slashes=False)
+def register_form():
+    return render_template('signup.html')
+    
 @auth_bp.route('/register/', methods=['POST'], strict_slashes=False)
 def register():
     try:
@@ -20,7 +24,7 @@ def register():
             return jsonify({'no data retrieved'})
         registration_response = user_auth.register_by_email(data)
         if registration_response is not None:
-            return registration_response
+            return render_template('signup."html', message=registration_response.json['message'])
         print('an error occured while registering user')
             
     except Exception as e:

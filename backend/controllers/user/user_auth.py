@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask import jsonify
+from datetime import datetime
 import os
 import random
 import bcrypt
@@ -32,6 +33,7 @@ Handles user authentication
 class User_auth:
     def __init__(self):
         self.storage = DbStorage()
+        self.created_at = datetime.now()
 
     def register_by_email(self, data):
         password = data.get('password')
@@ -51,6 +53,7 @@ class User_auth:
             # Create the user
             new_user = User(
                 id=str(uuid.uuid4()),
+                created_at=self.created_at,
                 email=email,
                 password=hashed_password.decode('utf-8')
             )
