@@ -31,7 +31,7 @@ def is_valid_email_format(email):
 """ 
 Handles user authentication
 """
-class User_auth:
+class User_auth: 
     def __init__(self):
         self.storage = DbStorage()
         self.created_at = datetime.now()
@@ -84,13 +84,13 @@ class User_auth:
             existing_user = self.storage.get(User, email=email)
             # check if user exists in the db
             if existing_user is None:
-                return jsonify(message="User not found")
+                return jsonify(message="User not found"), 404
 
             # verify password
             encoded_pwd = password.encode('utf-8')
             result = bcrypt.checkpw(encoded_pwd, existing_user.password.encode('utf-8'))
             if result is False:
-                return jsonify(message='wrong password or email')
+                return jsonify(message='wrong password or email'), 403
 
             # create access token
             access_token = create_access_token(identity=existing_user.id)

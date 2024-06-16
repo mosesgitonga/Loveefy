@@ -30,10 +30,10 @@ def register():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
-@auth_bp.route('/logins/<email>/<password>', methods=['POST'], strict_slashes=False)
+@auth_bp.route('/logins', methods=['POST'], strict_slashes=False)
 def login(email, password):
     data = request.get_json() 
-    access_token = user_auth.user_login(email, password)
+    access_token = user_auth.user_login(data.get('email'), data.get('password'))
     if isinstance(access_token, str):
         return jsonify({"access_token": {access_token}})
     return access_token
