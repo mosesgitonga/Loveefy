@@ -8,6 +8,7 @@ class Place(Base):
     __tablename__ = 'places'
     id = Column(String(120), primary_key=True)
     created_at = Column(DateTime)
+    updated_at = Column(DateTime)
     country = Column(String(150), nullable=False)
     region = Column(String(100), nullable=False)
     sub_region = Column(String(100), nullable=False)

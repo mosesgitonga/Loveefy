@@ -3,6 +3,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from flask import Flask
 from dotenv import load_dotenv
 from models.base_model import Base
+from models.user import User
 from models.user_profile import User_profile
 import os
 
@@ -58,10 +59,16 @@ class DbStorage:
             return self.__session.query(cls).filter_by(mobile_no=kwargs['mobile_no']).first()
         if 'id' in kwargs:
             return self.__session.query(cls).filter_by(id=kwargs['id']).first()
+        if 'user_id' in kwargs:
+            return self.__session.query(cls).filter_by(user_id=kwargs['user_id']).first()
 
-    def check_existing_profile(self, user_id, username, mobile_no):
+
+    def check_existing_profile(self, user_id, username=None, mobile_no=None):
         return self.__session.query(User_profile).filter(
             (User_profile.user_id == user_id) | 
-            (User_profile.username == username) |
             (User_profile.mobile_no == mobile_no)
         ).first()
+
+if __name__ == "__main__":
+    storage = DbStorage()
+    storage

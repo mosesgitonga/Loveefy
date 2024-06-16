@@ -6,5 +6,7 @@ class User(Base):
     __tablename__ = 'users'
     id = Column(String(120), primary_key=True, index=True)
     created_at = Column(DateTime)
+    updated_at = Column(DateTime)
     email = Column(String(120), nullable=False, unique=True)
     password = Column(String(150), nullable=False)
+    username = Column(String(80), unique=True, nullable=False)

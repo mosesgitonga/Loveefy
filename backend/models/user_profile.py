@@ -7,11 +7,15 @@ class User_profile(Base):
     __tablename__ = 'users_profile'
     id = Column(String(120), primary_key=True)
     created_at = Column(DateTime)
-    username = Column(String(80), unique=True, nullable=False)
+    updated_at = Column(DateTime)
     gender = Column(String(120), nullable=False)
     age = Column(Integer, nullable=False)
     mobile_no = Column(String(120), unique=True, nullable=False)
     subscription_type = Column(String(60), nullable=False)
+    industry_major = Column(String(50))
+    fav_hobby = Column(String(50))
+    has_child = Column(String(40), default='no')
+    wants_child = Column(String(40), default='yes')
 
     user_id = Column(String(120), ForeignKey('users.id'), nullable=False)
     place_id = Column(String(120), ForeignKey('places.id'))

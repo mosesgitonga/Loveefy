@@ -2,9 +2,10 @@ from flask_jwt_extended import JWTManager
 from flask import Flask
 from dotenv import load_dotenv
 from models.engine.DBStorage import DbStorage
-from views.user_auth_route import auth_bp
-from views.user_profile_route import profile_bp
+from routes.user_auth_route import auth_bp
+from routes.user_profile_route import profile_bp
 from datetime import timedelta
+from flask_cors import CORS
 import os
 
 load_dotenv()
@@ -14,6 +15,7 @@ storage = DbStorage()
 storage.reload()
 
 app = Flask(__name__)
+CORS(app)
 app.config['JWT_SECRET_KEY'] = jwt_secret_key
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=2)
 

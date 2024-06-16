@@ -8,6 +8,7 @@ import bcrypt
 import uuid
 import sys
 import re
+import logging
 
 
 current_file_path = os.path.abspath(__file__)
@@ -38,15 +39,18 @@ class User_auth:
     def register_by_email(self, data):
         password = data.get('password')
         email = data.get('email')
-        if is_valid_email_format(email) is False:
-            return jsonify('invalid email format'), 400
+        username = data.get('username')
+        res = is_valid_email_format(email)
+        if res is False:
+            return jsonify({'error': 'Invalid email format'}), 400
 
         if not password or not email:
             return jsonify({'error': 'Username, password, and email are required'}), 400
         try:
-            # Check if email already exist
+            # Check if email already exists
             if self.storage.get(User, email=email):
                 return jsonify({'error': 'Email already exists'}), 400
+
             # Hash the password
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(10))
 
@@ -55,27 +59,27 @@ class User_auth:
                 id=str(uuid.uuid4()),
                 created_at=self.created_at,
                 email=email,
-                password=hashed_password.decode('utf-8')
+                password=hashed_password.decode('utf-8'),
+                username=username
             )
-            access_token = create_access_token(identity=new_user.id)
 
             if not new_user:
-                return jsonify({'error': 'did not create user'})
+                return jsonify({'error': 'Did not create user'}), 500
+
             # Save the user to the database
             self.storage.new(new_user)
             self.storage.save()
-            print('user has been registered')
-            print(type(new_user))
-            return jsonify({'message' :'user has been registerd'}), 200
+            access_token = create_access_token(identity=new_user.id)
+
+            logging.info('User has been registered')
+            logging.info(type(new_user))
+            return jsonify({'message': 'User has been registered', 'access_token': access_token}), 201
         except Exception as e:
             # Log the error
-            print(f'Error during registration: {e}')
+            logging.error(f'Error during registration: {e}')
             return jsonify({'error': 'An error occurred during registration'}), 500
 
-    def user_login(self, data):
-        email = data['email']
-        password = data['password']
-
+    def user_login(self, email, password):
         try:
             existing_user = self.storage.get(User, email=email)
             # check if user exists in the db

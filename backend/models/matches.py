@@ -7,6 +7,7 @@ class Matches(Base):
     __tablename__ = 'matches'
     id = Column(String(120), primary_key=True)
     created_at = Column(DateTime)
+    updated_at = Column(DateTime)
     user_id1 = Column(String(120), ForeignKey('users.id'), nullable=False)
     user_id2 = Column(String(120), ForeignKey('users.id'), nullable=False)
     status = Column(String(120), nullable=False) # 'matched', 'pending', 'declined'
