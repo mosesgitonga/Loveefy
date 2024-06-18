@@ -16,6 +16,8 @@ storage.reload()
 
 app = Flask(__name__)
 CORS(app)
+CORS(auth_bp)
+CORS(profile_bp)
 app.config['JWT_SECRET_KEY'] = jwt_secret_key
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=2)
 

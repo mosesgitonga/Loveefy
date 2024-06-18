@@ -22,6 +22,9 @@ const Signup = () => {
          
         api.post('/v1/auth/registers', formData)
             .then(response => {
+                if (response.status === 781) {
+                    setErrorMessage('email already exists')
+                }
                 if (response.status === 201) {
                     navigate('/login');
                 }
@@ -29,7 +32,14 @@ const Signup = () => {
             })
             .catch(error => {
                 console.log(error);
-                setErrorMessage('Registration failed. Please try again.');
+                if (error.response?.status === 781) {
+                    setErrorMessage("Couldn't register. Email already exists. Please login")
+                } else if (error.response?.status === 500) {
+                    setErrorMessage('Internal server error. The problem is our servers')
+                }
+                else {
+                    setErrorMessage('Registration failed. Please try again.');
+                }
             });
     }
 

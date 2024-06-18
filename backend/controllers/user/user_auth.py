@@ -49,7 +49,7 @@ class User_auth:
         try:
             # Check if email already exists
             if self.storage.get(User, email=email):
-                return jsonify({'error': 'Email already exists'}), 400
+                return jsonify({'error': 'Email already exists'}), 781
 
             # Hash the password
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(10))
@@ -81,6 +81,7 @@ class User_auth:
 
     def user_login(self, email, password):
         try:
+
             existing_user = self.storage.get(User, email=email)
             # check if user exists in the db
             if existing_user is None:

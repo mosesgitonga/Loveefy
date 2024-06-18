@@ -31,9 +31,9 @@ def register():
         return jsonify({'error': str(e)}), 400
 
 @auth_bp.route('/logins', methods=['POST'], strict_slashes=False)
-def login(email, password):
+def login():
     data = request.get_json() 
     access_token = user_auth.user_login(data.get('email'), data.get('password'))
     if isinstance(access_token, str):
-        return jsonify({"access_token": {access_token}})
+        return jsonify({"access_token": {access_token}}), 200
     return access_token
