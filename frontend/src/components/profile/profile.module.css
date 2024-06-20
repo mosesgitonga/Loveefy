@@ -1,0 +1,60 @@
+.profileWindow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #ff3366;
+    color: white;
+}
+
+.profileContainer {
+    width: 100%;
+    max-width: 500px;
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #ff9999;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px;
+    background-color: #ff3366;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+button:hover {
+    background-color: #ff9999;
+}
+
+.error {
+    color: red;
+    margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+    .profileContainer {
+        max-width: 90%;
+    }
+}

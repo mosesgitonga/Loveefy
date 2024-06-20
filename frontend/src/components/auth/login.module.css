@@ -1,5 +1,9 @@
+.loginWindow {
+    background-color: #ff3366;
+    height: 100vh;
+}
 .loginContainer {
-    background-color: #ffffff;
+    background-color: #ff9999;
     position: relative;
     margin-top: 20px;
     margin: 0 auto;
@@ -13,7 +17,7 @@
 .loginContainer h2 {
     margin-bottom: 20px;
     font-size: 2em;
-    color: #ff3366;
+    color: #ffffff;
 }
 
 .form {
@@ -30,7 +34,7 @@
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
-    color: #ff3366;
+    color: #ffffff;
 }
 
 .formGroup input {

@@ -14,6 +14,7 @@ sys.path.append(project_root)
 
 from models.engine.DBStorage import DbStorage
 from models.place import Place
+from models.user import User
 
 class Place_control:
     def __init__(self):
@@ -28,6 +29,7 @@ class Place_control:
             user_id = get_jwt_identity()
             
             place = self.storage.get(Place, user_id=user_id)
+            current_user = self.storage.get(User, id=user_id)
             if place is not None:
                 return make_response(jsonify({"message": "place already exists"}), 409)
             new_place = Place(
@@ -39,8 +41,11 @@ class Place_control:
                 created_at=datetime.now(),
                 updated_at=datetime.now()
             )
-
+            
             self.storage.new(new_place)
+            self.storage.save()
+            current_user.place_id = new_place.user_id
+            self.storage.new(current_user)
             self.storage.save()
 
             print('place created successfully')

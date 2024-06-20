@@ -52,8 +52,7 @@ nav ul li a {
 
 .authButtons button {
     margin-left: 10px;
-    padding: 10px 20px;
-    border: none;
+    padding: 10px 20px;  
     cursor: pointer;
 }
 
@@ -80,7 +79,7 @@ nav ul li a {
     width: 100%;
     display: flex;
     justify-content: center;
-    transition: color 3.2s;
+    transition: color 6.2s; 
 
 }
 .heroImage {
@@ -94,7 +93,8 @@ nav ul li a {
     border-radius: 50%;
     margin-left: 10%;
     justify-content: flex-end;
-    flex: 1;
+    flex: 1; 
+    border: 34px solid white;
 }
 #hero h2 {
     font-size: 50px;
@@ -113,14 +113,19 @@ main h2 {
 }
 
 .ctaButton {
-    background-color: #ff3366; /* Pink */
-    color: white;
+    background-color: white; /* Pink */
+    color: #ff3366;
     padding: 15px 30px;
     border: none;
     cursor: pointer;
     margin-left: 10px;
     font-size: 18px;
     border-radius: 10px;
+} 
+.ctaButton:hover {
+    border: 1px solid rgb(255, 255, 255);
+    color: white;
+ 
 }
 
 /* Features Section */

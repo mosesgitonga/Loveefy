@@ -25,27 +25,12 @@ def creates_profile():
             return jsonify({"message": "No data provided"}), 400
 
         # Create profile
+
         profile_response = profile.create_profile(profile_data)
-        if profile_response.status_code == 409:
-            # Profile already exists, proceed to create place
-            place_response = place.create_place(profile_data)
-            if place_response.status_code == 409:
-                return jsonify({"message": "place already exists"})
-            if place_response.status_code != 201 or place_response.status_code != 409:
-                return place_response
-            return jsonify({"message": "Profile already exists. Place created successfully"}), 201
-
-        if profile_response.status_code != 201:
-            return profile_response
-
-        # Create place
-        place_response = place.create_place(profile_data)
-        if place_response.status_code == 409:
-            return jsonify({"message": "place already exists"})
         
-
         # If all creations are successful
         return jsonify({"message": "Profile and place created successfully"}), 201
+        
     except Exception as e:
         logger.error(f"Exception: {e}")
         return jsonify({"message": "Internal server error"}), 500

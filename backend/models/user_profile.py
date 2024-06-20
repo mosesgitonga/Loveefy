@@ -18,7 +18,5 @@ class User_profile(Base):
     wants_child = Column(String(40), default='yes')
 
     user_id = Column(String(120), ForeignKey('users.id'), nullable=False)
-    place_id = Column(String(120), ForeignKey('places.id'))
 
     user = relationship("User", uselist=False, backref="users_profile")
-    place = relationship("Place", uselist=False, backref="users_profile")

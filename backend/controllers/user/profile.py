@@ -17,6 +17,7 @@ sys.path.append(project_root)
 
 from models.engine.DBStorage import DbStorage
 from models.user_profile import User_profile
+from models.place import Place
 
 
 class Profile:
@@ -41,16 +42,18 @@ class Profile:
             subscription_type = data.get('subscription_type').lower()
             industry_major = data.get('industry_major', '').lower()
             fav_hobby = data.get('fav_hobby', '')
-            has_child = data.get('has_child', 'no').lower() == 'yes'
-            wants_child = data.get('wants_child', 'no').lower() == 'yes'
-            no_child = data.get('no_child', 'no').lower() == 'yes'
+            has_child = data.get('has_child', 'no').lower()
+            wants_child = data.get('wants_child', 'no').lower()
+            country = data.get('country')
+            region = data.get('region')
+            sub_region = data.get('sub_region')
 
             # Validate age
             if age < 18:
-                return make_response(jsonify({"message": "Kids are not allowed"}), 403)
+                return make_response(jsonify({"message": "Kids are not allowed, go play video games"}), 403)
 
             # Validate subscription and gender types
-            if subscription_type not in ['free', 'gold']:
+            if subscription_type not in ['free', 'gold', 'elite']:
                 return make_response(jsonify({"message": "Unknown subscription type"}), 400)
             if gender not in ['male', 'female']:
                 return make_response(jsonify({"message": "Unknown gender"}), 400)
@@ -65,20 +68,32 @@ class Profile:
                 if existing_profile.mobile_no == mobile_no:
                     return make_response(jsonify({"message": "Mobile number already exists"}), 409)
 
-                new_profile = User_profile(
-                    id=str(uuid.uuid4()),
-                    created_at=datetime.now(),
-                    updated_at=datetime.now(),
-                    gender=gender,
-                    age=age,
-                    mobile_no=mobile_no,
-                    subscription_type=subscription_type,
-                    user_id=user_id,
-                    industry_major=industry_major,
-                    fav_hobby=fav_hobby,
-                    has_child=has_child,
-                    wants_child=wants_child
-                )
+            new_profile = User_profile(
+                id=str(uuid.uuid4()),
+                created_at=datetime.now(),
+                updated_at=datetime.now(),
+                gender=gender,
+                age=age,
+                mobile_no=mobile_no,
+                subscription_type=subscription_type,
+                user_id=user_id,
+                industry_major=industry_major,
+                fav_hobby=fav_hobby,
+                has_child=has_child,
+                wants_child=wants_child
+            )
+
+            new_place = Place(
+                id=str(uuid.uuid4()),
+                country = country,
+                region=region,
+                sub_region=sub_region,
+                created_at=datetime.now(),
+                updated_at=datetime.now()
+            )
+            
+            self.storage.new(new_place)
+            self.storage.save()
 
             self.storage.new(new_profile)
             self.storage.save()

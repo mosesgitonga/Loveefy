@@ -49,35 +49,37 @@ const Login = () => {
     };
 
     return (
-        <div className={styles.loginContainer}>
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit} className={styles.form}>
-                <div className={styles.formGroup}>
-                    <label htmlFor="email">Email</label>
-                    <input type="email"
-                        placeholder="johndoe@example.com"
-                        autoComplete="on"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className={styles.formGroup}>
-                    <label htmlFor="password">Password</label>
-                    <input type="password"
-                        placeholder=""
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <button type="submit">Submit</button>
-                <p><a href="#">Forgot password</a></p>
-                <p>Don't have an account? <a href="/register">Register</a></p>
-                {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
-            </form>
+        <div className={styles.loginWindow}>
+            <div className={styles.loginContainer}>
+                <h2>Login</h2>
+                <form onSubmit={handleSubmit} className={styles.form}>
+                    <div className={styles.formGroup}>
+                        <label htmlFor="email">Email</label>
+                        <input type="email"
+                            placeholder="johndoe@example.com"
+                            autoComplete="on"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <div className={styles.formGroup}>
+                        <label htmlFor="password">Password</label>
+                        <input type="password"
+                            placeholder=""
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+                    <button type="submit">Submit</button>
+                    <p><a href="#">Forgot password</a></p>
+                    <p>Don't have an account? <a href="/register">Register</a></p>
+                    {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
+                </form>
+            </div>
         </div>
     );
 };
