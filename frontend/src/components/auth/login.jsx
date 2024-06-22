@@ -23,8 +23,16 @@ const Login = () => {
         api.post('v1/auth/logins', formData)
             .then(response => {
                 if (response.status === 200) {
-                    localStorage.setItem('access_token', response.data.access_token);
-                    navigate('/profile/setup');
+                    const { access_token, place_id, preference_id } = response.data;
+                    localStorage.setItem('access_token', access_token);
+                    console.log(preference_id, place_id)
+                    if (place_id && preference_id) {
+                        navigate('/homepage');
+                    } else if (place_id && !preference_id) {
+                        navigate('/preference');
+                    } else {
+                        navigate('/profile/setup'); // Default redirection if neither is set
+                    }
                 } else {
                     setErrorMessage(response.data.error || 'Login failed. Please try again.');
                 }

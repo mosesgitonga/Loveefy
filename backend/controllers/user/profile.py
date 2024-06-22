@@ -1,5 +1,5 @@
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from flask import jsonify, request, make_response
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import jsonify, make_response
 from datetime import datetime
 import os
 import sys
@@ -18,7 +18,7 @@ sys.path.append(project_root)
 from models.engine.DBStorage import DbStorage
 from models.user_profile import User_profile
 from models.place import Place
-
+from models.user import User
 
 class Profile:
     def __init__(self):
@@ -28,13 +28,12 @@ class Profile:
     def create_profile(self, data):
         try:
             user_id = get_jwt_identity()
-        
+
             # Retrieve and validate data
             required_fields = ['gender', 'age', 'mobile_no', 'subscription_type']
             for field in required_fields:
                 if not data.get(field):
                     return make_response(jsonify({"message": f"Missing required field: {field}"}), 400)
-
 
             gender = data.get('gender').lower()
             age = int(data.get('age'))
@@ -59,15 +58,28 @@ class Profile:
                 return make_response(jsonify({"message": "Unknown gender"}), 400)
 
             # Check if profile already exists
-            print(mobile_no, user_id)
             existing_profile = self.storage.check_existing_profile(user_id, mobile_no=mobile_no)
-            print(existing_profile)
+            existing_user = self.storage.get(User, id=user_id)
             if existing_profile:
                 if existing_profile.user_id == user_id:
                     return make_response(jsonify({"message": "User already has a profile"}), 409)
                 if existing_profile.mobile_no == mobile_no:
                     return make_response(jsonify({"message": "Mobile number already exists"}), 409)
 
+            # Create a new place if necessary
+            new_place = Place(
+                id=str(uuid.uuid4()),
+                country=country,
+                region=region,
+                sub_region=sub_region,
+                created_at=datetime.now(),
+                updated_at=datetime.now()
+            )
+
+            # Update user's place_id
+            existing_user.place_id = new_place.id
+
+            # Create a new user profile
             new_profile = User_profile(
                 id=str(uuid.uuid4()),
                 created_at=datetime.now(),
@@ -80,28 +92,22 @@ class Profile:
                 industry_major=industry_major,
                 fav_hobby=fav_hobby,
                 has_child=has_child,
-                wants_child=wants_child
             )
 
-            new_place = Place(
-                id=str(uuid.uuid4()),
-                country = country,
-                region=region,
-                sub_region=sub_region,
-                created_at=datetime.now(),
-                updated_at=datetime.now()
-            )
-            
+            # Use storage methods to handle session and transactions
             self.storage.new(new_place)
-            self.storage.save()
-
+            self.storage.new(existing_user)
             self.storage.new(new_profile)
             self.storage.save()
+
             return jsonify({"message": "Profile created successfully"}), 201
+
         except MySQLdb._exceptions.IntegrityError as ie:
+            self.storage.rollback()
             logger.error(f"IntegrityError: {ie}")
             return jsonify({"message": "Duplicate Entry"}), 409
         except Exception as e:
+            #self.storage.rollback()
             logger.error(f"Exception: {e}")
             return jsonify({"message": "Internal server error"}), 500
 

@@ -49,7 +49,7 @@ class User_auth:
         try:
             # Check if email already exists
             if self.storage.get(User, email=email):
-                return jsonify({'error': 'Email already exists'}), 781
+                return jsonify({'error': 'Email already exists', 'code': 600}), 409
 
             # Hash the password
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(10))
@@ -96,7 +96,12 @@ class User_auth:
             # create access token
             access_token = create_access_token(identity=existing_user.id)
             if isinstance(access_token, str):
-                return jsonify({"access_token": access_token}), 200
+                print(existing_user.place_id)
+                return jsonify({
+                    "access_token": access_token,
+                    "place_id": existing_user.place_id, 
+                    "preference_id": existing_user.preference_id}), 200
+                    
             return access_token
         except Exception as e:
             print(e)

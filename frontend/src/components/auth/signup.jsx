@@ -22,7 +22,7 @@ const Signup = () => {
          
         api.post('/v1/auth/registers', formData)
             .then(response => {
-                if (response.status === 781) {
+                if (response.status === 409 && response.data.code === 600) {
                     setErrorMessage('email already exists')
                 }
                 if (response.status === 201) {
@@ -32,7 +32,7 @@ const Signup = () => {
             })
             .catch(error => {
                 console.log(error);
-                if (error.response?.status === 781) {
+                if (error.response?.data.code === 600) {
                     setErrorMessage("Couldn't register. Email already exists. Please login")
                 } else if (error.response?.status === 500) {
                     setErrorMessage('Internal server error. The problem is our servers')

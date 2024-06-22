@@ -25,8 +25,12 @@ body {
 
 .headContainer h1 {
     margin: 0;
-    font-size: 35px;
+    font-size: 50px;
     margin-left: 20px;
+    background-image: linear-gradient(to right,  #9e9292,#a59292, rgb(218, 205, 205), #fff, #ffffff, #ffffff );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 nav ul {

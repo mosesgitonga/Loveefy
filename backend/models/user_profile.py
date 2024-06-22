@@ -15,7 +15,6 @@ class User_profile(Base):
     industry_major = Column(String(50))
     fav_hobby = Column(String(50))
     has_child = Column(String(40), default='no')
-    wants_child = Column(String(40), default='yes')
 
     user_id = Column(String(120), ForeignKey('users.id'), nullable=False)
 

@@ -14,3 +14,6 @@ class User(Base):
 
     place_id = Column(String(120), ForeignKey('places.id'), nullable=True)
     place = relationship("Place", uselist=False, back_populates="user")
+
+    preference_id = Column(String(60), ForeignKey('preferences.id'), nullable=True)
+    preference = relationship("Preference", uselist=False, back_populates="user")
