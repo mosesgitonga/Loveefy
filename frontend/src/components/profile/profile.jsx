@@ -1,14 +1,19 @@
+// Profile.jsx
+
 import React from "react";
 import styles from './profile.module.css';
 import * as yup from 'yup';
-import { useFormik, validateYupSchema } from 'formik';
-import api from '../api/axios.jsx'
+import { useFormik } from 'formik';
+import api from '../api/axios'; 
+import { useNavigate } from 'react-router-dom';
 
+// Validation schema using Yup
 const validationSchema = yup.object({
-    age: yup.number().required("Age is required").min(18, "18 and above - Kids are not allowed, Go play video games"),
+    gender: yup.string().required("Gender is required"),
+    age: yup.number().required("Age is required").min(18, "You must be at least 18 years old"),
     mobile_no: yup.string()
         .required("Mobile number is required")
-        .matches(/^[0-9]{10}$/, "Mobile number must be 10 digits"),
+        .matches(/^[0-9]{10}$/, "Mobile number must be exactly 10 digits"),
     subscription_type: yup.string().required("Subscription type is required"),
     industry_major: yup.string().required("Industry major is required"),
     fav_hobby: yup.string().required("Favorite hobby is required"),
@@ -20,6 +25,8 @@ const validationSchema = yup.object({
 });
 
 const Profile = () => {
+    const navigate = useNavigate();
+
     const formik = useFormik({
         initialValues: {
             gender: '',
@@ -37,29 +44,28 @@ const Profile = () => {
         validationSchema: validationSchema,
         onSubmit: async values => {
             console.log(JSON.stringify(values, null, 2));
-                try {
-                    const response = await api.post('/v1/profiles', values)  
+            try {
+                const response = await api.post('/v1/profiles', values);
 
-                    if (response === 201) {
-                        console.log('profile created successfully')
-
-                    } else {
-                        console.log('unexpected status code')
-                    }
-                } catch(error) {
-                    console.log('Error creating profile')
-                    if (error.response) {
-                        console.log(error.response.data)
-                        console.log(error.response.status)
-                        console.log(error.response.headers)
-                    }
-                    else if (error.request) {
-                        console.log('Request data:', error.request)
-                    } else {
-                        console.log(error.message)
-                    }
-                    console.log('Error config', error.config)
+                if (response.status === 201) {
+                    console.log('Profile created successfully');
+                    navigate('/preference');
+                } else {
+                    console.log('Unexpected status code:', response.status);
                 }
+            } catch (error) {
+                console.error('Error creating profile:', error);
+                if (error.response) {
+                    console.log('Error response data:', error.response.data);
+                    console.log('Error response status:', error.response.status);
+                    console.log('Error response headers:', error.response.headers);
+                } else if (error.request) {
+                    console.log('Request data:', error.request);
+                } else {
+                    console.log('Error message:', error.message);
+                }
+                console.log('Error config:', error.config);
+            }
         }
     });
 
@@ -82,6 +88,7 @@ const Profile = () => {
                             <option value="male" label="Male" />
                             <option value="female" label="Female" />
                         </select>
+                        {formik.errors.gender && <div className={styles.error}>{formik.errors.gender}</div>}
                     </label>
                     <label htmlFor="age">
                         Age:
@@ -95,7 +102,7 @@ const Profile = () => {
                         {formik.errors.age && <div className={styles.error}>{formik.errors.age}</div>}
                     </label>
                     <label htmlFor="mobile_no">
-                        Mobile Number(will not be shared):
+                        Mobile Number (will not be shared):
                         <input
                             id="mobile_no"
                             type="text"
@@ -109,15 +116,14 @@ const Profile = () => {
                         Subscription Type:
                         <select
                             id="subscription_type"
-                            type="text"
                             name="subscription_type"
                             value={formik.values.subscription_type}
                             onChange={formik.handleChange}
                         >
-                            <option value="">Select subscription type</option>
-                            <option value="free">Free</option>
-                            <option value="gold">Gold</option>
-                            <option value="elite">Elite</option>
+                            <option value="" label="Select subscription type" />
+                            <option value="free" label="Free" />
+                            <option value="gold" label="Gold" />
+                            <option value="elite" label="Elite" />
                         </select>
                         {formik.errors.subscription_type && <div className={styles.error}>{formik.errors.subscription_type}</div>}
                     </label>
@@ -130,23 +136,22 @@ const Profile = () => {
                             onChange={formik.handleChange}
                             className={styles.industryMajor}
                         >
-                            <option value="" label="Which industry are you in?" />
+                            <option value="" label="Select industry major" />
                             <option value="health" label="Health" />
                             <option value="it" label="IT" />
                             <option value="finance" label="Finance" />
                             <option value="law" label="Law" />
-                            <option value="engineering" label="Engineering"/>
+                            <option value="engineering" label="Engineering" />
                             <option value="education" label="Education" />
-                            <option value="scientific_research" label="Scientific research" />
+                            <option value="scientific_research" label="Scientific Research" />
                             <option value="manufacturing" label="Manufacturing" />
                             <option value="retail" label="Retail" />
                             <option value="transportation" label="Transportation" />
-                            <option value="agriculture" label="Agriculture"/>
+                            <option value="agriculture" label="Agriculture" />
                             <option value="hospitality" label="Hospitality" />
                             <option value="construction" label="Construction" />
                             <option value="real_estate" label="Real Estate" />
-                            <option value="security" label="security"/>
-
+                            <option value="security" label="Security" />
                             <option value="others" label="Others" />
                         </select>
                         {formik.errors.industry_major && <div className={styles.error}>{formik.errors.industry_major}</div>}
@@ -172,8 +177,8 @@ const Profile = () => {
                             className={styles.has_child}
                         >
                             <option value="" label="Do you have a child?" />
-                            <option value="no" label="No, i don't have" />
-                            <option value="yes" label="Yes i have" />
+                            <option value="no" label="No, I don't have" />
+                            <option value="yes" label="Yes, I have" />
                         </select>
                         {formik.errors.has_child && <div className={styles.error}>{formik.errors.has_child}</div>}
                     </label>
@@ -188,8 +193,8 @@ const Profile = () => {
                         >
                             <option value="" label="Do you want to have a child?" />
                             <option value="no" label="No, I don't" />
-                            <option value="yes" label="Yes I want to" />
-                            <option value="soom" label="Not now, Very soon" />
+                            <option value="yes" label="Yes, I want to" />
+                            <option value="soon" label="Not now, but soon" />
                         </select>
                         {formik.errors.wants_child && <div className={styles.error}>{formik.errors.wants_child}</div>}
                     </label>

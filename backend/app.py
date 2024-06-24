@@ -5,6 +5,7 @@ from models.engine.DBStorage import DbStorage
 from routes.user_auth_route import auth_bp
 from routes.user_profile_route import profile_bp
 from routes.preference_route import preference_bp
+from routes.upload_route import upload_bp
 from datetime import timedelta
 from flask_cors import CORS
 import os
@@ -27,6 +28,7 @@ jwt = JWTManager(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(preference_bp)
+app.register_blueprint(upload_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)

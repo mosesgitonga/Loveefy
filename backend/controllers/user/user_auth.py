@@ -101,7 +101,6 @@ class User_auth:
                     "access_token": access_token,
                     "place_id": existing_user.place_id, 
                     "preference_id": existing_user.preference_id}), 200
-                    
             return access_token
         except Exception as e:
             print(e)

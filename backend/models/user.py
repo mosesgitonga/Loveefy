@@ -5,6 +5,7 @@ from .base_model import Base
 
 class User(Base):
     __tablename__ = 'users'
+
     id = Column(String(120), primary_key=True, index=True)
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
@@ -17,3 +18,5 @@ class User(Base):
 
     preference_id = Column(String(60), ForeignKey('preferences.id'), nullable=True)
     preference = relationship("Preference", uselist=False, back_populates="user")
+
+    uploads = relationship("Upload", back_populates="user", cascade="all, delete-orphan")

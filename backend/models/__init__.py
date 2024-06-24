@@ -8,13 +8,12 @@ from models.payment import Payment
 from models.messages import Messages
 from models.matches import Matches
 from models.report import Reports
-
+from models.uploads import Upload
 
 
 __all__ = [
     'Users', 'User_profile', 'db',
      'Base', 'Place', 'Payment',
-      'Messages', 'Matches', 'Reports'
-      
+      'Messages', 'Matches', 'Reports', 'Upload'      
     ]
 

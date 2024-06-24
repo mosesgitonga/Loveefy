@@ -56,7 +56,7 @@ const PreferenceForm = () => {
               if (response.status === 201) {
                 console.log('Profile created successfully');
                 setSubmitting(false);
-                navigate('/homepage');
+                navigate('/upload');
               } else {
                 console.log('Unexpected status code:', response.status);
                 setSubmitting(false);
@@ -88,7 +88,7 @@ const PreferenceForm = () => {
                     type="range"
                     name="minAge"
                     min="18"
-                    max="180"
+                    max="100"
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.minAge}
@@ -103,7 +103,7 @@ const PreferenceForm = () => {
                     type="range"
                     name="maxAge"
                     min="18"
-                    max="180"
+                    max="100"
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     value={formik.values.maxAge}
