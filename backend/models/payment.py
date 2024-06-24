@@ -11,5 +11,5 @@ class Payment(Base):
     status = Column(String(15), nullable=False)
     method = Column(String(30), nullable=False)
     
-    user_id = Column(String(36), ForeignKey('users.id'), nullable=False, index=true)
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False, index=True)
     user = relationship('User', backref='payments')

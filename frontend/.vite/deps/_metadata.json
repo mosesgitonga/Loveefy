@@ -1,8 +1,70 @@
 {
-  "hash": "27f10d29",
+  "hash": "3c545e59",
   "configHash": "21f50e07",
-  "lockfileHash": "5a64b278",
-  "browserHash": "3e4e8b36",
-  "optimized": {},
-  "chunks": {}
+  "lockfileHash": "d46e762f",
+  "browserHash": "00efb72f",
+  "optimized": {
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "96ffb018",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "18f106ae",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.js",
+      "file": "react-router-dom.js",
+      "fileHash": "2cb1d8f3",
+      "needsInterop": false
+    },
+    "yup": {
+      "src": "../../node_modules/yup/index.esm.js",
+      "file": "yup.js",
+      "fileHash": "ca16216f",
+      "needsInterop": false
+    },
+    "formik": {
+      "src": "../../node_modules/formik/dist/formik.esm.js",
+      "file": "formik.js",
+      "fileHash": "0b348a6e",
+      "needsInterop": false
+    },
+    "react-select": {
+      "src": "../../node_modules/react-select/dist/react-select.esm.js",
+      "file": "react-select.js",
+      "fileHash": "a4f067e1",
+      "needsInterop": false
+    },
+    "i18n-iso-countries": {
+      "src": "../../node_modules/i18n-iso-countries/index.js",
+      "file": "i18n-iso-countries.js",
+      "fileHash": "4bf0539f",
+      "needsInterop": true
+    },
+    "axios": {
+      "src": "../../node_modules/axios/index.js",
+      "file": "axios.js",
+      "fileHash": "9166fcd2",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-TNTPHDQH": {
+      "file": "chunk-TNTPHDQH.js"
+    },
+    "chunk-SG246W2W": {
+      "file": "chunk-SG246W2W.js"
+    },
+    "chunk-32E4H3EV": {
+      "file": "chunk-32E4H3EV.js"
+    },
+    "chunk-G3PMV62Z": {
+      "file": "chunk-G3PMV62Z.js"
+    }
+  }
 }

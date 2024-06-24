@@ -10,7 +10,7 @@ class User_profile(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     gender = Column(String(20), nullable=False)
     age = Column(Integer, nullable=False)
-    mobile_no = Column(String(16), unique=True, nullable=False)
+    mobile_no = Column(String(16), unique=True, nullable=False, index=True)
     subscription_type = Column(String(15), nullable=False)
     industry_major = Column(String(25))
     fav_hobby = Column(String(20))

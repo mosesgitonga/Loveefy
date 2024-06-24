@@ -1,13 +1,14 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from flask import Flask
-from dotenv import load_dotenv
+from sqlalchemy.orm.exc import NoResultFound
 from models.base_model import Base
 from models.user import User
 from models.user_profile import User_profile
+from dotenv import load_dotenv
 import os
 
 load_dotenv()
+
 
 class DbStorage:
     __engine = None
@@ -15,60 +16,90 @@ class DbStorage:
 
     def __init__(self):
         self.db_uri = os.getenv('SQLALCHEMY_DATABASE_URI')
-        self.__engine = create_engine(self.db_uri)
-        self.sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        self.Session = scoped_session(self.sess_factory)
-        self.__session = self.Session
+        self.__engine = create_engine(
+            self.db_uri,
+            pool_size=20,
+            max_overflow=30,
+            pool_timeout=25,
+            pool_recycle=3600
+        )
+        self.Session = scoped_session(sessionmaker(bind=self.__engine, expire_on_commit=False))
+        self.__session = self.Session()
 
     def reload(self):
-        """reloads data from database"""
+        """Reloads data from the database and refreshes session."""
         try:
             Base.metadata.create_all(self.__engine)
-            sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-            Session = scoped_session(sess_factory)
-            if Session is None:
-                print('Did not create session')
-                return
-            print('session created successfully')
-            self.__session = Session
+            self.__session = self.Session()
+            print('Database reloaded successfully')
         except Exception as e:
-            print(f'An Error occured while reloading {e}')
+            print(f'An Error occurred while reloading: {e}')
 
     def new(self, obj):
-        # add obj to current db session
+        """Adds a new object to the current session."""
         self.__session.add(obj)
 
     def save(self):
-        'commits changes to db'
+        """Commits changes to the database."""
         self.__session.commit()
 
     def delete(self, obj=None):
-        'delete the current db session obj'
-        self.__session.delete(obj)
+        """Deletes the specified object from the database."""
+        if obj:
+            self.__session.delete(obj)
 
     def get(self, cls=None, **kwargs):
-        'it returns an object based on the class and  key word argument'
+        """Fetches an object from the database based on the provided class and filters."""
         if not cls:
             return None
 
-        if 'username' in kwargs:
-            return self.__session.query(cls).filter_by(username=kwargs['username']).first()
-        if 'email' in kwargs:
-            return self.__session.query(cls).filter_by(email=kwargs['email']).first()
-        if 'mobile_no' in kwargs:
-            return self.__session.query(cls).filter_by(mobile_no=kwargs['mobile_no']).first()
-        if 'id' in kwargs:
-            return self.__session.query(cls).filter_by(id=kwargs['id']).first()
-        if 'user_id' in kwargs:
-            return self.__session.query(cls).filter_by(user_id=kwargs['user_id']).first()
-
+        try:
+            filters = []
+            for key, value in kwargs.items():
+                attr = getattr(cls, key, None)
+                if attr is not None:
+                    filters.append(attr == value)
+            if filters:
+                return self.__session.query(cls).filter(*filters).first()
+            else:
+                raise ValueError('Invalid arguments provided for get method')
+        except NoResultFound:
+            return None
+        except ValueError as ve:
+            print(ve)
+            return None
+        except Exception as e:
+            print(f'An Error occurred while fetching {cls.__name__} object: {e}')
+            return None
 
     def check_existing_profile(self, user_id, username=None, mobile_no=None):
-        return self.__session.query(User_profile).filter(
-            (User_profile.user_id == user_id) | 
-            (User_profile.mobile_no == mobile_no)
-        ).first()
+        """Checks if a profile with the given criteria exists."""
+        try:
+            query = self.__session.query(User_profile).filter(
+                (User_profile.user_id == user_id) |
+                (User_profile.mobile_no == mobile_no)
+            )
+            if username:
+                query = query.filter(User_profile.username == username)
+
+            return query.first()
+        except Exception as e:
+            print(f'An error occurred while checking profile: {e}')
+            return None
+
+    def close(self):
+        """Closes the session and disposes the engine."""
+        self.__session.close()
+        self.__engine.dispose()
 
 if __name__ == "__main__":
     storage = DbStorage()
-    storage
+    # Example usage:
+    user = storage.get(User, username='john_doe')
+    if user:
+        print(f'User found: {user.username}')
+    else:
+        print('User not found or error occurred.')
+
+    # Remember to close the session and dispose the engine when done
+    storage.close()
