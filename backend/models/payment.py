@@ -5,11 +5,11 @@ from .base_model import Base
 
 class Payment(Base):
     __tablename__ = 'payments'
-    id = Column(String(120), primary_key=True)
+    id = Column(String(36), primary_key=True)
     amount = Column(Integer, nullable=False)
-    time = Column(String(79), nullable=False)
-    status = Column(String(50), nullable=False)
-    method = Column(String(67), nullable=False)
+    time = Column(String(30), nullable=False)
+    status = Column(String(15), nullable=False)
+    method = Column(String(30), nullable=False)
     
-    user_id = Column(String(120), ForeignKey('users.id'))
+    user_id = Column(String(36), ForeignKey('users.id'), nullable=False, index=true)
     user = relationship('User', backref='payments')
