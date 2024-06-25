@@ -8,7 +8,7 @@ class Upload(Base):
 
     id = Column(String(36), primary_key=True)
     user_id = Column(String(36), ForeignKey('users.id'), nullable=False, index=True)
-    image_path = Column(String(200), unique=True, nullable=False)
+    image_path = Column(String(200), unique=True, nullable=False, index=True)
     created_at = Column(DateTime, nullable=False, default=func.now())
     is_primary = Column(Boolean, default=False)
     file_size = Column(String(12), nullable=True)

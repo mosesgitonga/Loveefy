@@ -12,7 +12,7 @@ class User(Base):
     password = Column(String(150), nullable=False)
     username = Column(String(80), unique=True, nullable=False, index=True)
 
-    place_id = Column(String(36), ForeignKey('places.id'), nullable=False, index=True)
+    place_id = Column(String(36), ForeignKey('places.id'), index=True)
     place = relationship("Place", back_populates="user", uselist=False)
 
     preference_id = Column(String(36), ForeignKey('preferences.id'), nullable=True, index=True)

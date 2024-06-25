@@ -72,6 +72,57 @@ class DbStorage:
             print(f'An Error occurred while fetching {cls.__name__} object: {e}')
             return None
 
+    def get_all(self, cls=None, **kwargs):
+        """Fetches all objects from the database based on the provided class and filters.
+            Return -> returns all objects except the objects containing the filters
+        """
+        if not cls:
+            return None
+
+        try:
+            batch_size = 50
+            offset = 0
+            all_profiles = []
+            
+            filters = []
+
+            # Prepare filters
+            for key, value in kwargs.items():
+                attr = getattr(cls, key, None)
+                if attr is not None:
+                    if isinstance(value, list):
+                        filters.append(attr.notin_(value))
+                    else:
+                        filters.append(attr != value)
+
+            # Fetch profiles in batches
+            if filters:
+                while True:
+                    profiles_batch = self.__session.query(cls) \
+                        .filter(*filters) \
+                        .limit(batch_size) \
+                        .offset(offset) \
+                        .all()
+
+                    if not profiles_batch:
+                        break
+
+                    all_profiles.extend(profiles_batch)
+                    offset += batch_size
+
+            else:
+                raise ValueError('Invalid arguments provided for get_all method')
+
+            return all_profiles
+
+        except ValueError as ve:
+            print(ve)
+            return None
+        except Exception as e:
+            print(f'An Error occurred while fetching {cls.__name__} objects: {e}')
+            return None
+    
+
     def check_existing_profile(self, user_id, username=None, mobile_no=None):
         """Checks if a profile with the given criteria exists."""
         try:
