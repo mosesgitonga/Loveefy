@@ -145,12 +145,10 @@ class DbStorage:
 
 if __name__ == "__main__":
     storage = DbStorage()
-    # Example usage:
     user = storage.get(User, username='john_doe')
     if user:
         print(f'User found: {user.username}')
     else:
         print('User not found or error occurred.')
 
-    # Remember to close the session and dispose the engine when done
     storage.close()

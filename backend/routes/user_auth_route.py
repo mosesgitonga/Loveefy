@@ -12,9 +12,6 @@ user_auth = User_auth()
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/v1/auth')
 
-@auth_bp.route('/registers', methods=['GET'], strict_slashes=False)
-def register_form():
-    return render_template('signup.html')
     
 @auth_bp.route('/registers/', methods=['POST'], strict_slashes=False)
 def register():
