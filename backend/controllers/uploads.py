@@ -71,13 +71,12 @@ class UploadHandler():
                 thumbnail_filename = str(uuid.uuid4()) + ".webp"
                 thumbnail_path = os.path.join(user_dir, thumbnail_filename)
 
-                # Create and save the thumbnail
                 self.create_thumbnail(temp_path, thumbnail_path, size=(150, 150), quality=85)
 
                 # Calculate thumbnail size
                 thumbnail_size_in_mb = os.path.getsize(thumbnail_path) / (1024 * 1024)
 
-                # Remove the temporary file
+                # Removing the temporary file
                 os.remove(temp_path)
 
                 # Check if the user's directory is empty

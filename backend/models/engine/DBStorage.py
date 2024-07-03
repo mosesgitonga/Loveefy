@@ -5,6 +5,7 @@ from models.base_model import Base
 from models.user import User
 from models.user_profile import User_profile
 from dotenv import load_dotenv
+from contextlib import contextmanager
 import os
 
 load_dotenv()
@@ -72,12 +73,15 @@ class DbStorage:
             print(f'An Error occurred while fetching {cls.__name__} object: {e}')
             return None
 
-    def get_all(self, cls=None, **kwargs):
+    def get_all(self, cls, **kwargs):
         """Fetches all objects from the database based on the provided class and filters.
             Return -> returns all objects except the objects containing the filters
         """
         if not cls:
+            print('class not provided')
             return None
+
+        print('class has been provided')
 
         try:
             batch_size = 50
@@ -89,30 +93,27 @@ class DbStorage:
             # Prepare filters
             for key, value in kwargs.items():
                 attr = getattr(cls, key, None)
+                print(key, value)
                 if attr is not None:
-                    if isinstance(value, list):
-                        filters.append(attr.notin_(value))
-                    else:
-                        filters.append(attr != value)
+                    filters.append(attr == value)
 
             # Fetch profiles in batches
-            if filters:
-                while True:
-                    profiles_batch = self.__session.query(cls) \
-                        .filter(*filters) \
-                        .limit(batch_size) \
-                        .offset(offset) \
-                        .all()
+            
+            while True:
+                profiles_batch = self.__session.query(cls) \
+                    .filter(*filters) \
+                    .limit(batch_size) \
+                    .offset(offset) \
+                    .all()
+                print(profiles_batch)
+                if not profiles_batch:
+                    break
 
-                    if not profiles_batch:
-                        break
-
-                    all_profiles.extend(profiles_batch)
-                    offset += batch_size
+                all_profiles.extend(profiles_batch)
+                offset += batch_size
 
             else:
                 raise ValueError('Invalid arguments provided for get_all method')
-
             return all_profiles
 
         except ValueError as ve:
@@ -121,7 +122,15 @@ class DbStorage:
         except Exception as e:
             print(f'An Error occurred while fetching {cls.__name__} objects: {e}')
             return None
-    
+
+
+    def get_multiple(self, cls, ids):
+        """Fetch multiple records by their IDs."""
+        try:
+            return self.__session.query(cls).filter(cls.id.in_(ids)).all()
+        except Exception as e:
+            print(e)
+            return []
 
     def check_existing_profile(self, user_id, username=None, mobile_no=None):
         """Checks if a profile with the given criteria exists."""
@@ -138,6 +147,17 @@ class DbStorage:
             print(f'An error occurred while checking profile: {e}')
             return None
 
+    @contextmanager
+    def get_session(self):
+        session = self.__Session()
+        try:
+            yield session
+            session.commit()
+        except Exception:
+            session.rollback()
+            raise
+        finally:
+            session.close()
     def close(self):
         """Closes the session and disposes the engine."""
         self.__session.close()
