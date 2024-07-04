@@ -7,6 +7,7 @@ import Login from './components/auth/login';
 import Profile from './components/profile/profile';
 import PreferenceForm from './components/preferences/preferences';
 import Upload from './components/uploads/Upload_pic';
+import Discovery from './components/discovery/discoveryPage';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -18,6 +19,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path='/profile/setup' element={<Profile />} />
         <Route path='/preference' element={<PreferenceForm />} />
         <Route path='/upload' element={<Upload />} />
+        <Route path='/discovery' element={<Discovery />} />
       </Routes>
     </Router>
   </React.StrictMode>,

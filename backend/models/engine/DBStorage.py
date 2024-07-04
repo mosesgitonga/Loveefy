@@ -1,20 +1,17 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm.exc import NoResultFound
-from models.base_model import Base
-from models.user import User
-from models.user_profile import User_profile
-from dotenv import load_dotenv
 from contextlib import contextmanager
+from dotenv import load_dotenv
 import os
+import logging
+from models.base_model import Base
+from models.user_profile import User_profile
 
+logging.basicConfig(level=logging.INFO)
 load_dotenv()
 
-
 class DbStorage:
-    __engine = None
-    __session = None
-
     def __init__(self):
         self.db_uri = os.getenv('SQLALCHEMY_DATABASE_URI')
         self.__engine = create_engine(
@@ -25,117 +22,94 @@ class DbStorage:
             pool_recycle=3600
         )
         self.Session = scoped_session(sessionmaker(bind=self.__engine, expire_on_commit=False))
-        self.__session = self.Session()
+
+    @contextmanager
+    def get_session(self):
+        session = self.Session()
+        try:
+            yield session
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            logging.error(f"Session rollback because of: {e}")
+            raise
+        finally:
+            session.close()
 
     def reload(self):
-        """Reloads data from the database and refreshes session."""
         try:
             Base.metadata.create_all(self.__engine)
-            self.__session = self.Session()
-            print('Database reloaded successfully')
+            logging.info('Database reloaded successfully')
         except Exception as e:
-            print(f'An Error occurred while reloading: {e}')
+            logging.error(f'An error occurred while reloading: {e}')
 
     def new(self, obj):
-        """Adds a new object to the current session."""
-        self.__session.add(obj)
+        try:
+            self.Session.add(obj)
+        except Exception as e:
+            logging.error(f'An error occurred while adding new object: {e}')
 
     def save(self):
-        """Commits changes to the database."""
-        self.__session.commit()
+        try:
+            self.Session.commit()
+        except Exception as e:
+            logging.error(f'An error occurred while saving the session: {e}')
 
-    def delete(self, obj=None):
-        """Deletes the specified object from the database."""
-        if obj:
-            self.__session.delete(obj)
+    def delete(self, obj=None): 
+            try:
+                with self.get_session() as session:
+                    session.delete(obj)
+                    logging.info(f'{obj.__class__.__name__} deleted: {obj}')
+            except Exception as e:
+                logging.error(f'An error occurred while deleting object: {e}')
 
     def get(self, cls=None, **kwargs):
-        """Fetches an object from the database based on the provided class and filters."""
-        if not cls:
+        if not cls: 
             return None
-
         try:
-            filters = []
-            for key, value in kwargs.items():
-                attr = getattr(cls, key, None)
-                if attr is not None:
-                    filters.append(attr == value)
-            if filters:
-                return self.__session.query(cls).filter(*filters).first()
-            else:
-                raise ValueError('Invalid arguments provided for get method')
+            with self.get_session() as session:
+                filters = [getattr(cls, key) == value for key, value in kwargs.items()]
+                result = session.query(cls).filter(*filters).first()
+                logging.info(f'Fetched {cls.__name__}: {result}')
+                return result
         except NoResultFound:
-            return None
-        except ValueError as ve:
-            print(ve)
+            logging.info(f'No result found for {cls.__name__} with filters: {kwargs}')
             return None
         except Exception as e:
-            print(f'An Error occurred while fetching {cls.__name__} object: {e}')
+            logging.error(f'An error occurred while fetching {cls.__name__} object: {e}')
             return None
 
     def get_all(self, cls, **kwargs):
-        """Fetches all objects from the database based on the provided class and filters.
-            Return -> returns all objects except the objects containing the filters
-        """
+        """Fetches all objects from the database based on the provided class and filters."""
         if not cls:
-            print('class not provided')
+            logging.error('Class not provided')
             return None
-
-        print('class has been provided')
 
         try:
-            batch_size = 50
-            offset = 0
-            all_profiles = []
-            
-            filters = []
-
-            # Prepare filters
-            for key, value in kwargs.items():
-                attr = getattr(cls, key, None)
-                print(key, value)
-                if attr is not None:
-                    filters.append(attr == value)
-
-            # Fetch profiles in batches
-            
-            while True:
-                profiles_batch = self.__session.query(cls) \
-                    .filter(*filters) \
-                    .limit(batch_size) \
-                    .offset(offset) \
-                    .all()
-                print(profiles_batch)
-                if not profiles_batch:
-                    break
-
-                all_profiles.extend(profiles_batch)
-                offset += batch_size
-
-            else:
-                raise ValueError('Invalid arguments provided for get_all method')
-            return all_profiles
-
-        except ValueError as ve:
-            print(ve)
-            return None
+            with self.get_session() as session:
+                filters = [getattr(cls, key) == value for key, value in kwargs.items()]
+                result = session.query(cls).filter(*filters).all()
+                logging.info(f'Fetched all {cls.__name__} objects with filters: {kwargs}')
+                logging.info(f'result {result}')
+                return result
         except Exception as e:
-            print(f'An Error occurred while fetching {cls.__name__} objects: {e}')
+            logging.error(f'An error occurred while fetching {cls.__name__} objects: {e}')
             return None
-
 
     def get_multiple(self, cls, ids):
-        """Fetch multiple records by their IDs."""
         try:
-            return self.__session.query(cls).filter(cls.id.in_(ids)).all()
+            with self.get_session() as session:
+                result = session.query(cls).filter(cls.id.in_(ids)).all()
+                logging.info(f'Fetched multiple {cls.__name__} objects with IDs: {ids}')
+                return result
         except Exception as e:
-            print(e)
+            logging.error(f'An error occurred while fetching multiple {cls.__name__} objects: {e}')
             return []
-
+        
     def check_existing_profile(self, user_id, username=None, mobile_no=None):
         """Checks if a profile with the given criteria exists."""
         try:
-            query = self.__session.query(User_profile).filter(
+            query = self.Session.query(User_profile).filter(
                 (User_profile.user_id == user_id) |
                 (User_profile.mobile_no == mobile_no)
             )
@@ -147,28 +121,6 @@ class DbStorage:
             print(f'An error occurred while checking profile: {e}')
             return None
 
-    @contextmanager
-    def get_session(self):
-        session = self.__Session()
-        try:
-            yield session
-            session.commit()
-        except Exception:
-            session.rollback()
-            raise
-        finally:
-            session.close()
     def close(self):
-        """Closes the session and disposes the engine."""
-        self.__session.close()
+        self.Session.remove()
         self.__engine.dispose()
-
-if __name__ == "__main__":
-    storage = DbStorage()
-    user = storage.get(User, username='john_doe')
-    if user:
-        print(f'User found: {user.username}')
-    else:
-        print('User not found or error occurred.')
-
-    storage.close()
