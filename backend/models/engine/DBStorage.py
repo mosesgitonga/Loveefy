@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Table
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm.exc import NoResultFound
 from contextlib import contextmanager
@@ -7,6 +7,7 @@ import os
 import logging
 from models.base_model import Base
 from models.user_profile import User_profile
+from models.uploads import Upload
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
@@ -22,7 +23,7 @@ class DbStorage:
             pool_recycle=3600
         )
         self.Session = scoped_session(sessionmaker(bind=self.__engine, expire_on_commit=False))
-
+# seession
     @contextmanager
     def get_session(self):
         session = self.Session()
@@ -99,12 +100,17 @@ class DbStorage:
     def get_multiple(self, cls, ids):
         try:
             with self.get_session() as session:
-                result = session.query(cls).filter(cls.id.in_(ids)).all()
+                print('CLASS NAME',cls)
+                if cls == User_profile or cls == Upload:
+                    result = session.query(cls).filter(cls.user_id.in_(ids)).all()
+                else:
+                    result = session.query(cls).filter(cls.id.in_(ids)).all()
                 logging.info(f'Fetched multiple {cls.__name__} objects with IDs: {ids}')
                 return result
         except Exception as e:
             logging.error(f'An error occurred while fetching multiple {cls.__name__} objects: {e}')
             return []
+        
         
     def check_existing_profile(self, user_id, username=None, mobile_no=None):
         """Checks if a profile with the given criteria exists."""
@@ -120,6 +126,16 @@ class DbStorage:
         except Exception as e:
             print(f'An error occurred while checking profile: {e}')
             return None
+        
+    def delete_and_create_table(self, table_name: str):
+        try:
+            with self.get_session() as session:
+                table = Table(table_name, Base.metadata, autoload_with=self.__engine)
+                table.drop(self.__engine)
+                Base.metadata.create_all(self.__engine)
+                logging.info(f'Table {table_name} deleted successfully')
+        except Exception as e:
+            logging.error(f'An error occurred while deleting table {table_name}: {e}')
 
     def close(self):
         self.Session.remove()

@@ -11,4 +11,12 @@ class Recommendation(Base):
     user_id2 = Column(String(36), ForeignKey('users.id'), index=True)
     score = Column(Integer, index=True)
 
+    def serialize(self):
+        return {
+            "recommendations": self.id,
+            "user_id1": self.user_id1,
+            "user_id2": self.user_id2,
+            "score": self.score
+        }
+
     

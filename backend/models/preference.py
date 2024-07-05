@@ -20,4 +20,17 @@ class Preference(Base):
 
     user = relationship("User", uselist=False, back_populates="preference")
 
+    def serialize(self):
+        return {
+            "id": self.id,
+            "gender": self.gender,
+            "min_age": self.min_age,
+            "max_age": self.max_age,
+            "country": self.country,
+            "region": self.region,
+            "industry_major": self.industry_major,
+            "fav_hobby": self.fav_hobby,
+            "wants_child": self.wants_child
+        }
+
 

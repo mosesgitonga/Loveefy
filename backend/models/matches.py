@@ -18,3 +18,5 @@ class Matches(Base):
     user1 = relationship("User", foreign_keys=[user_id1], backref="match_as_user_1")
     user2 = relationship("User", foreign_keys=[user_id2], backref="match_as_user_2")
     related_messages = relationship("Messages", backref="related_matches")
+
+    

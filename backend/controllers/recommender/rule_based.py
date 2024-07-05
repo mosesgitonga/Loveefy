@@ -1,7 +1,7 @@
 from flask import jsonify, make_response, request
 from flask_jwt_extended import get_jwt_identity
 from models.engine.DBStorage import DbStorage
-from models.user import User 
+from models.user import User
 from models.recommendation import Recommendation
 from models.user_profile import User_profile
 from models.preference import Preference
@@ -9,10 +9,11 @@ from models.place import Place
 from models.uploads import Upload
 import uuid
 import logging
+import concurrent.futures
 
 logging.basicConfig(level=logging.INFO)
 
-THRESHOLD_SCORE = 5
+THRESHOLD_SCORE = 0
 
 class Recommender:
     def __init__(self):
@@ -21,55 +22,27 @@ class Recommender:
 
     def recommend_users(self):
         try:
+            self.storage.delete_and_create_table('recommendations')
             users = self.storage.get_all(User)  # Get all users
             logging.info(f"Total users: {len(users)}")
+
+            # Fetch all preferences, profiles, and places in one go
+            preferences = {pref.id: pref for pref in self.storage.get_all(Preference)}
+            profiles = {profile.user_id: profile for profile in self.storage.get_all(User_profile)}
+            places = {place.id: place for place in self.storage.get_all(Place)}
 
             recommendations = []
             users_length = len(users)
             
-            for i in range(users_length):
-                current_user = users[i]
-                logging.info(f"Current user: {current_user.id}")
-
-                current_user_preference = self.storage.get(Preference, id=current_user.preference_id)
-                current_user_profile = self.storage.get(User_profile, user_id=current_user.id)
-                current_user_place = self.storage.get(Place, id=current_user.place_id)
-
-                if not current_user or not current_user_preference or not current_user_profile:
-                    logging.warning(f"Missing data for current user {current_user.id}")
-                    continue  # Skip this user if any data is missing
-
-                for j in range(users_length):
-                    if i == j:
-                        continue  # Skip comparing user to themselves
-
-                    other_user = users[j]
-                    pair = tuple(sorted((current_user.id, other_user.id)))
-
-                    if pair in self.processed_pairs:
-                        continue  # Skip already processed pairs
-
-                    self.processed_pairs.add(pair)  # Mark this pair as processed
-
-                    other_user_preference = self.storage.get(Preference, id=other_user.preference_id)
-                    other_user_profile = self.storage.get(User_profile, user_id=other_user.id)
-                    other_user_place = self.storage.get(Place, id=other_user.place_id)
-
-                    if not other_user_preference:
-                        continue
-
-                    score = self.calculate_score(current_user_place, other_user_place, current_user_preference, other_user_preference, current_user_profile, other_user_profile)
-                    logging.info(f"Calculated score for {other_user.id}: {score}")
-
-                    if score > THRESHOLD_SCORE:
-                        recommendations.append({
-                            "user_id1": current_user.id,
-                            "user_id2": other_user.id,
-                            "score": score
-                        })
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                futures = []
+                for i in range(users_length):
+                    futures.append(executor.submit(self.process_user, i, users, preferences, profiles, places, recommendations))
+                
+                concurrent.futures.wait(futures)
 
             logging.info(f"Total recommendations to save: {len(recommendations)}")
-
+            self.processed_pairs = set()
             for rec in recommendations:
                 new_recommendation = Recommendation(
                     id=str(uuid.uuid4()),
@@ -83,8 +56,51 @@ class Recommender:
             return jsonify({"message": "Recommendations created successfully"}), 201
         except Exception as e:
             logging.error(f"Error in recommend_users: {e}")
-            return jsonify({'message': 'Internal Server Error'}), 500
-     
+            return jsonify({'message': 'Internal Server Error'}) 
+
+    def process_user(self, i, users, preferences, profiles, places, recommendations):
+        current_user = users[i]
+        logging.info(f"Current user: {current_user.id}")
+
+        current_user_preference = preferences.get(current_user.preference_id)
+        current_user_profile = profiles.get(current_user.id)
+        current_user_place = places.get(current_user.place_id)
+
+        if not current_user or not current_user_preference or not current_user_profile or not current_user_place:
+            logging.warning(f"Missing data for current user {current_user.id}")
+            return
+
+        for j in range(len(users)):
+            if i == j:
+                continue  # Skip comparing user to themselves
+
+            other_user = users[j]
+            pair = tuple(sorted((current_user.id, other_user.id)))
+
+            if pair in self.processed_pairs:
+                logging.info(f"Skipping already processed pair: {pair}")
+                continue  # Skip already processed pairs
+
+            self.processed_pairs.add(pair)  # Mark this pair as processed
+
+            other_user_preference = preferences.get(other_user.preference_id)
+            other_user_profile = profiles.get(other_user.id)
+            other_user_place = places.get(other_user.place_id)
+
+            if not other_user or not other_user_preference or not other_user_profile or not other_user_place:
+                logging.warning(f"Missing data for other user {other_user.id}")
+                continue  # Skip if other user data is missing
+
+            score = self.calculate_score(current_user_place, other_user_place, current_user_preference, other_user_preference, current_user_profile, other_user_profile)
+            logging.info(f"Calculated score for pair {current_user.id}-{other_user.id}: {score}")
+
+            if score > THRESHOLD_SCORE:
+                recommendations.append({
+                    "user_id1": current_user.id,
+                    "user_id2": other_user.id,
+                    "score": score 
+                })
+
     def fetch_profiles(self):
         return self.storage.get_all(User_profile)  
 
@@ -94,7 +110,7 @@ class Recommender:
 
             if not self.is_gender_compatible(current_user_preference, other_user_preference):
                 logging.info("Gender not compatible")
-                return 0
+                return 0 
 
             if not self.is_age_compatible(current_user_profile, other_user_preference):
                 logging.info("Age not compatible")
@@ -138,14 +154,14 @@ class Recommender:
 
     def calculate_country_score(self, current_user_place, other_user_place):
         if current_user_place.country == other_user_place.country:
-            return 5
+            return 10
         return 0
     
     def calculate_region_score(self, current_user_place, other_user_place):
         if current_user_place.region == other_user_place.region:
             return 11
         return 0
-
+ 
     def calculate_industry_score(self, current_user_profile, other_user_preference):
         score = 0
         if current_user_profile.industry_major == other_user_preference.industry_major:
@@ -162,13 +178,21 @@ class Recommender:
         try:
             current_user_id = get_jwt_identity()
             logging.info(f"Current user ID: {current_user_id}")
+            # seession
+            recommendations = self.storage.get_all(Recommendation)
+            logging.info(f"Fetched all recommendations: {recommendations}")
 
-            recommendations = self.storage.get_all(Recommendation, user_id1=current_user_id)
-            logging.info(f"Fetched recommendations: {recommendations}")
+            user_recommendations = [rec for rec in recommendations if rec.user_id1 == current_user_id or rec.user_id2 == current_user_id]
+            logging.info(f"Filtered recommendations for current user: {user_recommendations}")
 
-            if recommendations:
-                user_ids = [rec.user_id2 for rec in recommendations]
-                logging.info(f"User IDs from recommendations: {user_ids}")
+            if user_recommendations:
+                user_ids = []
+                for rec in user_recommendations:
+                    if rec.user_id1 == current_user_id:
+                        user_ids.append(rec.user_id2)
+                    else:
+                        user_ids.append(rec.user_id1)
+                logging.info(f"Other user IDs from recommendations: {user_ids}")
 
                 users = self.storage.get_multiple(User, ids=user_ids)
                 logging.info(f"Fetched users: {users}")
@@ -188,11 +212,12 @@ class Recommender:
                 image_map = {image.user_id: image for image in images}
 
                 recommendation_list = []
-                for recommendation in recommendations:
-                    other_user = user_map.get(recommendation.user_id2)
-                    other_user_profile = profile_map.get(recommendation.user_id2)
+                for recommendation in user_recommendations:
+                    other_user_id = recommendation.user_id2 if recommendation.user_id1 == current_user_id else recommendation.user_id1
+                    other_user = user_map.get(other_user_id)
+                    other_user_profile = profile_map.get(other_user_id)
                     other_user_place = place_map.get(other_user.place_id)
-                    other_user_image = image_map.get(recommendation.user_id2)
+                    other_user_image = image_map.get(other_user_id)
 
                     recommendation_data = {
                         "id": recommendation.id,
@@ -211,8 +236,8 @@ class Recommender:
                 logging.info(f"Final recommendation list: {recommendation_list}")
                 return jsonify(recommendation_list), 200
             else:
-                logging.info("No recommendations found") 
-                return jsonify([]), 200  
+                logging.info("No recommendations found")
+                return jsonify([]), 200
 
         except Exception as e:
             logging.error(f"Error fetching recommendations: {e}")

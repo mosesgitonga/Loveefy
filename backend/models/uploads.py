@@ -14,3 +14,12 @@ class Upload(Base):
     file_size = Column(String(12), nullable=True)
 
     user = relationship('User', back_populates="uploads")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "user_id": self.user_id,
+            "image_path": self.image_path,
+            "is_primary": self.is_primary,
+            "file_size": self.file_size
+        }

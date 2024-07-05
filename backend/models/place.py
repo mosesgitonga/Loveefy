@@ -15,3 +15,13 @@ class Place(Base):
     latitude = Column(Integer, nullable=True)
 
     user = relationship("User", uselist=False, back_populates="place")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "country": self.country,
+            "region": self.region,
+            "sub_region": self.sub_region,
+            "longitude": self.longitude,
+            "latitude": self.latitude
+        }

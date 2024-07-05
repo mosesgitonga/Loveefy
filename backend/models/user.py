@@ -19,3 +19,12 @@ class User(Base):
     preference = relationship("Preference", uselist=False, back_populates="user")
 
     uploads = relationship("Upload", back_populates="user", cascade="all, delete-orphan")
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "email": self.email,
+            "username": self.username,
+            "place_id": self.place_id,
+            "preference_id": self.preference_id
+        }
