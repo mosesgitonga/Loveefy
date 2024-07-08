@@ -24,15 +24,33 @@ const IndexPage = () => {
             <main>
                 <section id={styles.hero} className={styles.container}>
                     <div>
-                        <h2>Find Your Perfect Match</h2>
+                        <h2>Find Love Through Career & Location</h2>
                         <p>Join millions of singles and find your soulmate</p>
-                        <button className={styles.ctaButton} onClick={() => navigate('/register')}>Register</button>
+                        <button className={styles.ctaButton} onClick={() => navigate('/register')}>Join For Free</button>
                     </div>
-                    <div className='heroImage'>
-                        <img src='/images.jpeg' alt="lovers walking"/>
+
+                </section>
+                <div className={styles.mission}>
+                    <h3>Our Mission</h3>
+                    <p>Our dating site is designed to help you find love without sacrificing your career. Connect with professionals in your area who share your ambition and drive. Say goodbye to endless swiping and hello to meaningful connections that understand your lifestyle.</p>
+                </div>
+                <hr></hr>
+                <p className={styles.careerP}>Find Your Soulmate In Your Preferred Career</p>
+                <section className={styles.careers}>
+                    <div className={styles.career}>
+                        <img src="medics.jpg" alt="two medical practionals kissing" />
+                        <h3>Medical practionals</h3>
+                    </div>
+                    <div className={styles.career}>
+                        <img src="tech.avif" alt="" />
+                        <h3>Tech</h3>
+                    </div>
+                    <div className={styles.career}>
+                        <img src="education.avif" alt="" />
+                        <h3>Engineering </h3>
                     </div>
                 </section>
-                <h2 className='featuresHeading'>Our Features</h2>
+                <h2 className='featuresHeading'>Why Us?</h2>
                 <section id={styles.features} className={styles.container}>
                     <div className={styles.feature}>
                         <h3>Advanced Matching</h3>

@@ -43,9 +43,9 @@ class Profile:
             fav_hobby = data.get('fav_hobby', '')
             has_child = data.get('has_child', 'no').lower()
             wants_child = data.get('wants_child', 'no').lower()
-            country = data.get('country')
-            region = data.get('region')
-            sub_region = data.get('sub_region')
+            country = data.get('country').lower()
+            region = data.get('region').lower()
+            sub_region = data.get('sub_region').lower()
 
             # Validate age
             if age < 18:
@@ -53,6 +53,7 @@ class Profile:
 
             # Validate subscription and gender types
             if subscription_type not in ['free', 'gold', 'elite']:
+                print('unknown subscription')
                 return make_response(jsonify({"message": "Unknown subscription type"}), 400)
             if gender not in ['male', 'female']:
                 return make_response(jsonify({"message": "Unknown gender"}), 400)
@@ -64,6 +65,7 @@ class Profile:
                 if existing_profile.user_id == user_id:
                     return make_response(jsonify({"message": "User already has a profile"}), 409)
                 if existing_profile.mobile_no == mobile_no:
+                    print('mobile number already exists')
                     return make_response(jsonify({"message": "Mobile number already exists"}), 409)
 
             # Create a new place if necessary

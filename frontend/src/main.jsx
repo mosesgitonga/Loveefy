@@ -19,7 +19,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path='/profile/setup' element={<Profile />} />
         <Route path='/preference' element={<PreferenceForm />} />
         <Route path='/upload' element={<Upload />} />
-        <Route path='/discovery' element={<Discovery />} />
+        <Route path='/discovery/home' element={<Discovery />} />
       </Routes>
     </Router>
   </React.StrictMode>,

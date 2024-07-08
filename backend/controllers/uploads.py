@@ -13,7 +13,7 @@ from models.uploads import Upload
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-UPLOAD_FOLDER = './uploads/users'
+UPLOAD_FOLDER = '../frontend/public'
 
 class UploadHandler():
     def __init__(self):
@@ -63,6 +63,8 @@ class UploadHandler():
                 filename = secure_filename(file.filename)
                 user_dir = self.get_user_directory(user_id)
 
+
+
                 # Save the original file temporarily
                 temp_path = os.path.join(user_dir, 'temp_' + filename)
                 file.save(temp_path)
@@ -71,7 +73,7 @@ class UploadHandler():
                 thumbnail_filename = str(uuid.uuid4()) + ".webp"
                 thumbnail_path = os.path.join(user_dir, thumbnail_filename)
 
-                self.create_thumbnail(temp_path, thumbnail_path, size=(150, 150), quality=85)
+                self.create_thumbnail(temp_path, thumbnail_path, size=(300, 300), quality=100)
 
                 # Calculate thumbnail size
                 thumbnail_size_in_mb = os.path.getsize(thumbnail_path) / (1024 * 1024)
@@ -79,18 +81,23 @@ class UploadHandler():
                 # Removing the temporary file
                 os.remove(temp_path)
 
-                # Check if the user's directory is empty
                 user_dir_exists = self.is_directory_empty(user_dir)
+                 # Check if the user's directory is empty
                 if user_dir_exists:
                     is_primary = True
                 else:
                     is_primary = False
 
-                # Create an instance of Upload model
+                #extract image path that will work on react public dir
+                current_time = datetime.now()
+                year_month = current_time.strftime("%Y_%m")
+                image_path = f"/{year_month}/{user_id}/{thumbnail_filename}"
+
+
                 new_upload = Upload(
                     id=str(uuid.uuid4()),
                     user_id=user_id,
-                    image_path=thumbnail_path,
+                    image_path=image_path,
                     is_primary=is_primary,
                     file_size=thumbnail_size_in_mb
                 )

@@ -75,36 +75,83 @@ nav ul li a {
 
 /* Hero Section */
 #hero {
-    background-color: #ff9999; /* Light Pink */
+    background-image: url("lovers.jpeg");
+    background-repeat: no-repeat;
+    background-size: cover; /* Ensure the image covers the entire div */
+    background-attachment: fixed; /* Optional: Keeps the background image fixed */
+    width: auto; /* Full width of the parent */
+    height: auto; /* Full viewport height */
     color: white;
     text-align: start;
     padding: 100px 0;
-    margin-top: 35px;
-    width: 100%;
+    margin-top: 35px; 
     display: flex;
     justify-content: center;
-    transition: color 6.2s; 
-
+    transition: color 6.2s;
 }
+
 .heroImage {
     flex: 1;
     display: flex;
     justify-content: flex-end;
 }
 #hero img {
-    width: 460px;
-    height: 450px;
-    border-radius: 50%;
-    margin-left: 10%;
-    justify-content: flex-end;
-    flex: 1; 
-    border: 34px solid white;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the div without distortion */
+    z-index: -1; 
 }
 #hero h2 {
     font-size: 50px;
     margin-bottom: 20px;
     margin-left: 10px;
 }
+.careerP {
+    padding: 8px;
+    margin: 8px;
+    font-size: 30px;
+    color: #ff3366;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-style: italic;
+}
+
+.mission {
+
+    width: 90%;
+    height: 100%;
+    margin: 100px auto;
+    background-color: #ff3366ef;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    opacity: 0.5;
+    font-style: italic;
+    font-size: large;
+}
+.careers {
+    margin-top: 25px;
+    margin-bottom: 80px;;
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.careers .career {
+    flex: 1;
+    margin: 0 10px;
+    text-align: center;
+}
+
+.careers img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px; /* Optional for rounded corners */
+}
+
 main h2 {
     align-self: center;
     justify-content: center;
@@ -113,7 +160,9 @@ main h2 {
 #hero p {
     font-size: 18px;
     margin-bottom: 40px;
-    margin-left: 10px;
+    margin-left: 20%;
+    color:#fffdfd;
+    font-size: 30px;
 }
 
 .ctaButton {
@@ -125,6 +174,8 @@ main h2 {
     margin-left: 10px;
     font-size: 18px;
     border-radius: 10px;
+    width: 20%;
+    margin-left: 30%;
 } 
 .ctaButton:hover {
     border: 1px solid rgb(255, 255, 255);

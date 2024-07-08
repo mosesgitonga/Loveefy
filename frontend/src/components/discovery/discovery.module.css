@@ -1,0 +1,10 @@
+.window {
+    display: flex;
+    height: 100vh;
+    background-color: #be6161;
+}
+
+.swipedeck {
+    left: 100%;
+    width: 100%;
+}
