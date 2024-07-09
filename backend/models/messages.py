@@ -2,7 +2,6 @@ from sqlalchemy import Column, String, ForeignKey, DateTime, func
 from sqlalchemy.orm import relationship
 from .base_model import Base
 
-
 class Messages(Base):
     __tablename__ = 'messages'
     id = Column(String(120), primary_key=True)
