@@ -7,6 +7,7 @@ from routes.user_profile_route import profile_bp
 from routes.preference_route import preference_bp
 from routes.upload_route import upload_bp
 from routes.recommender_route import recommender_bp
+from routes.matches.likes import likes_bp
 from datetime import timedelta
 from flask_cors import CORS
 import os
@@ -31,6 +32,8 @@ app.register_blueprint(profile_bp)
 app.register_blueprint(preference_bp)
 app.register_blueprint(upload_bp)
 app.register_blueprint(recommender_bp)
+app.register_blueprint(likes_bp)
+
 
 if __name__ == '__main__':
     app.run(debug=True)

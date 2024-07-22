@@ -23,7 +23,7 @@ class DbStorage:
             pool_recycle=3600
         )
         self.Session = scoped_session(sessionmaker(bind=self.__engine, expire_on_commit=False))
-# seession
+
     @contextmanager
     def get_session(self):
         session = self.Session()
@@ -46,27 +46,29 @@ class DbStorage:
 
     def new(self, obj):
         try:
-            self.Session.add(obj)
+            with self.get_session() as session:
+                session.add(obj)
+                logging.info(f'New object added: {obj}')
         except Exception as e:
             logging.error(f'An error occurred while adding new object: {e}')
 
     def save(self):
         try:
-            self.Session.commit()
+            with self.get_session() as session:
+                session.commit()
+                logging.info('Session committed successfully')
         except Exception as e:
             logging.error(f'An error occurred while saving the session: {e}')
 
-    def delete(self, obj=None): 
-            try:
-                with self.get_session() as session:
-                    session.delete(obj)
-                    logging.info(f'{obj.__class__.__name__} deleted: {obj}')
-            except Exception as e:
-                logging.error(f'An error occurred while deleting object: {e}')
+    def delete(self, obj=None):
+        try:
+            with self.get_session() as session:
+                session.delete(obj)
+                logging.info(f'{obj.__class__.__name__} deleted: {obj}')
+        except Exception as e:
+            logging.error(f'An error occurred while deleting object: {e}')
 
-    def get(self, cls=None, **kwargs):
-        if not cls: 
-            return None
+    def get(self, cls, **kwargs):
         try:
             with self.get_session() as session:
                 filters = [getattr(cls, key) == value for key, value in kwargs.items()]
@@ -81,17 +83,11 @@ class DbStorage:
             return None
 
     def get_all(self, cls, **kwargs):
-        """Fetches all objects from the database based on the provided class and filters."""
-        if not cls:
-            logging.error('Class not provided')
-            return None
-
         try:
             with self.get_session() as session:
                 filters = [getattr(cls, key) == value for key, value in kwargs.items()]
                 result = session.query(cls).filter(*filters).all()
                 logging.info(f'Fetched all {cls.__name__} objects with filters: {kwargs}')
-                logging.info(f'result {result}')
                 return result
         except Exception as e:
             logging.error(f'An error occurred while fetching {cls.__name__} objects: {e}')
@@ -100,7 +96,6 @@ class DbStorage:
     def get_multiple(self, cls, ids):
         try:
             with self.get_session() as session:
-                print('CLASS NAME',cls)
                 if cls == User_profile or cls == Upload:
                     result = session.query(cls).filter(cls.user_id.in_(ids)).all()
                 else:
@@ -110,30 +105,31 @@ class DbStorage:
         except Exception as e:
             logging.error(f'An error occurred while fetching multiple {cls.__name__} objects: {e}')
             return []
-        
-        
-    def check_existing_profile(self, user_id, username=None, mobile_no=None):
-        """Checks if a profile with the given criteria exists."""
-        try:
-            query = self.Session.query(User_profile).filter(
-                (User_profile.user_id == user_id) |
-                (User_profile.mobile_no == mobile_no)
-            )
-            if username:
-                query = query.filter(User_profile.username == username)
 
-            return query.first()
+    def check_existing_profile(self, user_id, username=None, mobile_no=None):
+        try:
+            with self.get_session() as session:
+                query = session.query(User_profile).filter(
+                    (User_profile.user_id == user_id) |
+                    (User_profile.mobile_no == mobile_no)
+                )
+                if username:
+                    query = query.filter(User_profile.username == username)
+
+                result = query.first()
+                logging.info(f'Checked existing profile: {result}')
+                return result
         except Exception as e:
-            print(f'An error occurred while checking profile: {e}')
+            logging.error(f'An error occurred while checking profile: {e}')
             return None
-        
+
     def delete_and_create_table(self, table_name: str):
         try:
             with self.get_session() as session:
                 table = Table(table_name, Base.metadata, autoload_with=self.__engine)
                 table.drop(self.__engine)
                 Base.metadata.create_all(self.__engine)
-                logging.info(f'Table {table_name} deleted successfully')
+                logging.info(f'Table {table_name} deleted and recreated successfully')
         except Exception as e:
             logging.error(f'An error occurred while deleting table {table_name}: {e}')
 

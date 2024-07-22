@@ -13,7 +13,7 @@ class Likes(Base):
 
     user = relationship('User', foreign_keys=[user_id], backref="likes_given")
     liked = relationship('User', foreign_keys=[liked_id], backref="received_likes")
-
+ 
 class Matches(Base):
     __tablename__ = 'matches'
     id = Column(String(36), primary_key=True)

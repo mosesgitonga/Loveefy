@@ -24,10 +24,10 @@ const Login = () => {
             .then(response => {
                 if (response.status === 200) {
                     const { access_token, place_id, preference_id } = response.data;
-                    localStorage.setItem('access_token', access_token);
+                    sessionStorage.setItem('access_token', access_token);
                     console.log(preference_id, place_id)
                     if (place_id && preference_id) {
-                        navigate('/homepage');
+                        navigate('/discovery/home');
                     } else if (place_id && !preference_id) {
                         navigate('/preference');
                     } else {
