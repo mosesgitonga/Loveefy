@@ -24,9 +24,7 @@ class Matches(Base):
     #Foreign keys
     user_id1 = Column(String(36), ForeignKey('users.id'), nullable=False, index=True)
     user_id2 = Column(String(36), ForeignKey('users.id'), nullable=False, index=True)
-    message_id = Column(String(36), ForeignKey('messages.id'), nullable=False, index=True)
 
     # relationships
     user1 = relationship("User", foreign_keys=[user_id1], backref="match_as_user_1")
     user2 = relationship("User", foreign_keys=[user_id2], backref="match_as_user_2")
-    related_messages = relationship("Messages", backref="related_matches")

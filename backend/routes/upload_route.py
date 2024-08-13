@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 def upload_pic():
     try:
         response, status_code = upload.upload_image()
-        
         return response, status_code
     except Exception as e:
         logger.exception("Internal server error")

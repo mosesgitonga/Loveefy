@@ -100,7 +100,9 @@ class User_auth:
                 return jsonify({
                     "access_token": access_token,
                     "place_id": existing_user.place_id, 
-                    "preference_id": existing_user.preference_id}), 200
+                    "preference_id": existing_user.preference_id,
+                    "current_user_id": existing_user.id}), 200
+                
             return access_token
         except Exception as e:
             print(e)

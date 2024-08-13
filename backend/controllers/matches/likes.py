@@ -1,70 +1,90 @@
 from models.engine.DBStorage import DbStorage
-from models.matches import Likes
-from models.user import User  # Ensure this import if not already imported
+from models.matches import Likes, Matches
+from models.user import User 
+from models.notification import Notification
 from flask import request, jsonify
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, jwt_required
 import logging
 import uuid
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 class LikesService:
     def __init__(self):
         self.storage = DbStorage()
-        self.user_id = get_jwt_identity()
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
+    @jwt_required()
     def create_likes(self):
         """
-        Creates likes to be used for matches
+        Handles the logic for liking a user and potentially creating a match.
         """
         try:
-            data = request.get_json()
-            if not data or 'likedUsers' not in data:
-                return jsonify({"message": "Invalid input"}), 400
+            liker_id = get_jwt_identity()  # Assuming the liker is the current user
+            liked_id = request.json.get('liked_id')
 
-            liked_user_ids = data.get('likedUsers', [])
-            if not liked_user_ids:
-                return jsonify({"message": "No users to like provided"}), 400
+            if not liked_id:
+                return jsonify({"message": "Liked user ID is required"}), 400
 
-            with self.storage.get_session() as session:
-                valid_likes = []
-                for liked_user_id in liked_user_ids:
-                    liked_user = session.query(User).filter_by(id=liked_user_id).first()
-                    if not liked_user:
-                        self.logger.error(f"User with id {liked_user_id} does not exist.")
-                        continue
+            # Check if the like already exists
+            existing_like = self.storage.get(Likes, liked_id=liked_id, user_id=liker_id)
+            if existing_like:
+                return jsonify({"message": "Like already exists"}), 200
 
-                    existing_like = session.query(Likes).filter_by(user_id=self.user_id, liked_id=liked_user_id).first()
-                    if existing_like:
-                        self.logger.info(f'Like already exists for user {liked_user_id}')
-                        continue
+            # Create a new Like record
+            new_like = Likes(
+                user_id=liker_id,
+                liked_id=liked_id
+            )
+            self.storage.new(new_like)
+            self.storage.save()
 
-                    existing_like = session.query(Likes).filter_by(user_id=liked_user_id, liked_id=self.user_id).first()
-                    if existing_like:
-                        self.logger.info(f'Like already exists for user {liked_user_id}')
-                        continue
+            # Check if the liked user has also liked the liker (to create a match)
+            reciprocal_like = self.storage.get(Likes, user_id=liked_id, liked_id=liker_id)
 
-                    new_like = Likes(
+            if reciprocal_like:
+                # Create a match if both users liked each other
+                new_match = Matches(
+                    id=str(uuid.uuid4()),
+                    user_id1=liker_id,
+                    user_id2=liked_id,
+                    status='pending'
+                )
+                self.storage.new(new_match)
+                self.storage.save()
+
+                # Create a notification for the liked user
+                notification_message = "It's a match! You both liked each other."
+                notification = Notification(
+                    id=str(uuid.uuid4()),
+                    user_to_id=liked_id,
+                    user_from_id=liker_id,
+                    message=notification_message
+                )
+                self.storage.new(notification)
+                self.storage.save()
+
+                return jsonify({"message": notification_message}), 200
+            else:
+                # If no match, just notify the liked user of the new like
+                existing_notification = self.storage.get(Notification, user_to_id=liked_id, user_from_id=liker_id)
+                if not existing_notification:
+                    notification = Notification(
                         id=str(uuid.uuid4()),
-                        user_id=self.user_id,
-                        liked_id=liked_user_id
+                        user_to_id=liked_id,
+                        user_from_id=liker_id,
+                        message="You have a new like!"
                     )
-                    print(new_like)
-                    valid_likes.append(new_like)
+                    self.storage.new(notification)
+                    self.storage.save()
 
-                if valid_likes:
-                    session.bulk_save_objects(valid_likes)
-                    session.commit()
-                    self.logger.info('Likes created successfully')
-                    return jsonify({"message": "Likes created successfully"}), 201
-                else:
-                    return jsonify({"message": "No valid likes to create"}), 400
+                return jsonify({"message": "User liked successfully, waiting for their response."}), 200
 
         except IntegrityError as e:
             self.storage.rollback()
             self.logger.error(f"Integrity error: {e.orig.args}")
             return jsonify({"message": "Integrity error"}), 400
         except Exception as e:
+            self.storage.rollback()
             self.logger.error(f"Internal server error: {e}")
             return jsonify({"message": "Internal server error"}), 500

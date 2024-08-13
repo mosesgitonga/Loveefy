@@ -18,6 +18,7 @@ class Match:
                 continue
             existing_match = self._storage.get(Matches, user_id2=user_id, user_id1=current_user_id)
             if existing_match:
+                print('match already exists')
                 return
 
             new_match = Matches(
