@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Sidebar from "./SideBar";
 import SwipeDeck from "./swipedeck";
 import styles from "./discovery.module.css"
+import DualSelect from "./DualSelect";
 
 
 const Discovery = () => {
@@ -9,7 +10,7 @@ const Discovery = () => {
         <div className={styles.window}>
             <Sidebar />
             <div className={styles.swipedeck}>
-                <SwipeDeck />           
+                <DualSelect />
             </div>
         </div>
     )

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import TinderCard from "react-tinder-card";
 import api from "../api/axios";
-import styles from './SwipeDeck.module.css'; // Import the CSS module
+import styles from './SwipeDeck.module.css';
 
-const SwipeDeck = () => {
+const SwipeDeck = ({ currentUserId }) => {
     const [people, setPeople] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -20,54 +20,57 @@ const SwipeDeck = () => {
                 setPeople(fetchedPeople);
             } catch (error) {
                 console.error('Error fetching matches:', error);
-                setError(error.message);
+                setError(error.response?.data || 'An error occurred');
             } finally {
                 setLoading(false);
             }
         };
 
-
         fetchMatches();
     }, []);
 
-    console.log(people)
-    const swiped = useCallback((direction, id) => {
+    const swiped = useCallback((direction, person) => {
+        // Determine the ID to use based on current user
+        const id = person.user_id1 ? person.user_id2 : person.user_id1;
+        const currentUserId = id
+        console.log(`Current User ID: ${currentUserId}`);
+        console.log(`Person ID: ${id}`);
+        console.log(`Swipe Direction: ${direction}`);
+
         if (direction === 'right') {
-            setLikedUsers(prevLikedUsers => [...prevLikedUsers, id]);
-            
+            setLikedUsers([id])
         } else if (direction === 'left') {
             console.log("Pass");
         }
-        console.log("Removing: " + id);
-    }, []);
-
-    console.log(likedUsers)
+    }, [currentUserId]);
 
     const outOfFrame = (id) => {
-        console.log(id + " left the screen!");
+        console.log(`${id} left the screen!`);
+        // Call the API to send the liked users to the backend
+        postLikes();
     };
-
 
     const postLikes = async () => {
         try {
-            if (likedUsers.length === 1) {
-                const response = api.post('/api/v1/likes', { likedUsers })
-                if (response !== 200) {
-                    console.log('unable to create the likes')
+            if (likedUsers.length) {
+                const response = await api.post('/api/v1/likes', { likedUsers });
+                if (response.status === 201) {
+                    console.log('Likes have been created successfully');
+                    setLikedUsers([]); // Clear the liked users after successful API call
+                } else {
+                    console.log('Unable to create likes');
                 }
-                console.log('liked users have been created')
-                setLikedUsers([])
             }
         } catch (error) {
-            console.error(error)
+            console.error('Error posting likes:', error);
         }
-    }
+    };
 
     useEffect(() => {
-        if (likedUsers.length === 1) {
+        if (likedUsers.length) {
             postLikes();
         }
-    }, [likedUsers])
+    }, [likedUsers]);
 
     if (loading) {
         return <div>Loading...</div>;
@@ -87,10 +90,9 @@ const SwipeDeck = () => {
                 <TinderCard
                     className={styles.swipe}
                     key={person.id}
-                    onSwipe={(dir)=> swiped(dir, person.user_id2)}
+                    onSwipe={(dir) => swiped(dir, person)}
                     onCardLeftScreen={() => outOfFrame(person.user_id2)}
                 >
-                
                     <div className={styles.rightSide}>
                         <div className={styles.card} style={{ 
                             backgroundImage: `url(${person.image_path})`,
@@ -118,13 +120,9 @@ const SwipeDeck = () => {
                                     <span className={styles.likeIcon}>❤️</span> 
                                 </div>
                                 <img className={styles.profilePic} src={person.image_path} alt="profile image" />
-
                             </div>
                         </div>
-                        <div className={styles.sideIcons}>
-
-                        </div>
-
+                        <div className={styles.sideIcons}></div>
                     </div>
                 </TinderCard>
             ))}

@@ -8,6 +8,7 @@ import Profile from './components/profile/profile';
 import PreferenceForm from './components/preferences/preferences';
 import Upload from './components/uploads/Upload_pic';
 import Discovery from './components/discovery/discoveryPage';
+import InitiatedChats from './components/messages/initiatedChats';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -20,6 +21,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path='/preference' element={<PreferenceForm />} />
         <Route path='/upload' element={<Upload />} />
         <Route path='/discovery/home' element={<Discovery />} />
+        <Route path='/discovery/chats' element={<InitiatedChats />} />
       </Routes>
     </Router>
   </React.StrictMode>,

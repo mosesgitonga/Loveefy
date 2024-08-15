@@ -23,8 +23,9 @@ const Login = () => {
         api.post('v1/auth/logins', formData)
             .then(response => {
                 if (response.status === 200) {
-                    const { access_token, place_id, preference_id } = response.data;
+                    const { current_user_id ,access_token, place_id, preference_id } = response.data;
                     sessionStorage.setItem('access_token', access_token);
+                    sessionStorage.setItem('userId', current_user_id)
                     console.log(preference_id, place_id)
                     if (place_id && preference_id) {
                         navigate('/discovery/home');

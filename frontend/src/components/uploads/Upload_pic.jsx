@@ -39,7 +39,7 @@ const Upload = () => {
                 const data = response.data;
                 setMessage("Image uploaded successfully");
                 alert('image uploaded successfully')
-                navigate("/homepage");
+                navigate("/discovery/home");
             } else {
                 setMessage("Failed to upload image");
             }
