@@ -82,11 +82,19 @@ class DbStorage:
             logging.error(f'An error occurred while fetching {cls.__name__} object: {e}')
             return None
 
-    def get_all(self, cls, **kwargs):
+    def get_all(self, cls, page=1, per_page=30, **kwargs):
         try:
             with self.get_session() as session:
                 filters = [getattr(cls, key) == value for key, value in kwargs.items()]
-                result = session.query(cls).filter(*filters).all()
+                query = session.query(cls).filter(*filters)
+
+                if cls.__name__ == 'User':
+                    query = query.limit(per_page).offset((page - 1) * per_page)
+
+                if cls.__name__ == 'Messages':
+                    query = query.limit(per_page).offset((page - 1) * per_page)
+                
+                result = query.all()
                 logging.info(f'Fetched all {cls.__name__} objects with filters: {kwargs}')
                 return result
         except Exception as e:

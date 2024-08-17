@@ -20,3 +20,13 @@ def list_rooms():
     except Exception as e:
         logger.error(f"Error listing rooms for user {get_jwt_identity()}: {str(e)}")
         return jsonify({"message": "Internal Server Error"}), 500
+    
+@messages_bp.route('/messages', methods=['GET'], strict_slashes=False)
+@jwt_required()
+def list_messages():
+    try:
+        res = messages.read_messages()
+        return res 
+    except Exception as e:
+        print(e)
+        return jsonify({"message": "Internal Server Error"})

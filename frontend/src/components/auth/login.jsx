@@ -23,10 +23,10 @@ const Login = () => {
         api.post('v1/auth/logins', formData)
             .then(response => {
                 if (response.status === 200) {
-                    const { current_user_id ,access_token, place_id, preference_id } = response.data;
+                    const { current_username, current_user_id ,access_token, place_id, preference_id } = response.data;
                     sessionStorage.setItem('access_token', access_token);
-                    sessionStorage.setItem('userId', current_user_id)
-                    console.log(preference_id, place_id)
+                    sessionStorage.setItem('userId', current_user_id);
+                    sessionStorage.setItem('currentUsername', current_username);
                     if (place_id && preference_id) {
                         navigate('/discovery/home');
                     } else if (place_id && !preference_id) {

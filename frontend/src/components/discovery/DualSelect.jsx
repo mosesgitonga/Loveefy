@@ -6,12 +6,11 @@ import PrivateMessage from "../messages/sockets";
 
 const DualSelect = () => {
     const [people, setPeople] = useState([]);
-    const [likedUsers, setLikedUsers] = useState([]);
-    const [currentUserId, setCurrentUserId] = useState(null);
-    const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [currentUserId, setCurrentUserId] = useState(null);
 
-    const navigate = useNavigate(); // Initialize useNavigate at the top level
+    const navigate = useNavigate(); 
 
     useEffect(() => {
         const fetchRecommendations = async () => {
@@ -36,15 +35,12 @@ const DualSelect = () => {
             setCurrentUserId(userId);
         } else {
             console.error("No userId found in sessionStorage");
-            navigate('/login'); // Use the navigate function to redirect to login
+            navigate('/login'); 
         }
     }, [navigate]);
 
     const handleLike = async (person) => {
         try {
-            console.log(currentUserId);
-            
-            // Declare liked_id outside the if-else block
             let liked_id;
     
             if (currentUserId === person.user_id1) {
@@ -53,8 +49,6 @@ const DualSelect = () => {
                 liked_id = person.user_id1;
             }
     
-            console.log(person);
-            
             const response = await api.post('/api/v1/likes', {
                 liker_id: currentUserId,
                 liked_id: liked_id
@@ -68,7 +62,6 @@ const DualSelect = () => {
             console.error('Error handling like', error);
         }
     };
-    
 
     const handlePass = () => {
         scrollAwayProfiles();
@@ -86,20 +79,31 @@ const DualSelect = () => {
             {people.length >= 2 ? (
                 <div className="profile-pair">
                     <div className="profile">
-                        <img src={people[0].image_path} alt={people[0].username} />
-                        <h3>{people[0].username}</h3>
-                        <h3>{people[0].industry}</h3>
-                        <button onClick={() => handleLike(people[0])}>Like</button>
-                        <button onClick={handlePass}>Pass</button>
-                        <PrivateMessage />
+                        <div className="profile-content" style={{ backgroundImage: `url(${people[0].image_path})` }}>
+                            <h3>Username: {people[0].username}</h3>
+                            <h3>Industry: {people[0].industry}</h3>
+                            <h3>Country: {people[0].country}</h3>
+                            <h3>Region: {people[0].region}</h3>
+                            <h3>Age: {people[0].age}</h3>
+                        </div>
+                        <div className="actions">
+                            <button onClick={() => handleLike(people[0])}>Like</button>
+                            <button onClick={handlePass}>Pass</button>
+                        </div>
+                        
                     </div>
                     <div className="profile">
-                        <img src={people[1].image_path} alt={people[1].username} />
-                        <h3>{people[1].username}</h3>
-                        <h3>{people[1].industry}</h3>
-                        <button onClick={() => handleLike(people[1])}>Like</button>
-                        <button onClick={handlePass}>Pass</button>
-                        <PrivateMessage />
+                        <div className="profile-content" style={{ backgroundImage: `url(${people[1].image_path})` }}>
+                            <h3>Username: {people[1].username}</h3>
+                            <h3>Industry: {people[1].industry}</h3>
+                            <h3>Country: {people[1].country}</h3>
+                            <h3>Region: {people[1].region}</h3>
+                            <h3>Age: {people[1].age}</h3>
+                        </div>
+                        <div className="actions">
+                            <button onClick={() => handleLike(people[1])}>Like</button>
+                            <button onClick={handlePass}>Pass</button>
+                        </div>
                     </div>
                 </div>
             ) : (

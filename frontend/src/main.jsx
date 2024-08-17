@@ -9,6 +9,7 @@ import PreferenceForm from './components/preferences/preferences';
 import Upload from './components/uploads/Upload_pic';
 import Discovery from './components/discovery/discoveryPage';
 import InitiatedChats from './components/messages/initiatedChats';
+import ChatBox from './components/messages/chatBox';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -22,6 +23,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path='/upload' element={<Upload />} />
         <Route path='/discovery/home' element={<Discovery />} />
         <Route path='/discovery/chats' element={<InitiatedChats />} />
+        <Route path="/c/:roomId" element={<ChatBox />} />
       </Routes>
     </Router>
   </React.StrictMode>,

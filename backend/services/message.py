@@ -1,7 +1,8 @@
 from models.messages import Messages, Room, RoomMember
 from models.engine.DBStorage import DbStorage
 from models.user import User
-from flask import jsonify
+from models.messages import Messages
+from flask import jsonify, request 
 from flask_jwt_extended import get_jwt_identity
 import uuid
 
@@ -70,3 +71,52 @@ class MessageService:
         except Exception as e:
             print(f"Error listing rooms: {e}")
             return jsonify({"error": "Internal Server Error"}), 500
+        
+    def save_message(self, message, room_id, sender_id, receiver_id):
+        try:
+            print('saving message...')
+
+            new_message = Messages(
+                                id=uuid.uuid4(),
+                                room_id=room_id,
+                                sender_Id=sender_id,
+                                receiver_id=receiver_id,
+                                content=message,
+                                    )
+            self.storage.new(new_message)
+            self.storage.save()
+        except Exception as e:
+            print(e)
+            return jsonify({"message": "Internal Server Error"})
+        
+    def read_messages(self):
+        try:
+            room_id = request.args.get('roomId')
+            page = request.args.get('page', default=1, type=int)  # Default to page 1 if not provided
+            per_page = request.args.get('per_page', default=30, type=int)  # Default to 30 per page if not provided
+            
+            messages = self.storage.get_all(Messages, page=page, per_page=per_page, room_id=room_id)
+
+            messages = sorted(messages, key=lambda message: message.time)
+            message_data = [
+                {
+                    "id": message.id,
+                    "room_id": message.room_id,
+                    "content": message.content,
+                    "time": message.time,
+                    "sender_id": message.sender_Id,
+                    "receiver_id": message.receiver_id,
+                    "username": self.storage.get(User, id=message.sender_Id).username
+                }
+                for message in messages
+            ]
+
+            if not messages:
+                username = [self.storage.get(User, id=message.sender_Id).username for message in messages]
+                message_data = [{"username": "System", "content": "Congratulations! You've matched! Say hello or tell a joke—just don’t start with ‘Knock knock’!"}]
+            
+            return jsonify({"messages": message_data})
+        except Exception as e:
+            print(e)
+            return jsonify({"message": "Internal Server Error"}), 500
+    
