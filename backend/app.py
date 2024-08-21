@@ -1,5 +1,5 @@
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
-from flask import Flask
+from flask import Flask, send_from_directory, request, jsonify
 from dotenv import load_dotenv
 from flask_socketio import SocketIO, join_room, leave_room, emit
 from models.engine.DBStorage import DbStorage
@@ -12,6 +12,7 @@ from routes.upload_route import upload_bp
 from routes.recommender_route import recommender_bp
 from routes.matches.likes import likes_bp
 from routes.messages import messages_bp
+from routes.payments.Mpesa import mpesa_bp
 from services.message import MessageService
 from datetime import timedelta
 from flask_cors import CORS
@@ -22,19 +23,19 @@ from datetime import datetime
 load_dotenv()
 jwt_secret_key = os.getenv('JWT_SECRET_KEY')
 
-# Initialize 
+# Initialize services and storage
 message = MessageService()
 storage = DbStorage()
 storage.reload()
 
 # Initialize Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder='dist', static_url_path='')
 
 # Initialize Socket.IO with logging
 socketio = SocketIO(app, logger=True, engineio_logger=True, cors_allowed_origins="*")
 
 # Set up CORS (limit to specific origins if needed)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app)
 
 # Configure JWT
 app.config['JWT_SECRET_KEY'] = jwt_secret_key
@@ -51,12 +52,11 @@ def handle_connect():
 @jwt_required()
 def handle_join_room(data):
     try:
-        print('joining room ...')
+        print('Joining room ...')
         room_id = data['room_id']
         join_room(room_id)
     except Exception as e:
-       
-        emit('error', {f'msg': 'Failed to join room'})
+        emit('error', {'msg': 'Failed to join room'})
         print(f"Error joining room: {e}")
 
 # Socket.IO event for leaving a room
@@ -64,7 +64,6 @@ def handle_join_room(data):
 @jwt_required()
 def handle_leave_room(data):
     try:
-        username = data['username']
         room_id = data['room_id']
         leave_room(room_id)
     except Exception as e:
@@ -104,6 +103,21 @@ def handle_send_message(data):
         print(f"Error sending message: {e}")
 
 
+@app.route('/callback', methods=['POST'])
+def callback():
+    data = request.json
+    print("Callback received:", data)
+    return jsonify({"status": "success"})
+
+
+# Serve the React application
+@app.route('/')
+def serve_index():
+    return send_from_directory(app.static_folder, 'index.html')
+
+# Serve static files
+
+
 # Register blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(profile_bp)
@@ -112,6 +126,7 @@ app.register_blueprint(upload_bp)
 app.register_blueprint(recommender_bp)
 app.register_blueprint(likes_bp)
 app.register_blueprint(messages_bp)
+app.register_blueprint(mpesa_bp)
 
 # Main entry point
 if __name__ == '__main__':
