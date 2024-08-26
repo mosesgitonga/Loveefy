@@ -8,6 +8,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 import logging
 import uuid
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from contextlib import contextmanager
 
 class LikesService:
     def __init__(self):
@@ -16,50 +17,47 @@ class LikesService:
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
 
+    @contextmanager
+    def transaction(self):
+        try:
+            yield
+            self.storage.save()
+        except Exception as e:
+            self.storage.rollback()
+            self.logger.error(f"Transaction failed: {e}")
+            raise
+
     @jwt_required()
     def create_likes(self):
-        """
-        Handles the logic for liking a user and potentially creating a match.
-        """
-        liker_id = get_jwt_identity()  # Assuming the liker is the current user
+        liker_id = get_jwt_identity()
         liked_id = request.json.get('liked_id')
 
         if not liked_id:
             return jsonify({"message": "Liked user ID is required"}), 400
 
         try:
-            # Check if the like already exists
             existing_like = self.storage.get(Likes, liked_id=liked_id, user_id=liker_id)
             if existing_like:
                 return jsonify({"message": "Like already exists"}), 200
 
-            # Create a new Like record
-            new_like = Likes(
-                user_id=liker_id,
-                liked_id=liked_id
-            )
-            self.storage.new(new_like)
-            self.storage.save()
+            with self.transaction():
+                new_like = Likes(user_id=liker_id, liked_id=liked_id)
+                self.storage.new(new_like)
 
-            # Check for a reciprocal like to create a match
-            if self._is_reciprocal_like(liker_id, liked_id):
-                return self._create_match(liker_id, liked_id)
+                if self._is_reciprocal_like(liker_id, liked_id):
+                    return self._create_match(liker_id, liked_id)
 
-            # If no match, notify the liked user of the new like
-            self._notify_new_like(liker_id, liked_id)
+                self._notify_new_like(liker_id, liked_id)
 
             return jsonify({"message": "User liked successfully, waiting for their response."}), 200
 
         except IntegrityError as e:
-            self.storage.rollback()
             self.logger.error(f"Integrity error: {e.orig.args}")
             return jsonify({"message": "Integrity error"}), 400
         except SQLAlchemyError as e:
-            self.storage.rollback()
             self.logger.error(f"Database error: {e}")
             return jsonify({"message": "Database error"}), 500
         except Exception as e:
-            self.storage.rollback()
             self.logger.error(f"Internal server error: {e}")
             return jsonify({"message": "Internal server error"}), 500
 
@@ -100,6 +98,7 @@ class LikesService:
 
     def _notify_new_like(self, liker_id, liked_id):
         existing_notification = self.storage.get(Notification, user_to_id=liked_id, user_from_id=liker_id)
+
         if not existing_notification:
             notification = Notification(
                 id=str(uuid.uuid4()),
@@ -109,3 +108,71 @@ class LikesService:
             )
             self.storage.new(notification)
             self.storage.save()
+
+    def likeback(self):
+        try:
+            print('liking back...')
+            data = request.get_json()  # Correct method to get JSON data
+            print(data)
+            liked_id = data.get('userId')
+            liker_id = get_jwt_identity()
+            notification_id = data.get('notificationId')
+            print({"type": type(liked_id), "liked id":liked_id})
+            print(type(notification_id))
+            print('notification id: ', notification_id)
+            if liked_id is None or notification_id is None:
+                print('missing')
+                return jsonify({"message": "user_id and notificationId are required."}), 400
+            print('data present!\n')
+            # Ensure that `_create_match` returns a response
+            match_response = self._create_match(liker_id, liked_id)
+            if match_response:
+                notification = self.storage.get(Notification, id=notification_id)
+                self.storage.delete(obj=notification)
+                self.storage.save()
+                return match_response
+
+
+
+            return jsonify({"message": "Match created and notification removed."}), 201
+
+        except Exception as e:
+            self.logger.error(f"Error in likeback: {e}")
+            return jsonify({"message": "Internal Server Error"}), 500
+
+
+
+    def list_notifications(self):
+        try:
+            current_user_id = get_jwt_identity()
+            if not current_user_id:
+                return jsonify({"message": "User not identified. Please login."}), 401
+
+            notifications = self.storage.get_all(Notification, user_to_id=current_user_id)
+            if not notifications:
+                return jsonify({"message": "No notifications found."}), 200
+
+            # Get all unique user_from_ids
+            user_ids = {notification.user_from_id for notification in notifications}
+            
+            # Fetch all user details in one go
+            users = self.storage.get_multiple(User, ids=list(user_ids))
+            user_dict = {user.id: user.username for user in users}
+
+            # Create the list of notifications
+            notifications_list = [
+                {
+                    "id": notification.id,
+                    "message": notification.message,
+                    "from_username": user_dict.get(notification.user_from_id),
+                    "from_user_id": notification.user_from_id,
+                    "timestamp": notification.created_at  # Assuming you have a timestamp field
+                }
+                for notification in notifications
+            ]
+
+            return jsonify({"notifications": notifications_list}), 200
+
+        except Exception as e:
+            self.logger.error(f"Error listing notifications: {e}")
+            return jsonify({"message": "Internal Server Error"}), 500

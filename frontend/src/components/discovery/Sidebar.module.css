@@ -1,45 +1,47 @@
 .side-nav {
     width: 250px;
+    background-color: #ff3366;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
     height: 100vh;
-    background-color: pink;
-    color: #c50c0c;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    margin-right: 2px;
 }
 
 .side-nav h1 {
-    font-size: 50px;
-    color: #ff3366;
-    text-decoration: underline;
+    margin-top: 0;
+    font-size: 35px;
+    color: #333;
 }
 
 .side-nav ul {
-    list-style-type: none;
+    list-style: none;
     padding: 0;
+    margin: 20px 0 0;
 }
 
 .side-nav li {
-    margin: 15px 0;
+    margin-bottom: 10px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    background-color: #ff3366;
-    box-shadow: 0px 10px 5px #ff3366;
-    color: #0c0b0b;
-    height: 15%;
-    border-radius: 8px;
-    font-size: 25px;
-    margin-bottom: 0px;
-    padding: 10px;
 }
 
-.side-nav li:hover {
+.nav-item {
+    padding: 10px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    font-size: 16px;
+    color: #f5f5f5;
     background-color: rgb(250, 145, 163);
-    box-shadow: 0px 10px 10px #ff3366;
-    padding-left: 10px;
-    height: 15%;
-    border-radius: 8px;
-    font-size: 25px;
-    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.nav-item:hover {
+    background-color: #e0e0e0;
+    color: #000;
+}
+
+.nav-item.active {
+    background-color: #d0d0d0; /* Color for the active state */
+    color: #000;
+    font-weight: bold;
 }

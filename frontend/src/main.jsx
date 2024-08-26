@@ -10,6 +10,8 @@ import Upload from './components/uploads/Upload_pic';
 import Discovery from './components/discovery/discoveryPage';
 import InitiatedChats from './components/messages/initiatedChats';
 import ChatBox from './components/messages/chatBox';
+import Notifications from './components/notifications/notification';
+import SettingsPage from './components/settings/settingsPage';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -23,7 +25,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path='/upload' element={<Upload />} />
         <Route path='/discovery/home' element={<Discovery />} />
         <Route path='/discovery/chats' element={<InitiatedChats />} />
+        <Route path='/discovery/notifications' element={<Notifications />} />
         <Route path="/c/:roomId" element={<ChatBox />} />
+        <Route path='/discovery/settings' element={<SettingsPage />} />
       </Routes>
     </Router>
   </React.StrictMode>,

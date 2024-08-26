@@ -13,6 +13,7 @@ from routes.recommender_route import recommender_bp
 from routes.matches.likes import likes_bp
 from routes.messages import messages_bp
 from routes.payments.Mpesa import mpesa_bp
+from routes.notifications import notifications_bp
 from services.message import MessageService
 from datetime import timedelta
 from flask_cors import CORS
@@ -127,6 +128,7 @@ app.register_blueprint(recommender_bp)
 app.register_blueprint(likes_bp)
 app.register_blueprint(messages_bp)
 app.register_blueprint(mpesa_bp)
+app.register_blueprint(notifications_bp)
 
 # Main entry point
 if __name__ == '__main__':

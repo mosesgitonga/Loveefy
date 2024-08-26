@@ -1,27 +1,59 @@
-import React from "react";
-import styles from './Sidebar.module.css'; // Import the CSS module
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { NavLink, useNavigate } from 'react-router-dom';
+import styles from './Sidebar.module.css'; 
 
 const Sidebar = () => {
-    const navigate = useNavigate();
+    const [activeTab, setActiveTab] = useState('home');
+    const navigate = useNavigate(); 
 
-    const handleMsgClick = () => {
-        navigate('/discovery/chats'); // Ensure this route exists in your routing configuration
+    const handleNavClick = (tabName, path) => {
+        setActiveTab(tabName);
+        navigate(path);
     };
 
     return (
         <div className={styles["side-nav"]}>
             <h1>Loveefy</h1>
             <ul>
-                <li>Home</li>
-                <li onClick={handleMsgClick}>Messages</li>
-                <li>Notification</li>
-                <li>Payment</li>
-                <li>Settings</li>
-                <li>Feedback</li>
+                <li
+                    className={activeTab === 'home' ? styles.active : ''}
+                    onClick={() => handleNavClick('home', '/discovery/home')}
+                >
+                    <div className={styles["nav-item"]}>Home</div>
+                </li>
+                <li
+                    className={activeTab === 'chats' ? styles.active : ''}
+                    onClick={() => handleNavClick('chats', '/discovery/chats')}
+                >
+                    <div className={styles["nav-item"]}>Messages</div>
+                </li>
+                <li
+                    className={activeTab === 'notifications' ? styles.active : ''}
+                    onClick={() => handleNavClick('notifications', '/discovery/notifications')}
+                >
+                    <div className={styles["nav-item"]}>Notifications</div>
+                </li>
+                <li
+                    className={activeTab === 'settings' ? styles.active : ''}
+                    onClick={() => handleNavClick('settings', '/discovery/settings')}
+                >
+                    <div className={styles["nav-item"]}>Settings</div>
+                </li>
+                <li
+                    className={activeTab === 'upgrade' ? styles.active : ''}
+                    onClick={() => handleNavClick('upgrade', '/discovery/upgrade')}
+                >
+                    <div className={styles["nav-item"]}>Upgrade</div>
+                </li>
+                <li
+                    className={activeTab === 'feedback' ? styles.active : ''}
+                    onClick={() => handleNavClick('feedback', '/discovery/feedback')}
+                >
+                    <div className={styles["nav-item"]}>Feedback</div>
+                </li>
             </ul>
         </div>
     );
-}
+};
 
 export default Sidebar;

@@ -1,11 +1,15 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify 
+from flask_jwt_extended import get_jwt_identity 
 import requests
 import base64
-from datetime import datetime 
+from datetime import datetime, timedelta
 import logging
 from requests.auth import HTTPBasicAuth
 from dotenv import load_dotenv
 import os
+from models.engine.DBStorage import DbStorage
+from models.payment import Subscription
+import uuid
 
 load_dotenv()
 
@@ -19,6 +23,7 @@ import hashlib
 
 class Mpesa:
     def __init__(self):
+        self.storage = DbStorage()
         self.LIPA_NG_URL = os.getenv('LIPA_NG_URL')
         self.CONSUMER_KEY = os.getenv('CONSUMER_KEY')
         self.CONSUMER_SECRET = os.getenv('CONSUMER_SECRET')
@@ -42,6 +47,10 @@ class Mpesa:
             data = request.json
             phone_number = data.get('phone_number')
             amount = data.get('amount')
+
+            if not phone_number or not amount:
+                return jsonify({'message': 'Phone number and amount are required'}), 400
+
             timestamp = datetime.now().strftime('%Y%m%d%H%M%S')
             password = self.generate_password(timestamp)
             access_token = self.generate_token()
@@ -56,18 +65,23 @@ class Mpesa:
                 "Password": password,
                 "Timestamp": timestamp,
                 "TransactionType": "CustomerPayBillOnline",
-                "Amount": amount,
+                "Amount": amount,  # Amount is taken from the request body
                 "PartyA": phone_number,
-                "PartyB": self.BusinessShortCode,  # Use the correct shortcode
+                "PartyB": self.BusinessShortCode,
                 "PhoneNumber": phone_number,
-                "CallBackURL": f"{self.EXPOSED_DEV_URL}/api/mpesa/callback",
+                "CallBackURL": "https://1fbf-196-96-123-101.ngrok-free.app/api/mpesa/callback",
                 "AccountReference": "loveefy.com",
                 "TransactionDesc": "Loveefy Payments"
             }
 
             response = requests.post(self.LIPA_NG_URL, json=payload, headers=headers)
-            response.raise_for_status()  # Raises an HTTPError if the status is 4xx, 5xx
-            return jsonify(response.json())
+
+            if response.status_code == 200:
+                logger.info("STK push initiated successfully.")
+                return jsonify({'message': 'STK push initiated successfully', 'response': response.json()}), 200
+            else:
+                response.raise_for_status()
+
         except Exception as e:
             logger.error(e)
             return jsonify({'message': 'Internal Server Error'}), 500

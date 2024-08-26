@@ -144,7 +144,7 @@ const PreferenceForm = () => {
                   <option value="">Select Preferred Partner Major</option>
                   <option value="health">Health</option>
                   <option value="finance">Finance</option>
-                  <option value="it">IT</option>
+                  <option value="IT">IT</option>
                   <option value="agriculture">Agriculture</option>
                 </Field>
                 <ErrorMessage name="industryMajor" component="div" className="error-message" />

@@ -16,3 +16,12 @@ def create_like():
     except Exception as e:
         print(e)
         return jsonify({"message": "Internal Server Error"}), 501
+    
+@likes_bp.route('like-back', methods=['POST'], strict_slashes=False)
+@jwt_required()
+def likeback():
+    try:
+        response = LikesService().likeback()
+    except Exception as e:
+        print(e)
+        return jsonify({"messages": "Internal Server Error"})

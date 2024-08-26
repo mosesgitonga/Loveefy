@@ -138,7 +138,7 @@ const Profile = () => {
                         >
                             <option value="" label="Select industry major" />
                             <option value="health" label="Health" />
-                            <option value="it" label="IT" />
+                            <option value="Information TechnologyT" label="Information Technology" />
                             <option value="finance" label="Finance" />
                             <option value="law" label="Law" />
                             <option value="engineering" label="Engineering" />

@@ -1,0 +1,57 @@
+/* notifications.css */
+
+.notificationContainer {
+    display: flex;
+    margin-left: 0px; /* Adjust based on your sidebar width */
+}
+
+.notifications-container {
+    padding: 20px;
+    background-color: #ff3366;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    flex-grow: 1;
+}
+
+.notifications-container h2 {
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+}
+
+.notifications-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.notification-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-item:last-child {
+    margin-bottom: 0;
+}
+
+.notification-message {
+    font-size: 16px;
+    color: #555;
+}
+
+.notification-username {
+    font-weight: bold;
+    color: #48ff00;
+}
+
+.loading,
+.error {
+    text-align: center;
+    font-size: 18px;
+    color: #888;
+}
