@@ -1,6 +1,7 @@
 from models.preference import Preference 
 from models.user import User
-from models.engine.DBStorage import DbStorage 
+from models.engine.DBStorage import DbStorage
+from controllers.recommender.rule_based import Recommender
 from datetime import datetime
 from flask import request, jsonify
 from flask_jwt_extended import get_jwt_identity
@@ -10,6 +11,7 @@ import uuid
 class Preferences:
     def __init__(self):
         self.storage = DbStorage()
+        self.recommender = Recommender()
         self.logger = logging.getLogger(__name__)
 
     def create_preference(self):
@@ -24,6 +26,10 @@ class Preferences:
             country = data.get('country', '').lower()
             region = data.get('region', '').lower()
             industry_major = data.get('industryMajor', '').lower()
+            career = data.get('career').lower()
+            education_level = data.get('education_level').lower()
+            employment = data.get('employment').lower()
+            is_schooling = data.get('is_schooling').lower()
             fav_hobby = data.get('favHobby', '')
             has_child = data.get('hasChild', '').lower()
             wants_child = data.get('wantsChild', 'yes').lower()
@@ -56,6 +62,10 @@ class Preferences:
                 country=country,
                 region=region,
                 industry_major=industry_major,
+                career=career,
+                education_level=education_level,
+                employment=employment,
+                is_schooling=is_schooling,
                 fav_hobby=fav_hobby,
                 wants_child=wants_child,
                 created_at=datetime.now(),
@@ -68,8 +78,10 @@ class Preferences:
             self.storage.new(new_preference)
             self.storage.new(current_user)
             self.storage.save()
+            self.recommender.recommend_users()
 
             self.logger.info(f"Preference created successfully for user_id: {current_user_id}")
+
             return jsonify({"message": "User preference created successfully"}), 201
         except ValueError as ve:
             self.logger.error(f"Value error: {ve}")

@@ -9,11 +9,13 @@ class User_profile(Base):
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     gender = Column(String(20), nullable=False)
-    age = Column(Integer, nullable=False)
+    DOB = Column(DateTime, nullable=False) # date of birth
     mobile_no = Column(String(16), unique=True, nullable=False, index=True)
-    subscription_type = Column(String(15), nullable=False)
-    industry_major = Column(String(25))
-    fav_hobby = Column(String(20))
+    education_level = Column(String(36))
+    industry_major = Column(String(25), nullable=False)
+    employment = Column(String(25))
+    is_schooling = Column(String(25))
+    career = Column(String(50), nullable=True)
     has_child = Column(String(10), default='no')
 
     user_id = Column(String(36), ForeignKey('users.id'), unique=True, nullable=False, index=True)

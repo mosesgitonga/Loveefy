@@ -14,7 +14,7 @@ recommender_bp = Blueprint('recommend', __name__, url_prefix='/api/v1/')
 @jwt_required()
 def recommend():
     try:
-        return recommender.recommend_users()  # Directly return the response object
+        return recommender.recommend_users() 
     except Exception as e:
         print(e) 
         return jsonify({"message": "Internal Server Error"}), 500

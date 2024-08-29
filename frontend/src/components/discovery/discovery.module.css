@@ -2,9 +2,59 @@
     display: flex;
     height: 100vh;
     background-color: #ff3366;
+    position: relative; /* Ensures the hamburger icon is positioned correctly */
+}
+
+.hamburger {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10; /* Ensures it is above other content */
+}
+
+/* Show hamburger icon on small screens */
+@media (max-width: 768px) {
+    .hamburger {
+        display: block;
+    }
+}
+
+.side-nav {
+    width: 250px;
+    background-color: #ff3366;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin-right: 2px;
+    position: fixed; /* Fixed positioning for sidebar */
+    top: 0;
+    left: -250px; /* Initially hidden off-screen */
+    transition: left 0.3s ease; /* Smooth transition for sliding effect */
+    z-index: 9; /* Ensure it is above other content */
+}
+
+.side-nav.open {
+    left: 0; /* Sidebar visible */
+}
+
+.side-nav.closed {
+    left: -250px; /* Sidebar hidden */
 }
 
 .swipedeck {
-    left: 100%;
-    width: 100%;
+    flex: 1;
+    margin-left: 250px; /* Adjusted to allow space for sidebar */
+    transition: margin-left 0.3s ease; /* Smooth transition for content shift */
+}
+
+/* Adjust content margin on small screens */
+@media (max-width: 768px) {
+    .swipedeck {
+        margin-left: 0; /* Remove left margin on small screens */
+    }
 }

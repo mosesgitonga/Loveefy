@@ -5,12 +5,14 @@
     height: 100vh;
 }
 
-
+.chats {
+    width: 100%;
+}
 .chatBox {
     display: flex;
     flex-direction: column;
     height: 100vh;
-    width: 100%;
+    width: 90%;
     max-width: 600px;
     margin: 0 auto;
 }

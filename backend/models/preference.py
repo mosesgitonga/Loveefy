@@ -15,6 +15,10 @@ class Preference(Base):
     country = Column(String(30), nullable=True, index=True)
     region = Column(String(30), nullable=True)
     industry_major = Column(String(50), default='any', nullable=True, index=True)
+    career = Column(String(36))
+    education_level = Column(String(40), default='any')
+    employment = Column(String(20))
+    is_schooling = Column(String(10))
     fav_hobby = Column(String(50))
     wants_child = Column(String(25), default='any')
 
@@ -29,6 +33,10 @@ class Preference(Base):
             "country": self.country,
             "region": self.region,
             "industry_major": self.industry_major,
+            "career": self.career,
+            "education_level": self.education_level,
+            "employment": self.employment,
+            "is_schooling": self.is_schooling,
             "fav_hobby": self.fav_hobby,
             "wants_child": self.wants_child
         }

@@ -30,33 +30,32 @@ class Profile:
             user_id = get_jwt_identity()
 
             # Retrieve and validate data
-            required_fields = ['gender', 'age', 'mobile_no', 'subscription_type']
-            for field in required_fields:
-                if not data.get(field):
-                    return make_response(jsonify({"message": f"Missing required field: {field}"}), 400)
-
+           
+            print('data:  ',data)
             gender = data.get('gender').lower()
-            age = int(data.get('age'))
+            dob = data.get('dob')
             mobile_no = data.get('mobile_no')
-            subscription_type = data.get('subscription_type').lower()
             industry_major = data.get('industry_major', '').lower()
-            fav_hobby = data.get('fav_hobby', '')
+            education_level = data.get('education_level').lower()
+            career = data.get('career').lower()
             has_child = data.get('has_child', 'no').lower()
-            wants_child = data.get('wants_child', 'no').lower()
+            employment = data.get('employment').lower()
+            is_schooling = data.get('is_schooling').lower()
             country = data.get('country').lower()
             region = data.get('region').lower()
             sub_region = data.get('sub_region').lower()
 
+            print('details extracted!')
             # Validate age
+            dob = datetime.strptime(dob, '%Y-%m-%d')
+            today = datetime.today()
+            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            print('age', age)
+            if age <= 10:
+                return make_response(jsonify({"message": "babies are not welcome. You should be breast feeding"}), 403)
             if age < 18:
-                return make_response(jsonify({"message": "Kids are not allowed, go play video games"}), 403)
-
-            # Validate subscription and gender types
-            if subscription_type not in ['free', 'gold', 'elite']:
-                print('unknown subscription')
-                return make_response(jsonify({"message": "Unknown subscription type"}), 400)
-            if gender not in ['male', 'female']:
-                return make_response(jsonify({"message": "Unknown gender"}), 400)
+                return make_response(jsonify({"message": "Kids are not welcome, go play video games"}), 403)
+    
 
             # Check if profile already exists
             existing_profile = self.storage.check_existing_profile(user_id, mobile_no=mobile_no)
@@ -87,13 +86,15 @@ class Profile:
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
                 gender=gender,
-                age=age,
                 mobile_no=mobile_no,
-                subscription_type=subscription_type,
                 user_id=user_id,
                 industry_major=industry_major,
-                fav_hobby=fav_hobby,
+                education_level=education_level,
+                career=career,
+                employment=employment,
+                is_schooling=is_schooling, 
                 has_child=has_child,
+                DOB=dob
             )
 
             # Use storage methods to handle session and transactions
@@ -109,9 +110,25 @@ class Profile:
             logger.error(f"IntegrityError: {ie}")
             return jsonify({"message": "Duplicate Entry"}), 409
         except Exception as e:
-            #self.storage.rollback()
+            # self.storage.rollback()
             logger.error(f"Exception: {e}")
             return jsonify({"message": "Internal server error"}), 500
+
+    def get_profile(self):
+        try:
+            user_id = get_jwt_identity()
+            user_profile = self.storage.get(User_profile, user_id=user_id)
+            profile_details = {
+                "gender": user_profile.gender,
+                "industry_major": user_profile.industry_major,
+                "career": user_profile.career,
+                "dob": user_profile.DOB
+            }
+            print(profile_details)
+            return profile_details
+        except Exception as e:
+            logger.error(e)
+            return jsonify({"message": "Internal Server Error"})
 
     def delete_profile(self, profile_id):
         try:
@@ -125,34 +142,59 @@ class Profile:
             logger.error(f"Exception: {e}")
             return jsonify({"message": "Internal server error"}), 500
 
-    def update_field(self, id, field, new_value):
+    def update_fields(self, data):
         try:
-            existing_user_profile = self.storage.get(User_profile, id=id)
-            if not existing_user_profile:
-                return jsonify({"message": "User profile not found"}), 404
+            id = get_jwt_identity()
 
-            setattr(existing_user_profile, field, new_value)
+            # Mapping fields to their corresponding models
+            field_to_model = {
+                'username': User,
+                'gender': User_profile,
+                'country': Place,
+                'industry': User_profile,
+                'career': User_profile,
+                'dob': User_profile,
+                'region': Place,
+                'sub_region': Place,
+                'age': User_profile,  # Assuming 'age' and 'mobile_no' belong to User_profile
+                'mobile_no': User_profile,
+                'subscription_type': User_profile  # Assuming this is part of User_profile
+            }
+
+            # Iterate over the fields in the request data
+            for field, new_value in data.items():
+                Get_object = field_to_model.get(field)
+                if not Get_object:
+                    logger.error(f"Attempted to update an unrecognized field: {field}")
+                    continue  # Skip this field and continue with others
+
+                # Fetch the correct object based on the field
+                if Get_object == User_profile:
+                    existing_user_profile = self.storage.get(Get_object, user_id=id)
+                else:
+                    existing_user_profile = self.storage.get(Get_object, id=id)
+
+                if not existing_user_profile:
+                    logger.error(f"User profile not found for user_id: {id}")
+                    return jsonify({"message": "User profile not found"}), 404
+
+                if hasattr(existing_user_profile, field):
+                    setattr(existing_user_profile, field, new_value)
+                    self.storage.new(existing_user_profile)
+                    logger.info(f"Updated {field} to {new_value} for user profile {existing_user_profile.id}")
+                else:
+                    logger.error(f"Attempted to update non-existent field: {field}")
+                    continue  # Skip this field and continue with others
+
+            # Save the changes after all fields are updated
+            self.storage.new(existing_user_profile)
             self.storage.save()
+            return jsonify({"message": "Profile updated successfully"}), 200
 
-            return jsonify({"message": f"{field} updated successfully"}), 200
         except Exception as e:
-            logger.error(f"Exception: {e}")
+            logger.error(f"Exception while updating profile for user_id {id}: {e}")
             return jsonify({"message": "Internal server error"}), 500
 
-    def update_username(self, data):
-        return self.update_field(data['id'], 'username', data['new_update'])
-
-    def update_gender(self, data):
-        return self.update_field(data['id'], 'gender', data['new_update'])
-
-    def update_age(self, data):
-        return self.update_field(data['id'], 'age', data['new_update'])
-
-    def update_mobile_no(self, data):
-        return self.update_field(data['id'], 'mobile_no', data['new_update'])
-
-    def update_subscription_type(self, data):
-        return self.update_field(data['id'], 'subscription_type', data['new_update'])
 
 if __name__ == '__main__':
     pass

@@ -9,6 +9,7 @@ from models.place import Place
 from models.uploads import Upload
 import uuid
 import logging
+from datetime import datetime
 import concurrent.futures
 
 logging.basicConfig(level=logging.INFO)
@@ -107,8 +108,6 @@ class Recommender:
         try:
             score = 0
 
-            if not self.is_age_compatible(current_user_profile, other_user_preference):
-                logging.info("Age not compatible")
 
             score += self.calculate_basic_score()
             logging.info(f"Basic score: {score}")
@@ -123,10 +122,6 @@ class Recommender:
             industry_score = self.calculate_industry_score(current_user_profile, other_user_preference)
             score += industry_score if industry_score is not None else 0
             logging.info(f"Score after industry: {score}")
-
-            hobby_score = self.calculate_hobby_score(current_user_preference, other_user_profile)
-            score += hobby_score if hobby_score is not None else 0
-            logging.info(f"Score after hobby: {score}")
 
             child_preference_score = self.calculate_child_preference_score(current_user_preference, other_user_profile)
             score += child_preference_score if child_preference_score is not None else 0
@@ -265,17 +260,27 @@ class Recommender:
                 if recommendation.score < 5:
                     continue
 
+                if other_user_profile:
+                    dob = other_user_profile.DOB
+                    if isinstance(dob, str):
+                        dob = datetime.strptime(dob, '%Y-%m-%d')
+                    # Calculate age
+                    today = datetime.today()
+                    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+                else:
+                    age = None
+
                 recommendation_data = {
                     "id": recommendation.id,
                     "user_id1": recommendation.user_id1,
                     "user_id2": recommendation.user_id2,
                     "score": recommendation.score,
-                    "username": other_user.username,
+                    "username": other_user.username.upper(),
                     "image_path": other_user_image.image_path if other_user_image else None,
-                    "industry": other_user_profile.industry_major if other_user_profile else None,
+                    "industry": other_user_profile.industry_major.upper() if other_user_profile else None,
                     "country": other_user_place.country if other_user_place else None,
                     "region": other_user_place.region if other_user_place else None,
-                    "age": other_user_profile.age if other_user_profile else None,
+                    "age": age,
                     "gender": other_user_profile.gender if other_user_profile else None
                 } 
                 

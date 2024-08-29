@@ -1,26 +1,55 @@
-import React, { useState } from 'react';
-import './ProfileSettings.css'; // Import the CSS file for styling
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import api from '../api/axios';
+import './ProfileSettings.css';
 
-const ProfileSettings = () => {
+const ProfileSettings = ({ userId }) => {
     const [username, setUsername] = useState('');
     const [industry, setIndustry] = useState('');
-    const [profilePicture, setProfilePicture] = useState(null);
+    const [country, setCountry] = useState('');
+    const [region, setRegion] = useState('');
+    const [subRegion, setSubRegion] = useState('');
+    const [career, setCareer] = useState('');
+    const [dob, setDob] = useState('');
 
-    const handleProfilePictureChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setProfilePicture(URL.createObjectURL(file));
+    useEffect(() => {
+        // Fetch the existing user profile
+        const fetchProfile = async () => {
+            try {
+                const response = await api.get(`/api/v1/profile`);
+                const profileData = response.data;
+                console.log(profileData)
+                setUsername(profileData.username);
+                setIndustry(profileData.industry);
+                setCareer(profileData.career);
+                setDob(profileData.dob);
+            } catch (error) {
+                console.error('Error fetching profile data:', error.response?.data?.error || error.message);
+            }
+        };
+
+        fetchProfile();
+    }, [userId]);
+
+    const handleSave = async () => {
+        try {
+            const profileData = {
+                username,
+                industry,
+                career,
+                dob
+            };
+
+            const response = api.patch('/api/v1/profiles/update', profileData);
+            alert(response.data.message); // Display success message
+        } catch (error) {
+            alert('Error updating profile: ' + error.response?.data?.error || error.message);
         }
-    };
-
-    const handleSave = () => {
-        // Handle saving the profile settings (e.g., send to server)
-        alert('Profile settings saved!');
     };
 
     return (
         <div className="profile-settings">
-            <h2>Profile Settings</h2>
+            <h2>Update Profile</h2>
             <div className="form-group">
                 <label htmlFor="username">Username</label>
                 <input
@@ -31,12 +60,54 @@ const ProfileSettings = () => {
                 />
             </div>
             <div className="form-group">
-                <label htmlFor="industry">Industry</label>
-                <textarea
-                    id="industry"
-                    value={industry}
-                    onChange={(e) => setIndustry(e.target.value)}
-                ></textarea>
+                <label htmlFor="industry_major">
+                    Industry Major:
+                    <select
+                        id="industry_major"
+                        name="industry_major"
+                        value={industry}
+                        onChange={(e) => setIndustry(e.target.value)}
+                        className="industry_major"
+                    >
+                        <option value="" label="Select industry major" />
+                        <option value="health" label="Health" />
+                        <option value="it" label="IT" />
+                        <option value="finance" label="Finance" />
+                        <option value="business" label="Business" />
+                        <option value="law" label="Law" />
+                        <option value="engineering" label="Engineering" />
+                        <option value="education" label="Education" />
+                        <option value="scientific_research" label="Scientific Research" />
+                        <option value="manufacturing" label="Manufacturing" />
+                        <option value="retail" label="Retail" />
+                        <option value="transportation" label="Transportation" />
+                        <option value="agriculture" label="Agriculture" />
+                        <option value="hospitality" label="Hospitality" />
+                        <option value="construction" label="Construction" />
+                        <option value="real_estate" label="Real Estate" />
+                        <option value="security" label="Security" />
+                        <option value="others" label="Others" />
+                    </select>
+                </label>
+            </div>
+            <div className="form-group">
+                <label htmlFor="career">Career</label>
+                <input
+                    type="text"
+                    id="career"
+                    value={career}
+                    onChange={(e) => setCareer(e.target.value)}
+                />
+            </div>
+            <div className='form-group'>
+                <label htmlFor="dob">Date of Birth</label>
+                <input
+                    type="date"
+                    id="dob"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    required
+                />
             </div>
             <button className="save-btn" onClick={handleSave}>Save</button>
         </div>

@@ -76,6 +76,7 @@ const DualSelect = () => {
 
     return (
         <div className="dual-select-container">
+            <h2>Like only one person or pass</h2>
             {people.length >= 2 ? (
                 <div className="profile-pair">
                     <div className="profile">
