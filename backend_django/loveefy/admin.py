@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import User, Likes, UserProfile, Place, Preference, Upload, Matches, Recommendation, Room, Messages
+from .models.user import User
+from .models.likes import Likes, Matches
+from .models.profile import UserProfile
+from .models.place import Place
+from .models.preference import Preference
+from .models.upload import Upload
+from .models.recommendation import Recommendation
+from .models.messages import Room, Messages
 
 admin.site.register(User)
 admin.site.register(Likes)

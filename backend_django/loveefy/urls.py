@@ -1,8 +1,6 @@
 from django.urls import path
+from .views.auth import moses
 
-from . import views
-
-# Your api routes go here
 urlpatterns = [
-    path("moses/", views.moses),
+    path("moses/", moses),
 ]
