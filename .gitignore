@@ -1,6 +1,7 @@
 *__pycache__
-*.env
+.env/
 *.swp
 venv/
 __pycache__/
 *.webp
+.env

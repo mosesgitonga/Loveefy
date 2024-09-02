@@ -2,4 +2,4 @@
 .env
 alembic.*
 alembic
- 
+*.env
