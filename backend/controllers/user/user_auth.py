@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from flask import jsonify, current_app
-from datetime import datetime
+from flask import jsonify, current_app, url_for
+from itsdangerous import URLSafeTimedSerializer
+from flask_mail import Message, Mail
+from datetime import datetime, timedelta
 import os
 import bcrypt
 import uuid
 import sys
 import re
 import logging
+import random 
+import string
+import redis 
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
@@ -16,22 +21,27 @@ project_root = os.path.abspath(os.path.join(current_file_path, '..', '..', '..')
 sys.path.append(project_root)
 
 from models.engine.DBStorage import DbStorage
-from models.user import User
+from models.user import User, Otp
 
 # Initialize Limiter for rate limiting
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
 
 storage = DbStorage()
 
-def is_valid_email_format(email):
-    """Verify email format using regex."""
-    email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-    return bool(re.match(email_regex, email))
+mail = Mail()
+
+# def is_valid_email_format(email):
+#     """Verify email format using regex."""
+#     email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+#     return bool(re.match(email_regex, email))
 
 class User_auth: 
-    def __init__(self):
-        self.storage = storage  # Avoid re-instantiating DbStorage
+    def __init__(self, mail=mail):
+        self.storage = storage  
         self.created_at = datetime.now()
+        self.mail = mail
+        self.redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)        
+        print('redis client  :  \n',self.redis_client)
 
     def register_by_email(self, data):
         """Register a new user by email."""
@@ -39,8 +49,8 @@ class User_auth:
         email = data.get('email')
         username = data.get('username')
         
-        if not is_valid_email_format(email):
-            return jsonify({'error': 'Invalid email format'}), 400
+        # if not is_valid_email_format(email):
+        #     return jsonify({'error': 'Invalid email format'}), 400
 
         if not password or not email or not username:
             return jsonify({'error': 'Username, password, and email are required'}), 400
@@ -100,7 +110,7 @@ class User_auth:
 
         except Exception as e:
             logging.error(f'Error during login: {e}')
-            return jsonify(message="An error occurred during login"), 500
+            return jsonify(error="An error occurred during login"), 500
         
     @jwt_required()
     def get_user(self):
@@ -115,6 +125,78 @@ class User_auth:
             "email": user.email
         }
         return jsonify(user_details), 200
+    
+    def generate_otp(self, email):
+        """Generate a 6-digit OTP."""
+        try:
+            otp = ''.join(random.choices(string.digits, k=6))
+            print('Generated OTP:', otp)
+            expiration_time = 15 * 60  # OTP expires in 15 minutes
+
+            # Store OTP in Redis
+            otp_obj = self.redis_client.setex(f"otp:{email}", expiration_time, otp)
+            if otp_obj is None:
+                logging.error("Failed to store OTP in Redis")
+                return jsonify({'message': 'Unable to store the OTP in Redis'}), 500
+            
+            logging.info('OTP stored in Redis successfully')
+            return otp  # Return OTP for use in the email
+
+        except Exception as e:
+            logging.error(f'Error generating OTP: {e}')
+            return jsonify({"message": "Internal Server Error"}), 500
+        
+
+    def verify_otp(self, data):
+        try:
+            otp = data.get('otp')
+            email = data.get('email')
+
+            if not otp:
+                return jsonify({"message": "No OTP provided"}), 400
+
+            # Retrieve OTP from Redis
+            stored_otp = self.redis_client.get(f'otp:{email}')
+            if stored_otp is None:
+                return jsonify({"message": "No OTP has been generated or it has expired"}), 401
+
+            stored_otp = stored_otp.decode('utf-8')  # Decode from bytes to string
+
+            if stored_otp != otp:
+                return jsonify({"message": "Access Denied - Wrong OTP"}), 403
+
+            return jsonify({"message": "Access Granted - You may change your password"}), 200
+
+        except Exception as e:
+            logging.error(f'Error verifying OTP: {e}')
+            return jsonify({"error": "Internal Server Error"}), 500
+            
+    def send_otp_via_email(self, user):
+        try:
+            # Generate OTP
+            otp = self.generate_otp(user.email)
+            if otp is None:
+                return jsonify({'message': 'Internal Server Error'}), 500
+            
+            print('Sending OTP:', otp)
+            msg = Message(subject="Password Reset Request",
+                        recipients=[user.email],
+                        body=f'Dear {user.username}, \nHere is your OTP: {otp}')
+            
+            # Send email
+            send_response = self.mail.send(msg)
+            print('send response', send_response)
+            if send_response is None:
+                logging.error('email sent')
+                return jsonify({"message": " email sent"}), 200
+            
+            print('Send response:', send_response)
+            return jsonify({"message": "OTP sent successfully"}), 200
+
+        except Exception as e:
+            logging.error(f'Error sending reset email: {e}')
+            return jsonify({'error': 'Internal Server Error'}), 500
+
 
 if __name__ == '__main__':
     pass

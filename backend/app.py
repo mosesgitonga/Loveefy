@@ -2,6 +2,8 @@ from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from flask import Flask, send_from_directory, request, jsonify
 from dotenv import load_dotenv
 from flask_socketio import SocketIO, join_room, leave_room, emit
+from flask_mail import Mail, Message
+from flask_redis import FlaskRedis
 from models.engine.DBStorage import DbStorage
 from models.user import User
 from models.messages import RoomMember
@@ -15,9 +17,12 @@ from routes.messages import messages_bp
 from routes.payments.Mpesa import mpesa_bp
 from routes.notifications import notifications_bp
 from services.message import MessageService
+from controllers.user.user_auth import User_auth
 from datetime import timedelta
 from flask_cors import CORS
+import redis
 import os
+import secrets
 from datetime import datetime
 
 # Load environment variables
@@ -32,11 +37,33 @@ storage.reload()
 # Initialize Flask app
 app = Flask(__name__, static_folder='dist', static_url_path='')
 
+
+
+# Configuration settings
+app.config['REDIS_URL'] = "redis://localhost:6379/0"
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SECURITY_PASSWORD_SALT'] = os.getenv('SECURITY_PASSWORD_SALT')
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'infosec947@gmail.com'
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = 'infosec947@gmail.com'
+SECRET_KEY = os.environ.get('SECRET_KEY') or secrets.token_hex(10)
+SECURITY_PASSWORD_SALT = secrets.token_hex(11)
+
+
+redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+mail = Mail(app)
+
 # Initialize Socket.IO with logging
 socketio = SocketIO(app, logger=True, engineio_logger=True, cors_allowed_origins="*")
 
-# Set up CORS (limit to specific origins if needed)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})
+
+
+user_auth = User_auth(mail=mail)
 
 # Configure JWT
 app.config['JWT_SECRET_KEY'] = jwt_secret_key
@@ -129,6 +156,8 @@ app.register_blueprint(likes_bp)
 app.register_blueprint(messages_bp)
 app.register_blueprint(mpesa_bp)
 app.register_blueprint(notifications_bp)
+
+
 
 # Main entry point
 if __name__ == '__main__':

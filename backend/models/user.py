@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
 from .base_model import Base
+import uuid
 
 class User(Base):
     __tablename__ = 'users'
@@ -28,3 +29,16 @@ class User(Base):
             "place_id": self.place_id,
             "preference_id": self.preference_id
         }
+    
+class Otp(Base):
+    __tablename__ = "otp"
+    id = Column(String(36), default=str(uuid.uuid4()), primary_key=True)
+    otp = Column(String(10))
+    created_at = Column(DateTime, nullable=False)
+    updated_at = Column(DateTime, nullable=False)
+    exp = Column(DateTime)
+    email = Column(String(36), ForeignKey('users.email'), nullable=False, index=True)
+
+
+
+
