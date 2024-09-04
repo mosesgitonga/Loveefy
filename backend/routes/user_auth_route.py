@@ -89,3 +89,15 @@ def reset_password(token):
     except Exception as e:
         logging.error(f'Error during password reset: {e}')
         return jsonify({'error': 'Failed to reset password'}), 500
+
+@auth_bp.route('/update_password', methods=['PATCH'], strict_slashes=False)
+def update_password():
+    data = request.json 
+
+    otp_verification_response, otp_status_code = user_auth.verify_otp(data)
+    if otp_status_code != 200:
+        return otp_verification_response
+
+    password_update_response = user_auth.update_password(data)
+    return password_update_response
+

@@ -140,7 +140,7 @@ class User_auth:
                 return jsonify({'message': 'Unable to store the OTP in Redis'}), 500
             
             logging.info('OTP stored in Redis successfully')
-            return otp  # Return OTP for use in the email
+            return otp
 
         except Exception as e:
             logging.error(f'Error generating OTP: {e}')
@@ -155,12 +155,17 @@ class User_auth:
             if not otp:
                 return jsonify({"message": "No OTP provided"}), 400
 
+            if not email:
+                return jsonify({"message": "No email provided"}), 400
+
             # Retrieve OTP from Redis
             stored_otp = self.redis_client.get(f'otp:{email}')
             if stored_otp is None:
                 return jsonify({"message": "No OTP has been generated or it has expired"}), 401
 
-            stored_otp = stored_otp.decode('utf-8')  # Decode from bytes to string
+            # Check if stored_otp is bytes or string and decode if needed
+            if isinstance(stored_otp, bytes):
+                stored_otp = stored_otp.decode('utf-8')
 
             if stored_otp != otp:
                 return jsonify({"message": "Access Denied - Wrong OTP"}), 403
@@ -170,6 +175,8 @@ class User_auth:
         except Exception as e:
             logging.error(f'Error verifying OTP: {e}')
             return jsonify({"error": "Internal Server Error"}), 500
+
+
             
     def send_otp_via_email(self, user):
         try:
@@ -188,15 +195,46 @@ class User_auth:
             print('send response', send_response)
             if send_response is None:
                 logging.error('email sent')
-                return jsonify({"message": " email sent"}), 200
+                return jsonify({"message": f" OTP(One Time Password) has been sent to your email: {user.email}"}), 200
             
             print('Send response:', send_response)
-            return jsonify({"message": "OTP sent successfully"}), 200
+            return jsonify({"error": "Something went wrong"}), 500
 
         except Exception as e:
             logging.error(f'Error sending reset email: {e}')
             return jsonify({'error': 'Internal Server Error'}), 500
+        
+    def update_password(self, data):
+        new_password = data.get('newPassword')
+        email = data.get('email')
+        
+        try:
+            # Fetch user by email
+            user = self.storage.get(User, email=email)
+            if user is None:
+                logging.info('User not found')
+                return jsonify({"error": "User not found"}), 404
 
+            # Decode user password from the database
+            
+            hashed_password = user.password.encode('utf-8')
 
+            # Compare the new password with the hashed password
+            if bcrypt.checkpw(new_password.encode('utf-8'), hashed_password):
+                return jsonify({"error": "Your old password cannot be your new password"}), 400
+
+            # Hash the new password
+            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+
+            # Update the user's password with the new hashed password
+            user.password = hashed_password
+            self.storage.new(user)
+            self.storage.save()  # Assuming this method commits the changes to the database
+
+            return jsonify({"message": "Password updated successfully"}), 200
+
+        except Exception as e:
+            logging.error(f'Error updating password: {e}')
+            return jsonify({"error": "Internal Server Error"}), 500
 if __name__ == '__main__':
     pass
