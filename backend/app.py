@@ -108,13 +108,17 @@ def handle_send_message(data):
         user_id = get_jwt_identity()
         user = storage.get(User, id=user_id)
         username = user.username
-        
         members = storage.get_all(RoomMember, room_id=room_id)
         receiver_id = next((member.user_id for member in members if member.user_id != user_id), None)
 
         if not receiver_id:
             emit('error', {'msg': 'No receiver found'})
             return
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        emit('receive_message', {'timestamp': timestamp, 'username': username, 'content': msg_content}, room=room_id)
+
+
         
         # Save the message to the database
         message.save_message(
@@ -123,9 +127,13 @@ def handle_send_message(data):
             room_id=room_id,
             message=msg_content
         )
+        emit('receive_notification', {
+            'msg': f'You have a new message from {username}',
+            'room_id': room_id,
+            'timestamp': timestamp,
+        }, room=receiver_id)
 
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        emit('receive_message', {'timestamp': timestamp, 'username': username, 'content': msg_content}, room=room_id)
+        
     except Exception as e:
         emit('error', {'msg': 'Failed to send message'})
         print(f"Error sending message: {e}")
@@ -143,6 +151,10 @@ def callback():
 def serve_index():
     return send_from_directory(app.static_folder, 'index.html')
 
+
+@app.errorhandler(404)
+def not_found(e):
+    return send_from_directory(app.static_folder, 'index.html')
 # Serve static files
 
 
@@ -163,3 +175,4 @@ app.register_blueprint(notifications_bp)
 if __name__ == '__main__':
     # Run the app with eventlet for production readiness
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+

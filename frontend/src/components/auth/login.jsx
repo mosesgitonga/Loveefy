@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import api from "../api/axios";
 import { useNavigate } from 'react-router-dom';
 import styles from './login.module.css';
+import { Link } from 'react-router-dom'
 import axios from "axios";
 
-axios.defaults.baseURL = 'http://localhost:5000';
-axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -13,9 +12,10 @@ const Login = () => {
         password: ''
     });
 
+    
     const [errorMessage, setErrorMessage] = useState('');
 
-    const navigate = useNavigate();
+    const navigate = useNavigate()
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -84,8 +84,8 @@ const Login = () => {
                         />
                     </div>
                     <button type="submit">Submit</button>
-                    <p><a href="#">Forgot password</a></p>
-                    <p>Don't have an account? <a href="/register">Register</a></p>
+                    <p><Link to="/forgot-password">Forgot password</Link></p>
+                    <p>Don't have an account? <Link to="/register">Register</Link></p>
                     {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
                 </form>
             </div>

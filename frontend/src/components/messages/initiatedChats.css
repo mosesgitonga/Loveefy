@@ -15,20 +15,28 @@
     background-color: #ff3366;
     width: 100%;
     margin: 0 auto;
-    margin-left: 34%;
+    /* margin-left: 34%; */
     height: 100vh;
+}
+
+.time {
+    font-size: 12px;
+
 }
 
 .room {
     justify-content: center;
     margin: 0 auto;
-    background-color: rgb(250, 145, 163);
     margin-top: 10px;
     margin: 10px;
-    border-radius: 50px;
+    /* border-radius: 50px; */
     font-family:Arial, Helvetica, sans-serif;
     font-size: 23px;
     width: 100%;;
+    border-bottom: 1px solid #333;
+    color: white;
+    padding: 5px;
+    text-transform: capitalize;
 }
 
 .room:hover {

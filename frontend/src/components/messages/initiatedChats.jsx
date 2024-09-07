@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./initiatedChats.css";
 import api from "../api/axios";
+
 import Sidebar from "../discovery/SideBar";
 
 const InitiatedChats = () => {
     const [rooms, setRooms] = useState(null);
-    const navigate = useNavigate();  
+    const navigate = useNavigate();   
 
     useEffect(() => {
         const fetchRooms = async () => {
@@ -30,6 +31,7 @@ const InitiatedChats = () => {
 
     return (
         <div className="container">
+            {/* <Sidebar /> */}
             <div className="chatsBox">
                 <h1>Initiated Chats</h1>
 
@@ -40,7 +42,7 @@ const InitiatedChats = () => {
                             key={room.room_id}
                             onClick={() => handleRoomClick(room.room_id)}
                         >
-                            <p>{room.opposite_username}</p> 
+                            <p>{room.opposite_username}  </p> 
                         </div>
                     ))
                 ) : (

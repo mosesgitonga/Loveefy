@@ -1,7 +1,7 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import IndexPage from './components'
+import IndexPage from './components';
 import Signup from './components/auth/signup';
 import Login from './components/auth/login';
 import Profile from './components/profile/profile';
@@ -12,23 +12,30 @@ import InitiatedChats from './components/messages/initiatedChats';
 import ChatBox from './components/messages/chatBox';
 import Notifications from './components/notifications/notification';
 import SettingsPage from './components/settings/settingsPage';
+import ForgotPassword from './components/verifications/forgotPassword';
+import Upgrade from './components/upgrade/upgrade';
+import { SocketProvider } from './components/messages/socketContext';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Router>
-      <Routes>
-        <Route path='/' element={<IndexPage />} />
-        <Route path='/register' element={<Signup />} />
-        <Route path='/login' element={<Login />}/>
-        <Route path='/profile/setup' element={<Profile />} />
-        <Route path='/preference' element={<PreferenceForm />} />
-        <Route path='/upload' element={<Upload />} />
-        <Route path='/discovery/home' element={<Discovery />} />
-        <Route path='/discovery/chats' element={<InitiatedChats />} />
-        <Route path='/discovery/notifications' element={<Notifications />} />
-        <Route path="/c/:roomId" element={<ChatBox />} />
-        <Route path='/discovery/settings' element={<SettingsPage />} />
-      </Routes>
-    </Router>
+    <SocketProvider>
+      <Router>
+        <Routes>
+          <Route path='/' element={<IndexPage />} />
+          <Route path='/register' element={<Signup />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/profile/setup' element={<Profile />} />
+          <Route path='/preference' element={<PreferenceForm />} />
+          <Route path='/upload' element={<Upload />} />
+          <Route path='/discovery/home' element={<Discovery />} />
+          <Route path='/discovery/chats' element={<InitiatedChats />} />
+          <Route path='/discovery/notifications' element={<Notifications />} />
+          <Route path='/c/:roomId' element={<ChatBox />} />
+          <Route path='/discovery/settings' element={<SettingsPage />} />
+          <Route path='/auth/otp-request' element={<ForgotPassword />} />
+          <Route path='/hello_user' element={<Upgrade />} />
+        </Routes>
+      </Router>
+    </SocketProvider>
   </React.StrictMode>,
-)
+);

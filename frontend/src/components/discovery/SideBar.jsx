@@ -1,12 +1,16 @@
-import React, { useState } from "react";
-import { NavLink, useNavigate } from 'react-router-dom';
-import { FaBars } from 'react-icons/fa'; // Import the hamburger icon
-import styles from './Sidebar.module.css'; 
+import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import { FaBars } from 'react-icons/fa'; 
+import styles from './Sidebar.module.css';
+import io from "socket.io-client";
+
+let socket;
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('home');
-    const navigate = useNavigate(); 
+    const [msgAlertCount, setMsgAlertCount] = useState(0);
+    const navigate = useNavigate();
 
     const handleNavClick = (tabName, path) => {
         setActiveTab(tabName);
@@ -18,10 +22,39 @@ const Sidebar = () => {
         setIsOpen(!isOpen);
     };
 
+    useEffect(() => {
+        const token = sessionStorage.getItem('access_token');
+        
+            socket = io.connect('http://localhost:5000', {
+                extraHeaders: {
+                    Authorization: `Bearer ${token}`
+            }
+        
+        })
+
+        socket.on('connect', () => {
+            console.log('Connected to socket.io via sidebar');
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from Socket.io server');
+        });
+
+        socket.on('receive_notification', () => {
+            setMsgAlertCount(prevCount => prevCount + 1);
+        });
+
+        return () => {
+            if (socket) {
+                socket.disconnect();
+            }
+        };
+    }, []);
+
     return (
         <>
             {/* Hamburger Icon */}
-            <div className={styles.hamburger} onClick={toggleSidebar}>
+            <div className={styles.hamburger} onClick={toggleSidebar} aria-expanded={isOpen} aria-label="Toggle Sidebar">
                 <FaBars />
             </div>
 
@@ -39,7 +72,9 @@ const Sidebar = () => {
                         className={activeTab === 'chats' ? styles.active : ''}
                         onClick={() => handleNavClick('chats', '/discovery/chats')}
                     >
-                        <div className={styles["nav-item"]}>Messages</div>
+                        <div className={styles["nav-item"]}>
+                            Messages <span>{msgAlertCount}</span>
+                        </div>
                     </li>
                     <li
                         className={activeTab === 'notifications' ? styles.active : ''}
@@ -55,7 +90,7 @@ const Sidebar = () => {
                     </li>
                     <li
                         className={activeTab === 'upgrade' ? styles.active : ''}
-                        onClick={() => handleNavClick('upgrade', '/discovery/upgrade')}
+                        onClick={() => handleNavClick('upgrade', '/hello_user')}
                     >
                         <div className={styles["nav-item"]}>Upgrade</div>
                     </li>

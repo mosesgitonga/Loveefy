@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from 'react-router-dom';
-import io from "socket.io-client";
+import { useSocket } from "./socketContext.jsx"; // Import the useSocket hook
 import "./chatBox.css";
 import api from "../api/axios";
 import Sidebar from "../discovery/SideBar";
@@ -8,51 +8,32 @@ import InitiatedChats from "./initiatedChats";
 
 const ChatBox = () => {
     const { roomId } = useParams();
-    const [socket, setSocket] = useState(null);
+    const socket = useSocket(); // Use the socket from context
     const [messages, setMessages] = useState([]);
     const [inputMessage, setInputMessage] = useState("");
     const currentUsername = sessionStorage.getItem('currentUsername');
-    const endOfMessagesRef = useRef(null); // Create a ref for the end of messages
+    const endOfMessagesRef = useRef(null);
 
     useEffect(() => {
-        const token = sessionStorage.getItem('access_token');
-        const newSocket = io.connect('http://localhost:5000', {
-            extraHeaders: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+        if (socket) {
+            socket.emit('join_room', { room_id: roomId, username: currentUsername });
 
-        newSocket.on('connect', () => {
-            console.log('Connected to the server');
-            newSocket.emit('join_room', { room_id: roomId, username: currentUsername });
-        });
+            socket.on('receive_message', (message) => {
+                setMessages(prevMessages => [...prevMessages, message]);
+            });
 
-        newSocket.on('disconnect', () => {
-            console.log('Disconnected from server');
-        });
-
-        newSocket.on('error', (error) => {
-            console.log('Error:', error);
-        });
-
-        newSocket.on('receive_message', (message) => {
-            console.log(message);
-            setMessages(prevMessages => [...prevMessages, message]);
-        });
-
-        setSocket(newSocket);
-
-        return () => {
-            newSocket.emit('leave_room', { room_id: roomId, username: currentUsername });
-            newSocket.disconnect();
-        };
-    }, [roomId, currentUsername]);
+            return () => {
+                socket.emit('leave_room', { room_id: roomId, username: currentUsername });
+                socket.off('receive_message'); // Clean up the event listener
+            };
+        }
+    }, [socket, roomId, currentUsername]);
 
     useEffect(() => {
         const fetchMessages = async () => {
             try {
                 const response = await api.get('/api/v1/messages', {
-                    params: { roomId: roomId, page: 1, per_page: 8 }
+                    params: { roomId: roomId, page: 1, per_page: 50 }
                 });
                 if (response.data && Array.isArray(response.data.messages)) {
                     setMessages(response.data.messages);
@@ -70,7 +51,7 @@ const ChatBox = () => {
         if (endOfMessagesRef.current) {
             endOfMessagesRef.current.scrollIntoView({ behavior: "smooth" });
         }
-    }, [messages]); // Trigger scroll when messages change
+    }, [messages]);
 
     const sendMessage = () => {
         if (socket && inputMessage.trim()) {
@@ -86,7 +67,6 @@ const ChatBox = () => {
     return (
         <div className="chat-container">
             <Sidebar className="sidebar"/>
-            <InitiatedChats className="chats" />
             <div className="chatBox">
                 <div className="messages">
                     {Array.isArray(messages) && messages.length > 0 ? (
@@ -101,7 +81,6 @@ const ChatBox = () => {
                     ) : (
                         <p>Loading...</p>
                     )}
-                    {/* Dummy element to scroll to */}
                     <div ref={endOfMessagesRef} />
                 </div>
                 <div className="send">

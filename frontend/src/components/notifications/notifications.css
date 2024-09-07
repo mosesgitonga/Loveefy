@@ -1,16 +1,16 @@
-/* notifications.css */
-
 .notificationContainer {
     display: flex;
     margin-left: 0px; /* Adjust based on your sidebar width */
+
 }
 
 .notifications-container {
-    padding: 20px;
+    padding: 20px 0;
     background-color: #ff3366;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     flex-grow: 1;
+    margin-left: 250px;
 }
 
 .notifications-container h2 {
@@ -47,6 +47,7 @@
 .notification-username {
     font-weight: bold;
     color: #48ff00;
+    text-transform: capitalize;
 }
 
 .loading,
@@ -54,4 +55,17 @@
     text-align: center;
     font-size: 18px;
     color: #888;
+}
+
+@media screen and (max-width: 768px) {
+    .notifications-container {
+        margin-left: 0;
+        height: 100vh;
+    }
+
+    .notification-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
 }
