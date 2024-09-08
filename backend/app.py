@@ -6,7 +6,7 @@ from flask_mail import Mail, Message
 from flask_redis import FlaskRedis
 from models.engine.DBStorage import DbStorage
 from models.user import User
-from models.messages import RoomMember
+from models.messages import RoomMember, Messages
 from routes.user_auth_route import auth_bp
 from routes.user_profile_route import profile_bp
 from routes.preference_route import preference_bp
@@ -16,6 +16,7 @@ from routes.matches.likes import likes_bp
 from routes.messages import messages_bp
 from routes.payments.Mpesa import mpesa_bp
 from routes.notifications import notifications_bp
+from routes.feedback_route import feedback_bp
 from services.message import MessageService
 from controllers.user.user_auth import User_auth
 from datetime import timedelta
@@ -75,28 +76,43 @@ jwt = JWTManager(app)
 def handle_connect():
     print('Client connected')
 
+# Utility Functions for Room Handling
+def join_room_util(room_id):
+    try:
+        print(f'Joining room {room_id}...')
+    
+        join_room(room_id)
+    except Exception as e:
+        print(f"Error joining room: {e}")
+        emit('error', {'msg': f'Failed to join room: {str(e)}'})
+
+def leave_room_util(room_id):
+    try:
+        print(f'Leaving room {room_id}...')
+        leave_room(room_id)
+    except Exception as e:
+        print(f"Error leaving room: {e}")
+        emit('error', {'msg': f'Failed to leave room: {str(e)}'})
+
 # Socket.IO event for joining a room
 @socketio.on('join_room')
 @jwt_required()
 def handle_join_room(data):
-    try:
-        print('Joining room ...')
-        room_id = data['room_id']
-        join_room(room_id)
-    except Exception as e:
-        emit('error', {'msg': 'Failed to join room'})
-        print(f"Error joining room: {e}")
+    room_id = data.get('room_id')
+
+    unread_messages = storage.get_all(Messages, room_id=room_id, status="unread")
+    for message in unread_messages:
+        message.status = "read"
+        storage.new(message)
+    storage.save()
+    join_room_util(room_id)
 
 # Socket.IO event for leaving a room
 @socketio.on('leave_room')
 @jwt_required()
 def handle_leave_room(data):
-    try:
-        room_id = data['room_id']
-        leave_room(room_id)
-    except Exception as e:
-        emit('error', {'msg': 'Failed to leave room'})
-        print(f"Error leaving room: {e}")
+    room_id = data.get('room_id')
+    leave_room_util(room_id)
 
 # Socket.IO event for sending a message
 @socketio.on('send_message')
@@ -108,18 +124,16 @@ def handle_send_message(data):
         user_id = get_jwt_identity()
         user = storage.get(User, id=user_id)
         username = user.username
+
+        # Validate the room and get receiver ID
         members = storage.get_all(RoomMember, room_id=room_id)
         receiver_id = next((member.user_id for member in members if member.user_id != user_id), None)
 
         if not receiver_id:
             emit('error', {'msg': 'No receiver found'})
             return
+
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-        emit('receive_message', {'timestamp': timestamp, 'username': username, 'content': msg_content}, room=room_id)
-
-
-        
         # Save the message to the database
         message.save_message(
             sender_id=user_id,
@@ -127,16 +141,17 @@ def handle_send_message(data):
             room_id=room_id,
             message=msg_content
         )
-        emit('receive_notification', {
-            'msg': f'You have a new message from {username}',
-            'room_id': room_id,
-            'timestamp': timestamp,
-        }, room=receiver_id)
 
-        
+        # Emit the message to the room
+        emit('receive_message', {'timestamp': timestamp, 'username': username, 'content': msg_content}, room=room_id)
+
+
+
     except Exception as e:
         emit('error', {'msg': 'Failed to send message'})
         print(f"Error sending message: {e}")
+
+
 
 
 @app.route('/callback', methods=['POST'])
@@ -168,11 +183,12 @@ app.register_blueprint(likes_bp)
 app.register_blueprint(messages_bp)
 app.register_blueprint(mpesa_bp)
 app.register_blueprint(notifications_bp)
+app.register_blueprint(feedback_bp)
 
 
 
 # Main entry point
 if __name__ == '__main__':
     # Run the app with eventlet for production readiness
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000)
 

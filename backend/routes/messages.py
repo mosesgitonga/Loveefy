@@ -30,3 +30,13 @@ def list_messages():
     except Exception as e:
         print(e)
         return jsonify({"message": "Internal Server Error"})
+    
+@messages_bp.route('/all_unread/count', methods=['GET'], strict_slashes=False)
+@jwt_required()
+def count_all_unread_messages():
+    try:
+        response = messages.count_all_unread_messages()
+        return response
+    except Exception as e:
+        logger.info(e)
+        return jsonify({"error": "Internal Server Error"})

@@ -42,18 +42,18 @@ def creates_profile():
         logger.error(f"Exception: {e}")
         return jsonify({"message": "Internal server error"}), 500
 
-@profile_bp.route('/profile', methods=['GET'], strict_slashes=False)
-@jwt_required()
-def get_profile():
-    profile_response = profile.get_profile()
-    user_response = user.get_user()
-    user_data = {
-        "username": user_response['username'],
-        "industry_major": profile_response['industry_major'],
-        "career": profile_response['career'],
-        "dob": profile_response['dob']
-    }
-    return jsonify(user_data)
+# @profile_bp.route('/profile', methods=['GET'], strict_slashes=False)
+# @jwt_required()
+# def get_profile():
+#     profile_response = profile.get_profile()
+#     user_response = user.get_user()
+#     user_data = {
+#         "username": user_response['username'],
+#         "industry_major": profile_response['industry_major'],
+#         "career": profile_response['career'],
+#         "dob": profile_response['dob']
+#     }
+#     return jsonify(user_data)
 
 @profile_bp.route('/profiles/update', methods=['PATCH'], strict_slashes=False)
 @jwt_required()
@@ -105,3 +105,10 @@ def update_gender():
     except Exception as e:
         print(e)
         return jsonify({"message": "Internal server error"}), 500
+    
+@profile_bp.route('/profile/<userId>', methods=['GET'], strict_slashes=False)
+@jwt_required()
+def get_user_profile(userId):
+    
+    response = profile.get_profile(userId)
+    return response

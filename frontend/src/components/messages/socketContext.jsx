@@ -12,7 +12,7 @@ export const SocketProvider = ({ children }) => {
             extraHeaders: {
                 Authorization: `Bearer ${access_token}`
         }
-        }); // Replace with your backend URL
+        }); 
         setSocket(socketIo);
 
         return () => socketIo.disconnect();

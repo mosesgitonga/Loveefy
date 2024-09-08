@@ -5,6 +5,7 @@ from models.messages import Messages
 from flask import jsonify, request 
 from flask_jwt_extended import get_jwt_identity
 import uuid
+from datetime import datetime
 
 class MessageService:
     def __init__(self):
@@ -51,10 +52,9 @@ class MessageService:
                 # Fetch all members in this room
                 members = self.storage.get_all(RoomMember, room_id=room.id)
                 member_ids = [member.user_id for member in members]
-
                 # Identify the opposite user in the room
                 opposite_user_id = next((user_id for user_id in member_ids if user_id != current_user_id), None)
-                
+
                 if opposite_user_id:
                     opposite_user = self.storage.get(User, id=opposite_user_id)
 
@@ -63,31 +63,17 @@ class MessageService:
                         "name": room.name,
                         "created_at": room.created_at,
                         "opposite_username": opposite_user.username,
-                        "opposite_id": opposite_user.id
+                        "opposite_id": opposite_user.id,
+                        "updated_at": room.updated_at,
                     }
                     rooms_data.append(room_data)
-
+ 
             return jsonify(rooms_data), 200
         except Exception as e:
             print(f"Error listing rooms: {e}")
             return jsonify({"error": "Internal Server Error"}), 500
         
-    def save_message(self, message, room_id, sender_id, receiver_id):
-        try:
-            print('saving message...')
 
-            new_message = Messages(
-                                id=uuid.uuid4(),
-                                room_id=room_id,
-                                sender_Id=sender_id,
-                                receiver_id=receiver_id,
-                                content=message,
-                                    )
-            self.storage.new(new_message)
-            self.storage.save()
-        except Exception as e:
-            print(e)
-            return jsonify({"message": "Internal Server Error"})
         
     def read_messages(self):
         try:
@@ -119,4 +105,36 @@ class MessageService:
         except Exception as e:
             print(e)
             return jsonify({"message": "Internal Server Error"}), 500
+        
+    def save_message(self, message, room_id, sender_id, receiver_id):
+        try:
+            print('saving message...')
+            room = self.storage.get(Room, id=room_id)
+            print(room)
+            new_message = Messages(
+                                id=uuid.uuid4(),
+                                room_id=room_id,
+                                sender_Id=sender_id,
+                                receiver_id=receiver_id,
+                                content=message,
+                                status='unread'
+                                    )
+            room.updated_at = datetime.now()
+            print('room:\n\n',room)
+            self.storage.new(new_message)
+            self.storage.new(room)
+            self.storage.save()
+        except Exception as e:
+            print(e)
+            return jsonify({"message": "Internal Server Error"})
+        
+    def count_all_unread_messages(self):
+        user_id = get_jwt_identity()
+        try:
+            unread_messages = self.storage.get_all(Messages, receiver_id=user_id, status='unread')
+            size_of_unread_messages = len(unread_messages)
+            return jsonify({'size': size_of_unread_messages})
+        except Exception as e:
+            print(e)
+            return jsonify({"error": "Internal Server Error"})
     

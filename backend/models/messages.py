@@ -20,6 +20,7 @@ class Room(Base):
     id = Column(String(75), primary_key=True)  # Adjusted length for concatenated UUIDs
     name = Column(String(50), nullable=True)
     created_at = Column(DateTime, default=func.now(), nullable=False)
+    updated_at = Column(DateTime, nullable=True)
     members = Column(String(200), nullable=True)
 
     messages = relationship('Messages', backref='room')

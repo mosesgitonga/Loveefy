@@ -1,6 +1,8 @@
 from models.engine.DBStorage import DbStorage
 from models.matches import Likes, Matches
 from models.user import User 
+from models.user_profile import User_profile
+from models.uploads import Upload
 from models.notification import Notification
 from services.message import MessageService
 from flask import request, jsonify
@@ -9,6 +11,12 @@ import logging
 import uuid
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from contextlib import contextmanager
+from datetime import datetime
+
+def calculate_age(dob):
+    today = datetime.today()
+    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+    return age
 
 class LikesService:
     def __init__(self):
@@ -49,7 +57,7 @@ class LikesService:
 
                 self._notify_new_like(liker_id, liked_id)
 
-            return jsonify({"message": "User liked successfully, waiting for their response."}), 200
+                return jsonify({"message": "User liked successfully, waiting for their response."}), 200
 
         except IntegrityError as e:
             self.logger.error(f"Integrity error: {e.orig.args}")
@@ -72,7 +80,6 @@ class LikesService:
             return jsonify({"message": "Match already exists"}), 200
 
         room = self.messageService.create_private_room(liker_id, liked_id)
-        self.logger.info(f"Room created: {room}")
 
         new_match = Matches(
             id=str(uuid.uuid4()),
@@ -157,7 +164,13 @@ class LikesService:
             
             # Fetch all user details in one go
             users = self.storage.get_multiple(User, ids=list(user_ids))
+            user_images = self.storage.get_multiple(Upload, [user.id for user in users])
+            user_profiles = self.storage.get_multiple(User_profile, [user.id for user in users])
+
+            # Map user details for quick access
             user_dict = {user.id: user.username for user in users}
+            user_image_dict = {image.user_id: image.image_path for image in user_images}
+            user_profile_dict = {profile.user_id: profile for profile in user_profiles}
 
             # Create the list of notifications
             notifications_list = [
@@ -166,7 +179,14 @@ class LikesService:
                     "message": notification.message,
                     "from_username": user_dict.get(notification.user_from_id),
                     "from_user_id": notification.user_from_id,
-                    "timestamp": notification.created_at  # Assuming you have a timestamp field
+                    "timestamp": notification.created_at,
+                    "image_path": user_image_dict.get(notification.user_from_id),
+                    "industry": user_profile_dict[notification.user_from_id].industry_major,
+                    "career": user_profile_dict[notification.user_from_id].career,
+                    "age": calculate_age(user_profile_dict[notification.user_from_id].DOB),  # Calculate age here
+                    "gender": user_profile_dict[notification.user_from_id].gender,
+                    "employment": user_profile_dict[notification.user_from_id].employment,
+                    "education_level": user_profile_dict[notification.user_from_id].education_level
                 }
                 for notification in notifications
             ]
@@ -176,3 +196,21 @@ class LikesService:
         except Exception as e:
             self.logger.error(f"Error listing notifications: {e}")
             return jsonify({"message": "Internal Server Error"}), 500
+
+    def reject(self, data):
+        try:
+            rejected_id = data.get('rejected_id')
+            user_id = get_jwt_identity()
+
+            notification = self.storage.get(Notification, user_to_id=user_id, user_from_id=rejected_id, message="You have a new like!")
+            like = self.storage.get(Likes, liked_id=user_id, user_id=rejected_id)
+
+            self.storage.delete(notification)
+            self.storage.delete(like)
+
+            self.storage.save()
+            return jsonify({"message": "notification deleted"}), 200
+        except Exception as e:
+            print(e)
+            return jsonify({"message": "Internal Server Error"})
+    

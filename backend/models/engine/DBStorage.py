@@ -104,11 +104,11 @@ class DbStorage:
     def get_multiple(self, cls, ids):
         try:
             with self.get_session() as session:
-                if cls == User_profile or cls == Upload:
-                    result = session.query(cls).filter(cls.user_id.in_(ids)).all()
-                else:
-                    result = session.query(cls).filter(cls.id.in_(ids)).all()
-                logging.info(f'Fetched multiple {cls.__name__} objects with IDs: {ids}')
+                # Determine the correct filter based on the attributes of the class
+                filter_attr = cls.user_id if hasattr(cls, 'user_id') else cls.id
+                result = session.query(cls).filter(filter_attr.in_(ids)).all()
+
+                logging.info(f'Fetched {len(result)} {cls.__name__} objects with filter {filter_attr}: {ids}')
                 return result
         except Exception as e:
             logging.error(f'An error occurred while fetching multiple {cls.__name__} objects: {e}')

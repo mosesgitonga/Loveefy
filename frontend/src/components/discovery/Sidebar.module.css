@@ -56,6 +56,22 @@ li:hover {
     font-size: 18px;
 }
 
+.unreadBadge {
+    background-color: rgba(0, 0, 0, 0.863); /* Background color for the unread badge */
+    border: 2px solid #fff;
+    color: white;          /* Text color for the unread badge */
+    border-radius: 50%;    /* Makes the badge round */
+    padding: 4px 8px;      /* Adjust padding for better appearance */
+    font-size: 0.75rem;    /* Font size for the text inside the badge */
+    position: relative;    /* Positioning for future enhancements */
+    top: -10px;            /* Adjust the badge position vertically */
+    left: 10px;            /* Adjust the badge position horizontally */
+    font-weight: bold;     /* Make the number inside the badge bold */
+    display: inline-block; /* Ensure badge stays inline */
+    min-width: 20px;       /* Minimum width to ensure round shape */
+    text-align: center;    /* Center the text inside the badge */
+}
+
 /* Media Query for smaller screens */
 @media screen and (max-width: 768px) {
     /* Sidebar should be hidden by default */

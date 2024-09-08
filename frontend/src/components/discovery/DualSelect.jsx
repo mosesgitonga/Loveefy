@@ -106,7 +106,7 @@ const DualSelect = () => {
 
     return (
         <div className="dual-select-container">
-            <h2>Like only one person or pass</h2>
+            <h2>You can only like 1 person or pass both</h2>
             {Array.isArray(profilesToShow) && profilesToShow.length >= 2 ? (
                 <div className="profile-pair">
                     {profilesToShow.map((profile, index) => (

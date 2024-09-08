@@ -17,6 +17,7 @@
     margin: 0 auto;
     /* margin-left: 34%; */
     height: 100vh;
+    padding-left: 28%;
 }
 
 .time {
@@ -40,6 +41,13 @@
 }
 
 .room:hover {
-    background-color: rgb(255, 254, 254);
-    color: white;
+    background-color: rgb(252, 252, 252);
+    color: rgb(0, 0, 0);
+}
+
+@media screen and (max-width: 768px) {
+    .chatsBox {
+        padding-left: 0px;
+    }
+
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from flask import Blueprint
-from flask import jsonify
+from flask import jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from controllers.matches.likes import LikesService
 
@@ -25,3 +25,10 @@ def likeback():
     except Exception as e:
         print(e)
         return jsonify({"messages": "Internal Server Error"})
+    
+@likes_bp.route('reject', methods=['DELETE'], strict_slashes=False)
+@jwt_required()
+def reject():
+    data = request.json
+    response = LikesService().reject(data)
+    return response 

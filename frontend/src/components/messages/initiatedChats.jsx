@@ -14,16 +14,19 @@ const InitiatedChats = () => {
             try {
                 const response = await api.get('/api/v1/rooms');
                 if (response.status === 200) {
-                    console.log(response.data);
-                    setRooms(response.data);
+                    // Sort the rooms by the updated_at key, latest first
+                    const sortedRooms = response.data.sort((a, b) => {
+                        return new Date(b.updated_at) - new Date(a.updated_at);
+                    });
+                    setRooms(sortedRooms);
                 }
             } catch (error) {
                 console.error("Error fetching rooms:", error);
             }
         };
-
+    
         fetchRooms();
-    }, []);
+    }, []); 
 
     const handleRoomClick = (roomId) => {
         navigate(`/c/${roomId}`);  // Navigating to the conversation room
@@ -31,7 +34,7 @@ const InitiatedChats = () => {
 
     return (
         <div className="container">
-            {/* <Sidebar /> */}
+            <Sidebar /> 
             <div className="chatsBox">
                 <h1>Initiated Chats</h1>
 
@@ -42,7 +45,7 @@ const InitiatedChats = () => {
                             key={room.room_id}
                             onClick={() => handleRoomClick(room.room_id)}
                         >
-                            <p>{room.opposite_username}  </p> 
+                            <p>{room.opposite_username} - {room.updated_at} - {room.last_message}</p> 
                         </div>
                     ))
                 ) : (

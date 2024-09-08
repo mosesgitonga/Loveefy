@@ -19,6 +19,7 @@ from models.engine.DBStorage import DbStorage
 from models.user_profile import User_profile
 from models.place import Place
 from models.user import User
+from models.uploads import Upload
 
 class Profile:
     def __init__(self):
@@ -114,21 +115,21 @@ class Profile:
             logger.error(f"Exception: {e}")
             return jsonify({"message": "Internal server error"}), 500
 
-    def get_profile(self):
-        try:
-            user_id = get_jwt_identity()
-            user_profile = self.storage.get(User_profile, user_id=user_id)
-            profile_details = {
-                "gender": user_profile.gender,
-                "industry_major": user_profile.industry_major,
-                "career": user_profile.career,
-                "dob": user_profile.DOB
-            }
-            print(profile_details)
-            return profile_details
-        except Exception as e:
-            logger.error(e)
-            return jsonify({"message": "Internal Server Error"})
+    # def get_profile(self):
+    #     try:
+    #         user_id = get_jwt_identity()
+    #         user_profile = self.storage.get(User_profile, user_id=user_id)
+    #         profile_details = {
+    #             "gender": user_profile.gender,
+    #             "industry_major": user_profile.industry_major,
+    #             "career": user_profile.career,
+    #             "dob": user_profile.DOB
+    #         }
+    #         print(profile_details)
+    #         return profile_details
+    #     except Exception as e:
+    #         logger.error(e)
+    #         return jsonify({"message": "Internal Server Error"})
 
     def delete_profile(self, profile_id):
         try:
@@ -194,6 +195,35 @@ class Profile:
         except Exception as e:
             logger.error(f"Exception while updating profile for user_id {id}: {e}")
             return jsonify({"message": "Internal server error"}), 500
+        
+    def get_profile(self, user_id):
+        try:
+            print(f'\n\n {user_id}')
+            user = self.storage.get(User, id=user_id)
+            user_profile = self.storage.get(User_profile, user_id=user_id)
+            user_image = self.storage.get(Upload, user_id=user_id)
+            place = self.storage.get(Place, id=user.place_id)
+            profile_details = {
+                "industry_major": user_profile.industry_major,
+                "career": user_profile.career,
+                "dob": user_profile.DOB,
+                "username": user.username,
+                "employment": user_profile.employment,
+                "has_child": user_profile.has_child,
+                "is_schooling": user_profile.is_schooling,
+                "education_level": user_profile.education_level,
+                "mobile_no": user_profile.mobile_no,
+                "image_path": user_image.image_path,
+                "country": place.country,
+                "region": place.region,
+                "sub_region": place.sub_region,
+                "joined_at": user.created_at,
+            }
+
+            return jsonify({"message": profile_details })
+        except Exception as e:
+            logger.info(e)
+            return jsonify({"message": "Internal Server Error"})
 
 
 if __name__ == '__main__':
