@@ -8,7 +8,7 @@ export const SocketProvider = ({ children }) => {
 
     useEffect(() => {
         const access_token  = sessionStorage.getItem('access_token')
-        const socketIo = io('http://localhost:5000', {
+        const socketIo = io('http://loveefy.botontapwater.com', {
             extraHeaders: {
                 Authorization: `Bearer ${access_token}`
         }
