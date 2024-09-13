@@ -13,7 +13,7 @@ from models.uploads import Upload
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-UPLOAD_FOLDER = '../frontend/public'
+UPLOAD_FOLDER = './uploads'
 
 class UploadHandler():
     def __init__(self):
@@ -33,7 +33,7 @@ class UploadHandler():
         os.makedirs(dir_path, exist_ok=True)
         return dir_path
 
-    def create_thumbnail(self, image_path, thumbnail_path, size=(150, 150), quality=85) -> None:
+    def create_thumbnail(self, image_path, thumbnail_path, size=(150, 150), quality=95) -> None:
         try:
             with Image.open(image_path) as img:
                 img.thumbnail(size)

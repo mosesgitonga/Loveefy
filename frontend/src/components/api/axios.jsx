@@ -1,7 +1,7 @@
 import axios from 'axios';
-
+// "http://loveefy.botontapwater.com"
 const api = axios.create({
-  baseURL: "http://loveefy.botontapwater.com/",
+  baseURL: "http://52.205.252.151",
   headers: {
     'Content-Type': 'application/json',
   },

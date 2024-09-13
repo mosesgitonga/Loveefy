@@ -19,8 +19,8 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 20px 0;
-    background-color: #ffffff;
-    border-bottom: 2px solid #eee;
+    background-color: #e4dfdf;
+    border-bottom: 2px solid #ff3366;
 }
 
 .logoContainer h1 {
@@ -63,14 +63,14 @@ body {
 }
 
 .login {
-    background-color: #fff;
+    background-color: #ffffff;
     color: #333;
     border: 2px solid #333;
 }
 
 .login:hover {
     background-color: #ff3366;
-    color: #fff;
+    color: #e4dfdf;
     border-color: #ff3366;
 }
 
@@ -90,11 +90,12 @@ body {
     justify-content: center;
     align-items: center;
     height: 80vh;
-    background: url('hero.jpg') no-repeat center center/cover;
+    background:  no-repeat center center/cover;
+    background-image: url('./../assets/business\ professionals.jpeg');
     text-align: center;
-    color: #fff;
-    background-image: url("lovers.jpeg");
-
+    color: #e4dfdf;
+    text-shadow: 0px 5px 10px #333;
+  
 }
 
 .heroContent h2 {
@@ -105,7 +106,7 @@ body {
 }
 
 .heroContent p {
-    font-size: 18px;
+    font-size: 30px;
     margin-bottom: 30px;
 }
 
@@ -124,15 +125,17 @@ body {
 }
 
 /* Mission Section */
-.missionContainer {
+.missionContainer, .aboutContainer{
     padding: 50px 0;
-    background-color: #f8f9fa;
+    background-color: #e4dfdf;
     text-align: center;
 }
 
 .missionContainer h3 {
     font-size: 28px;
     margin-bottom: 20px;
+    color: #ff3366;
+
 }
 
 .missionContainer p {
@@ -143,18 +146,21 @@ body {
 /* Careers Section */
 .careersContainer {
     padding: 50px 0;
+    background-color: #e4dfdf;
 }
 
-.careersContainer h2 {
+.careersContainer   h3{
     text-align: center;
     font-size: 28px;
     margin-bottom: 20px;
+    color: #ff3366;
 }
 
 .careersContainer p {
     text-align: center;
     font-size: 16px;
     margin-bottom: 30px;
+
 }
 
 .careers {
@@ -172,7 +178,7 @@ body {
 
 .career img {
     width: 100%;
-    border-radius: 10px;
+    border-radius: 50px;
     margin-bottom: 15px;
 }
 
@@ -212,7 +218,16 @@ body {
 .feature p {
     font-size: 16px;
 }
+/* testmonial container */
 
+.testimonials {
+    display: flex;
+    padding: 10px;
+}
+
+.blogPosts {
+    display: flex;
+}
 /* Support Section */
 .supportContainer {
     padding: 50px 0;
@@ -291,10 +306,24 @@ body {
     color: #fff;
     text-align: center;
     padding: 20px 0;
+    color: #ff3366;
+    text-decoration: none;
 }
 
+.footerNav {
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.footerNav ul li {
+    color: #ff3366;
+    text-decoration: none;
+}
 .footerContent p {
     margin: 0;
+    color: #ff3366;
+    text-decoration: none;
 }
 
 /* Responsive Styles */
@@ -308,6 +337,17 @@ body {
         width: 80%;
     }
 
+    .testimonials {
+        display: block;
+        
+    }
+    .testimonials p {
+        padding-bottom: 8px;;
+    }
+
+    .blogPosts {
+        display: block;
+    }
     .navList {
         display: none;
     }
@@ -336,7 +376,6 @@ body {
 
     .navList {
         display: none;
-
     }
 
     .navList li {

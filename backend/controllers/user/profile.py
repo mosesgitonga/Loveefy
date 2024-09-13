@@ -152,14 +152,15 @@ class Profile:
                 'username': User,
                 'gender': User_profile,
                 'country': Place,
-                'industry': User_profile,
+                'industry_major': User_profile,
+                'education_level': User_profile,
                 'career': User_profile,
                 'dob': User_profile,
                 'region': Place,
                 'sub_region': Place,
-                'age': User_profile,  # Assuming 'age' and 'mobile_no' belong to User_profile
+                'age': User_profile,  
                 'mobile_no': User_profile,
-                'subscription_type': User_profile  # Assuming this is part of User_profile
+                'subscription_type': User_profile 
             }
 
             # Iterate over the fields in the request data
@@ -185,7 +186,7 @@ class Profile:
                     logger.info(f"Updated {field} to {new_value} for user profile {existing_user_profile.id}")
                 else:
                     logger.error(f"Attempted to update non-existent field: {field}")
-                    continue  # Skip this field and continue with others
+                    continue  
 
             # Save the changes after all fields are updated
             self.storage.new(existing_user_profile)
