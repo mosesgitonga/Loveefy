@@ -248,14 +248,13 @@ class User_auth:
             place = self.storage.get(Place, id=user.place_id)
 
             if  user:
-                self.storage.delete(user)
+                self.storage.delete(obj=user)
                 self.storage.new(user)
-                self.storage.save()
             if preference:
-                self.storage.delete(preference)
+                self.storage.delete(obj=preference)
                 self.storage.new(preference)
             if preference:
-                self.storage.delete(place)
+                self.storage.delete(obj=place)
                 self.storage.new(place)
 
             self.storage.save()

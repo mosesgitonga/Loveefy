@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import './settingsPage.css'; // Import the CSS file for styling
+import './settingsPage.css'; 
 import ProfileSettings from './profile';
 import PreferenceForm from './preferences/preference';
+import AccountSettings from './account/account'
 
 const SettingsPage = () => {
     const [activeTab, setActiveTab] = useState('profile');
@@ -45,7 +46,6 @@ const SettingsPage = () => {
 };
 
 // Placeholder components for each section
-const AccountSettings = () => <div>Account Settings Content</div>;
 const SecuritySettings = () => <div>Security Settings Content</div>;
 const InteractionSettings = () => <div>Interaction Settings Content</div>;
 const ContentSettings = () => <div>Content Settings Content</div>;

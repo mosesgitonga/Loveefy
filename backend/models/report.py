@@ -22,7 +22,9 @@ class Reports(Base):
 class Feedback(Base):
     __tablename__ = 'feedbacks'
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(120), ForeignKey('users.id'), nullable=False)
+    user_id = Column(String(120), ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     remarks = Column(String(300), nullable=False)
     ratings = Column(Integer, nullable=True)
     suggestions = Column(String(200), nullable=True)
+
+    user = relationship('User', back_populates="feedback")

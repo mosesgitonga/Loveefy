@@ -1,42 +1,55 @@
-import React from "react";
+import React, { useState } from "react";
 import api from "../../api/axios";
+import { useNavigate } from 'react-router-dom';
 
-const [remarks, setRemarks] = useState('');
-const [suggestions, setSuggestions] = useState('');
-const [rating, setRating] = useState(0);
-const [message, setMessage] = useState('');
-
-const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-        // Ensure you're sending a POST request with proper payload
-        const response = await api.post('/api/v1/feedback', { remarks, suggestions, ratings: rating });
-
-        if (response.status === 200) {
-            setMessage(response.data.message);
-            setRemarks('');
-            setSuggestions('');
-            setRating(0); 
-            
-        } else {
-            setMessage('Error submitting feedback. Please try again.');
-        }
-    } catch (error) {
-        console.error('Error submitting feedback:', error); // Log error for debugging
-        setMessage('Error submitting feedback. Please try again.');
-    }
-};
-
-const handleRatingClick = (value) => {
-    setRating(value);
-};
 
 const DeleteAccount = () => {
+    const [remarks, setRemarks] = useState('');
+    const [suggestions, setSuggestions] = useState('');
+    const [rating, setRating] = useState(0);
+    const [message, setMessage] = useState('');
+    const navigate = useNavigate()
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            // Sending feedback
+            const feedbackResponse = await api.post('/api/v1/feedback', { remarks, suggestions, ratings: rating });
+
+            if (feedbackResponse.status === 200) {
+                setMessage(feedbackResponse.data.message);
+
+                // Deleting the account
+                const deleteResponse = await api.delete('/v1/auth/account/delete');
+                if (deleteResponse.status === 200) {
+                    setMessage(deleteResponse.data.message);
+                    sessionStorage.setItem('access_token', '');
+                    navigate('/')
+                }
+                // Reset the form fields
+                setRemarks('');
+                setSuggestions('');
+                setRating(0); 
+            } else {
+                setMessage('Error submitting feedback. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error submitting feedback:', error); // Log error for debugging
+            setMessage('Error submitting feedback. Please try again.');
+        }
+    };
+
+    const handleRatingClick = (value) => {
+        setRating(value);
+    };
+
     return (
         <div className='feedbackPage'>
-            <h1>So Sad. Tell Us Why You Want To leave Us, So That We Can Improve</h1>
+            <h2>Feedback Form</h2>
+
+            <h3>So Sad. Tell Us Why You Want To Leave Us, So That We Can Improve</h3>
+
             <div className="feedback-form">
-                <h2>Feedback Form</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
                         <label htmlFor="remarks">Remarks:</label>
@@ -74,8 +87,10 @@ const DeleteAccount = () => {
                     </div>
                     <button type="submit">Submit Feedback and Delete Account</button>
                 </form>
-            {message && <p className="feedback-message">{message}</p>}
+                {message && <p className="feedback-message">{message}</p>}
+            </div>
         </div>
-    </div>
     );
 }
+
+export default DeleteAccount;
