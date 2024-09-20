@@ -101,3 +101,8 @@ def update_password():
     password_update_response = user_auth.update_password(data)
     return password_update_response
 
+@auth_bp.route('/account/delete', methods=['DELETE'], strict_slashes=False)
+@jwt_required()
+def delete_account():
+    response, status_code = user_auth.delete_account()
+    return response, status_code

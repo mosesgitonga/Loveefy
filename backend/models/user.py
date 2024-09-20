@@ -19,7 +19,10 @@ class User(Base):
     preference_id = Column(String(36), ForeignKey('preferences.id'), nullable=True, index=True)
     preference = relationship("Preference", uselist=False, back_populates="user")
 
+    profile = relationship("User_profile", back_populates="user", cascade="all, delete-orphan", uselist=False)
+
     uploads = relationship("Upload", back_populates="user", cascade="all, delete-orphan")
+
 
     def serialize(self):
         return {

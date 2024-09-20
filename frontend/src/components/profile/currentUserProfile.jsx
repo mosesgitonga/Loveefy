@@ -39,8 +39,7 @@ const UserProfile = () => {
             <Sidebar />
             <div className="user-profile-container">
                 <div className="profile-header">
-                    <img src={profile.image_path} alt="Profile" className="profile-image" />
-                    <div className="profile-basic-info">
+                        <img src={`http://localhost:5000/uploads${profile.image_path}`} alt="Profile" className="profile-image" />                    <div className="profile-basic-info">
                         <h1 className="username">{profile.username}</h1>
                         <p className="career">{profile.career} - {profile.industry_major}</p>
                         <p className="location">{profile.region}, {profile.sub_region}, {profile.country}</p>

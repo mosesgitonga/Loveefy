@@ -1,20 +1,31 @@
 import React, { useEffect, useState } from "react";
+import api from "../../api/axios";
+import './preference.css'
 
-const PreferenceSettings = () => {
-    const [gender, setGender] = useState('')
-    const [industry_major, setIndustry_major] = useState('')
-    const [career, setCareer] = useState('')
+const PreferenceForm = () => {
+    const [gender, setGender] = useState('');
+    const [industry_major, setIndustry_major] = useState('');
+    const [career, setCareer] = useState('');
+    const [minAge, setMinAge] = useState('');
+    const [maxAge, setMaxAge] = useState('');
+    const [educationLevel, setEducationLevel] = useState('');
+    const [educationStatus, setEducationStatus] = useState('');
 
     useEffect(() => {
         // Fetch the existing user profile
         const fetchProfile = async () => {
             try {
-                const response = await api.get(`/api/v1/preferences`);
+                const response = await api.get(`/v1/preference`);
                 const preferenceData = response.data;
                 console.log(preferenceData)
-                setGender(preferenceData.gender);
-                setIndustry_major(preferenceData.industry);
-                setCareer(preferenceData.career);
+                console.log(preferenceData);
+                setGender(preferenceData.message.gender);
+                setIndustry_major(preferenceData.message.industry_major);
+                setCareer(preferenceData.message.career);
+                setMinAge(preferenceData.message.min_age);
+                setMaxAge(preferenceData.message.max_age);
+                setEducationLevel(preferenceData.message.education_level);
+                setEducationStatus(preferenceData.message.educationStatus);
             } catch (error) {
                 console.error('Error fetching profile data:', error.response?.data?.error || error.message);
             }
@@ -26,16 +37,19 @@ const PreferenceSettings = () => {
     const handleSave = async () => {
         try {
             const preferenceData = {
-                username,
+                gender,
                 industry_major,
                 career,
-                dob
+                minAge,
+                maxAge,
+                educationLevel,
+                educationStatus
             };
 
-            const response = api.patch('/api/v1/preference', preferenceData);
+            const response = await api.patch('/v1/preferences', preferenceData);
             alert(response.data.message); // Display success message
         } catch (error) {
-            alert('Error updating profile: ' + error.response?.data?.error || error.message);
+            alert('Error updating profile: ' + (error.response?.data?.error || error.message));
         }
     };
 
@@ -89,6 +103,7 @@ const PreferenceSettings = () => {
                     </select>
                 </label>
             </div>
+
             <div className="form-group">
                 <label htmlFor="career">Career preference of your match</label>
                 <input
@@ -98,8 +113,63 @@ const PreferenceSettings = () => {
                     onChange={(e) => setCareer(e.target.value)}
                 />
             </div>
+
+            <div className="form-group">
+                <label htmlFor="min-age">Minimum Age</label>
+                <input
+                    type="number"
+                    id="min-age"
+                    value={minAge}
+                    onChange={(e) => setMinAge(e.target.value)}
+                />
+            </div>
+
+            <div className="form-group">
+                <label htmlFor="max-age">Maximum Age</label>
+                <input
+                    type="number"
+                    id="max-age"
+                    value={maxAge}
+                    onChange={(e) => setMaxAge(e.target.value)}
+                />
+            </div>
+
+            <div className="form-group">
+                <label htmlFor="educationLevel">Education Level</label>
+                <select
+                    id="educationLevel"
+                    name="educationLevel"
+                    value={educationLevel}
+                    onChange={(e) => setEducationLevel(e.target.value)}
+                    className="education_level"
+                >
+                    <option value="" label="Select education level" />
+                    <option value="kindergarten" label="Kindergarten graduate" />
+                    <option value="primary" label="Primary school graduate" />
+                    <option value="secondary" label="Secondary school graduate" />
+                    <option value="tertiary" label="College/University/Bootcamp graduate" />
+                </select>
+            </div>
+
+            <div className="form-group">
+                <label htmlFor="educationStatus">Education Status</label>
+                <select
+                    id="educationStatus"
+                    name="educationStatus"
+                    value={educationStatus}
+                    onChange={(e) => setEducationStatus(e.target.value)}
+                    className="education_status"
+                >
+                    <option value="" label="Select education status" />
+                    <option value="schooling" label="Schooling" />
+                    <option value="graduated" label="Graduated" />
+                    <option value="any" label="Any, I don't care!" />
+                </select>
+            </div>
+
             <button className="save-btn" onClick={handleSave}>Save</button>
         </div>
     );
-}
-export default PreferenceSettings;
+};
+
+export default PreferenceForm;

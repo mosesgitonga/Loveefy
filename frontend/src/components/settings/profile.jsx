@@ -86,7 +86,7 @@ const ProfileSettings = ({ userId }) => {
             <h1>Loveefy</h1>
             <div className="profileContainer">
                 <h2>Profile Update Setting</h2>
-                <form onSubmit={handleSave} className="form">
+                <form onSubmit={handleSave} className="profileForm">
                     <div className="row">
                         <label htmlFor="gender">
                             Gender:
@@ -226,21 +226,6 @@ const ProfileSettings = ({ userId }) => {
                         </label>
                     </div>
                     <div className="row">
-                        <label htmlFor="wants_child">
-                            Wants Child:
-                            <select
-                                id="wants_child"
-                                name="wants_child"
-                                value={wantsChild || "wants child"}
-                                onChange={(e) => setWantsChild(e.target.value)}
-                                className="wants_child"
-                            >
-                                <option value="" label="Do you want to have a child?" />
-                                <option value="no" label="No, I don't" />
-                                <option value="yes" label="Yes, I want to" />
-                                <option value="soon" label="Not now, but soon" />
-                            </select>
-                        </label>
                         <label htmlFor="country">
                             Country:
                             <input

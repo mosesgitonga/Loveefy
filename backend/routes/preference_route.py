@@ -25,3 +25,18 @@ def create_preference():
     except Exception as e:
         logger.exception("Internal server error")
         return jsonify({"message": "Internal server error"}), 500
+    
+@preference_bp.route('/preference', methods=['GET'], strict_slashes=False)
+@jwt_required()
+def show_preference():
+    response, status_code = preferences.show_preference()
+    print(response, status_code)
+    return response, status_code
+
+@preference_bp.route('/preferences', methods=['PATCH'], strict_slashes=False)
+@jwt_required()
+def patch_preference():
+    data = request.json 
+    response, status_code = preferences.patch_preferences(data)
+    return response, status_code
+

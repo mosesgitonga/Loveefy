@@ -36,7 +36,7 @@ storage = DbStorage()
 storage.reload()
 
 # Initialize Flask app
-app = Flask(__name__, static_folder='dist', static_url_path='')
+app = Flask(__name__)
 
 
 
@@ -61,7 +61,7 @@ mail = Mail(app)
 # Initialize Socket.IO with logging
 socketio = SocketIO(app, logger=True, engineio_logger=True, cors_allowed_origins="*")
 
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
 
 user_auth = User_auth(mail=mail)
@@ -154,23 +154,17 @@ def handle_send_message(data):
 
 
 
-@app.route('/callback', methods=['POST'])
-def callback():
-    data = request.json
-    print("Callback received:", data)
+@app.route('/', methods=['GET'])
+def main():
     return jsonify({"status": "success"})
+ 
+@app.route('/uploads/<path:filename>', methods=['GET'])
+def get_uploaded_file(filename):
+    try:
+        return send_from_directory('./uploads', filename)
+    except FileNotFoundError:
+        return jsonify({"message": "File not found"}), 404
 
-
-# Serve the React application
-@app.route('/')
-def serve_index():
-    return send_from_directory(app.static_folder, 'index.html')
-
-
-@app.errorhandler(404)
-def not_found(e):
-    return send_from_directory(app.static_folder, 'index.html')
-# Serve static files
 
 
 # Register blueprints

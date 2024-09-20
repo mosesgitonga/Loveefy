@@ -72,7 +72,7 @@ def update():
 @jwt_required()
 def delete_profile(id):
     try:
-        profile.delete_profile(id)  # Assuming delete_profile method exists in Profile
+        profile.delete_profile(id)  
         return jsonify({"message": "Profile deleted successfully"}), 200
 
     except Exception as e:
@@ -86,7 +86,7 @@ def update_username():
         data = request.get_json()
         if 'username' in data:
             response = profile.update_username(data)
-            return jsonify(response), 200  # Assuming update_username returns a dictionary
+            return jsonify(response), 200 
 
         return jsonify({"message": "Username not provided"}), 400
 
@@ -99,8 +99,8 @@ def update_username():
 def update_gender():
     try:
         data = request.get_json()
-        response = profile.update_gender(data)  # Assuming update_gender method exists in Profile
-        return jsonify(response), 200  # Assuming update_gender returns a dictionary
+        response = profile.update_gender(data)  
+        return jsonify(response), 200  
 
     except Exception as e:
         print(e)

@@ -1,6 +1,6 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, func
+from sqlalchemy import Column, String, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
-from .base_model import Base 
+from .base_model import Base
 
 class User_profile(Base):
     __tablename__ = 'users_profile'
@@ -9,7 +9,7 @@ class User_profile(Base):
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     gender = Column(String(20), nullable=False)
-    DOB = Column(DateTime, nullable=False) # date of birth
+    DOB = Column(DateTime, nullable=False)  # Date of Birth
     mobile_no = Column(String(16), unique=True, nullable=False, index=True)
     education_level = Column(String(36))
     industry_major = Column(String(25), nullable=False)
@@ -18,6 +18,6 @@ class User_profile(Base):
     career = Column(String(50), nullable=True)
     has_child = Column(String(10), default='no')
 
-    user_id = Column(String(36), ForeignKey('users.id'), unique=True, nullable=False, index=True)
-    
-    user = relationship("User", uselist=False, backref="profile")
+    user_id = Column(String(36), ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+
+    user = relationship("User", back_populates="profile")

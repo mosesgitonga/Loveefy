@@ -108,26 +108,31 @@ const DualSelect = () => {
         <div className="dual-select-container">
             <h2>You can only like 1 person or pass both</h2>
             {Array.isArray(profilesToShow) && profilesToShow.length >= 2 ? (
-                <div className="profile-pair">
-                    {profilesToShow.map((profile, index) => (
-                        <div className="profile" key={index}>
-                            <div className="profile-content" style={{ backgroundImage: `url(${profile.image_path})` }}>
+            <div className="profile-pair">
+                {profilesToShow.map((profile, index) => (
+                    <React.Fragment key={index}>
+                        {profile ? (
+                            <div className="profile-content" 
+                                style={{ backgroundImage: `url(http://localhost:5000/uploads${profile.image_path})` }}>
                                 <h3>Username: {profile.username}</h3>
                                 <h3>Industry: {profile.industry}</h3>
                                 <h3>Country: {profile.country}</h3>
                                 <h3>Region: {profile.region}</h3>
                                 <h3>Age: {profile.age}</h3>
                             </div>
-                            <div className="actions">
-                                <button onClick={() => handleLike(profile)}>Like</button>
-                                <button onClick={handlePass}>Pass</button>
-                            </div>
+                        ) : (
+                            <div>Loading profile...</div>
+                        )}
+                        <div className="actions">
+                            <button onClick={() => handleLike(profile)}>Like</button>
+                            <button onClick={handlePass}>Pass</button>
                         </div>
-                    ))}
-                </div>
-            ) : (
-                <div>No more profiles to show.</div>
-            )}
+                    </React.Fragment>
+                ))}
+            </div>
+        ) : (
+            <div>No profiles to show</div>
+        )}
         </div>
     );
 };

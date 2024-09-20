@@ -1,40 +1,40 @@
-import React, { useState } from 'react';
-import './feedback.css'; // Ensure this CSS file exists and is properly styled
-import api from './api/axios'; // Make sure this is set up correctly for your POST requests
+import React from "react";
+import api from "../../api/axios";
 
-const FeedbackForm = () => {
-    const [remarks, setRemarks] = useState('');
-    const [suggestions, setSuggestions] = useState('');
-    const [rating, setRating] = useState(0);
-    const [message, setMessage] = useState('');
+const [remarks, setRemarks] = useState('');
+const [suggestions, setSuggestions] = useState('');
+const [rating, setRating] = useState(0);
+const [message, setMessage] = useState('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            // Ensure you're sending a POST request with proper payload
-            const response = await api.post('/api/v1/feedback', { remarks, suggestions, ratings: rating });
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+        // Ensure you're sending a POST request with proper payload
+        const response = await api.post('/api/v1/feedback', { remarks, suggestions, ratings: rating });
 
-            // Directly use response.data if using axios
-            if (response.status === 200) {
-                setMessage(response.data.message);
-                setRemarks('');
-                setSuggestions('');
-                setRating(0); // Reset to 0 instead of 1 for user feedback
-            } else {
-                setMessage('Error submitting feedback. Please try again.');
-            }
-        } catch (error) {
-            console.error('Error submitting feedback:', error); // Log error for debugging
+        if (response.status === 200) {
+            setMessage(response.data.message);
+            setRemarks('');
+            setSuggestions('');
+            setRating(0); 
+            
+        } else {
             setMessage('Error submitting feedback. Please try again.');
         }
-    };
+    } catch (error) {
+        console.error('Error submitting feedback:', error); // Log error for debugging
+        setMessage('Error submitting feedback. Please try again.');
+    }
+};
 
-    const handleRatingClick = (value) => {
-        setRating(value);
-    };
+const handleRatingClick = (value) => {
+    setRating(value);
+};
 
+const DeleteAccount = () => {
     return (
         <div className='feedbackPage'>
+            <h1>So Sad. Tell Us Why You Want To leave Us, So That We Can Improve</h1>
             <div className="feedback-form">
                 <h2>Feedback Form</h2>
                 <form onSubmit={handleSubmit}>
@@ -72,12 +72,10 @@ const FeedbackForm = () => {
                             ))}
                         </div>
                     </div>
-                    <button type="submit">Submit Feedback</button>
+                    <button type="submit">Submit Feedback and Delete Account</button>
                 </form>
-                {message && <p className="feedback-message">{message}</p>}
-            </div>
+            {message && <p className="feedback-message">{message}</p>}
         </div>
+    </div>
     );
-};
-
-export default FeedbackForm;
+}

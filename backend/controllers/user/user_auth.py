@@ -22,6 +22,9 @@ sys.path.append(project_root)
 
 from models.engine.DBStorage import DbStorage
 from models.user import User, Otp
+from models.place import Place
+from models.preference import Preference
+from controllers.recommender.rule_based import Recommender
 
 # Initialize Limiter for rate limiting
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
@@ -236,5 +239,33 @@ class User_auth:
         except Exception as e:
             logging.error(f'Error updating password: {e}')
             return jsonify({"error": "Internal Server Error"}), 500
+        
+    def delete_account(self):
+        user_id = get_jwt_identity()
+        try:
+            user = self.storage.get(User, id=user_id)
+            preference = self.storage.get(Preference, id=user.preference_id)
+            place = self.storage.get(Place, id=user.place_id)
+
+            if  user:
+                self.storage.delete(user)
+                self.storage.new(user)
+                self.storage.save()
+            if preference:
+                self.storage.delete(preference)
+                self.storage.new(preference)
+            if preference:
+                self.storage.delete(place)
+                self.storage.new(place)
+
+            self.storage.save()
+
+            recommender = Recommender()
+            recommender.recommend_users()
+            return jsonify({"message": "User Deleted Successfully"}), 200
+        except Exception as e:
+            print(e)
+            return jsonify({"message": "Internal Server Error"}), 500
+
 if __name__ == '__main__':
     pass

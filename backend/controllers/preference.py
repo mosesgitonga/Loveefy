@@ -89,3 +89,83 @@ class Preferences:
         except Exception as e:
             self.logger.exception("Internal server error")
             return jsonify({"message": "Internal server error"}), 500
+        
+    def show_preference(self):
+        user_id = get_jwt_identity()
+        print(user_id)
+        try:
+            user = self.storage.get(User, id=user_id)
+            if not user:
+                return jsonify({"error": "did not find user"}), 404
+            preferences = self.storage.get(Preference, id=user.preference_id)
+            preferences = {
+                "gender": preferences.gender,
+                "industry_major": preferences.industry_major,
+                "career": preferences.career,
+                "country": preferences.country,
+                "region": preferences.region,
+                "min_age": preferences.min_age,
+                "max_age": preferences.max_age,
+
+            }
+            print(preferences)
+            if not preferences:
+                return jsonify({"error": "did not find any preference"}), 404
+            return jsonify({"message": preferences}), 200
+        except Exception as e:
+            print(e)
+            return jsonify({"error": "Internal Server Error"}), 500
+
+    def patch_preferences(self, data):
+        # updates specific preferences
+        if not data:
+            return jsonify({"message": "No data to update"}), 400  # 400 for Bad Request
+
+        gender = data.get('gender')
+        industry_major = data.get('industry_major')
+        career = data.get('career')
+        min_age = data.get('minAge')
+        max_age = data.get('max_age')
+        education_level = data.get('education_level')
+        education_status = data.get('education_status')
+
+        try:
+            user_id = get_jwt_identity()
+            user = self.storage.get(User, id=user_id)
+            print('preference id',user.preference_id)
+            preference = self.storage.get(Preference, id=user.preference_id)
+            print('preference  d',preference)
+
+            if not preference:
+                print('preference not found\n')
+                return jsonify({"message": "Preferences not found"}), 404 
+
+            # Update preferences if provided
+            if gender:
+                preference.gender = gender
+                self.storage.new(preference)
+            if industry_major:
+                preference.industry_major = industry_major
+                self.storage.new(preference)
+            if career:
+                preference.career = career
+                self.storage.new(preference)
+            if min_age:
+                preference.min_age = min_age
+                self.storage.new(preference)
+            if max_age:
+                preference.max_age = max_age
+                self.storage.new(preference)
+            if education_level:
+                preference.education_level = education_level
+                self.storage.new(preference)
+            if education_status:
+                preference.education_status = education_status
+                self.storage.new(preference)
+            self.storage.save()
+
+            return jsonify({"message": "Preferences updated successfully"}), 200
+
+        except Exception as e:
+            print(f"Error updating preferences: {e}")
+            return jsonify({"message": "Internal Server Error"}), 500 

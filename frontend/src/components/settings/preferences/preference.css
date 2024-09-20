@@ -1,0 +1,96 @@
+/* General Styles */
+.preference-settings {
+    width: 80%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ff3366;
+    border-radius: 8px;
+}
+
+.preference-settings h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffffff;
+}
+
+/* Form Group Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #ffffff;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc4c4;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: #f5f8fc;
+    outline: none;
+}
+
+button.save-btn {
+    display: inline-block;
+    width: 100%;
+    padding: 12px;
+    background-color: #ffffff;
+    border: 6px solid #fff;
+    color: #ff3366;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button.save-btn:hover {
+    background-color: #da4d70;
+    color: #ffffff
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .preference-settings {
+        width: 95%;
+    }
+    
+    button.save-btn {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .preference-settings {
+        padding: 15px;
+    }
+
+    label {
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    button.save-btn {
+        font-size: 14px;
+        padding: 10px;
+    }
+}
