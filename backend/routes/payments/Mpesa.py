@@ -58,7 +58,7 @@ def mpesa_express():
                 existing_subscription.amount = amount
                 existing_subscription.plan_type = subscription_type
                 existing_subscription.transaction_id = transaction_id
-                existing_subscription.status = "pending"
+                existing_subscription.new(existing_subscription)
                 existing_subscription.phone_number = phone_number
                 storage.new(existing_subscription)
                 storage.save()

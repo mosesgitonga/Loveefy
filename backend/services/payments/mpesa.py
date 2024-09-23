@@ -71,7 +71,7 @@ class Mpesa:
                 "PartyA": phone_number,
                 "PartyB": self.BusinessShortCode,
                 "PhoneNumber": phone_number,
-                "CallBackURL": "https://5cbc-154-159-237-15.ngrok-free.app/api/mpesa/callback",
+                "CallBackURL": "https://www.loveefy.africa/api/mpesa/callback",
                 "AccountReference": "loveefy",
                 "TransactionDesc": "LoveefyPlan"
             }
