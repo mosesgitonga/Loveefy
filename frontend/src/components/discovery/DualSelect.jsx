@@ -111,23 +111,25 @@ const DualSelect = () => {
             <div className="profile-pair">
                 {profilesToShow.map((profile, index) => (
                     <React.Fragment key={index}>
-                        {profile ? (
-                            <div className="profile-content" 
-                                style={{ backgroundImage: `url(http://localhost:5000/uploads${profile.image_path})` }}>
-                                <h3>Username: {profile.username}</h3>
-                                <h3>Industry: {profile.industry}</h3>
-                                <h3>Country: {profile.country}</h3>
-                                <h3>Region: {profile.region}</h3>
-                                <h3>Age: {profile.age}</h3>
+                        <div className="profileContainer">
+                            {profile ? (
+                                <div className="profile-content" 
+                                    style={{ backgroundImage: `url(http://localhost:5000/uploads${profile.image_path})`, border: "6px solid pink" }}>
+                                    <h3>Username: {profile.username}</h3>
+                                    <h3>Industry: {profile.industry}</h3>
+                                    <h3>Country: {profile.country}</h3>
+                                    <h3>Region: {profile.region}</h3>
+                                    <h3>Age: {profile.age}</h3>
+                                </div>
+                            ) : (
+                                <div>Loading profile...</div>
+                            )}
+                            <div className="actions">
+                                <button onClick={() => handleLike(profile)}>Like</button>
+                                <button onClick={handlePass}>Pass</button>
                             </div>
-                        ) : (
-                            <div>Loading profile...</div>
-                        )}
-                        <div className="actions">
-                            <button onClick={() => handleLike(profile)}>Like</button>
-                            <button onClick={handlePass}>Pass</button>
                         </div>
-                    </React.Fragment>
+                      </React.Fragment>
                 ))}
             </div>
         ) : (

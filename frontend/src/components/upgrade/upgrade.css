@@ -1,17 +1,75 @@
-.upgrade {
-    display: block;
+.subscription-container {
+    display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #333;
-    color: white;
     height: 100vh;
-}
-.soon {
-    font-size: 50px;
-    color: #ff3366;
+    background: linear-gradient(to bottom right, #f0e5ff, #e5f0ff);
 }
 
-.upgrade p h6 {
-    margin-left: 45%;
+.subscription-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+.subscription-card h2 {
+    color: #4a4a4a;
+    margin-bottom: 10px;
+}
+
+.subscription-description {
+    color: #777;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+}
+
+.input-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: border-color 0.3s;
+}
+
+.input-field:focus {
+    border-color: #6a5acd;
+    outline: none;
+}
+
+.subscribe-button {
+    background: #6a5acd;
     color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.subscribe-button:hover {
+    background: #5b4bb3;
+}
+
+.response-message {
+    margin-top: 15px;
+    font-size: 1em;
+}
+
+.response-message.loading {
+    color: #6a5acd;
+}
+.payment-method {
+    color: #4a4a4a;
+    font-size: 1.1em;
+    margin: 10px 0;
 }

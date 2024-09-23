@@ -18,7 +18,7 @@
 }
 
 .profile-content {
-    width: 100%;
+    width: 96%;
     height: 500px; /* Adjust as needed */
     background-size: cover;
     background-position: center;
@@ -51,14 +51,18 @@
     background-color: rgba(255, 255, 255, 1);
 }
 
+.prfileContainer {
+    display: block;
+}
+
 .actions {
     display: flex;
 }
 
 .actions button {
     margin-right: 8px;
-    background-color: rgb(250, 145, 163);
-    box-shadow: #d1231d 0px 5px 10px;
+    background-color: #fa91a3;
+    box-shadow: #ffffff 0px 5px 10px;
 }
 
 /* Responsive Styles */

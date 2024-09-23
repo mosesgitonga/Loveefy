@@ -7,7 +7,7 @@ const PrivateMessage = () => {
 
     useEffect(() => {
         // Initialize the socket connection only once
-        const newSocket = io.connect('http://localhost:5000', {
+        const newSocket = io.connect('http://165.232.191.136', {
             query: { token: sessionStorage.getItem('access_token') }
         });
 

@@ -36,9 +36,10 @@ storage = DbStorage()
 storage.reload()
 
 # Initialize Flask app
-app = Flask(__name__)
+app = Flask(__name__, static_folder='./dist', static_url_path='/')
 
-
+CORS(app, resources={r"/*": {"origins": "*"}})
+socketio = SocketIO(app, logger=True, engineio_logger=True, cors_allowed_origins="*")
 
 # Configuration settings
 app.config['REDIS_URL'] = "redis://localhost:6379/0"
@@ -58,10 +59,6 @@ SECURITY_PASSWORD_SALT = secrets.token_hex(11)
 redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
 mail = Mail(app)
 
-# Initialize Socket.IO with logging
-socketio = SocketIO(app, logger=True, engineio_logger=True, cors_allowed_origins="*")
-
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
 
 user_auth = User_auth(mail=mail)
@@ -156,7 +153,13 @@ def handle_send_message(data):
 
 @app.route('/', methods=['GET'])
 def main():
-    return jsonify({"status": "success"})
+    return send_from_directory('./dist', 'index.html')
+
+@app.route('/static/<path:filename>', methods=['GET'])
+def serve_static_files(filename):
+    return send_from_directory('./dist/static', filename)
+
+
  
 @app.route('/uploads/<path:filename>', methods=['GET'])
 def get_uploaded_file(filename):

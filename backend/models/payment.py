@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from sqlalchemy import Column, String, Integer, ForeignKey, Enum, DateTime
+from sqlalchemy import Column, String, Integer, ForeignKey, Enum, DateTime, Float 
 from sqlalchemy.orm import relationship
 from .base_model import Base
 import enum 
@@ -17,35 +17,24 @@ class Payment(Base):
     user = relationship('User', backref='payments')
 
 
-# Enum for plan types
-class PlanType(enum.Enum):
-    FREE = "Free"
-    PREMIUM = "Premium"
-    ELITE = "Elite"
+  
 
-# Enum for transaction types
-class TransactionType(enum.Enum):
-    SIGNUP = "Signup"
-    UPGRADE = "Upgrade"
-    RENEWAL = "Renewal"
 
 class Subscription(Base):
     __tablename__ = "subscriptions"
     id = Column(String(36), primary_key=True)
 
     user_id = Column(String(36), ForeignKey('users.id'))
-    plan_type = Column(Enum(PlanType), nullable=False)
-    transaction_type = Column(Enum(TransactionType), nullable=False, index=True)
+    plan_type = Column(String(15))
+    transaction_type = Column(String(15))
     start_date = Column(DateTime, default=datetime.utcnow)
-    expiration_date = Column(DateTime, nullable=False, index=True)
+    expiration_date = Column(DateTime, index=True)
     transaction_date = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    phone_number = Column(String(17))
+    transaction_id = Column(String(100), unique=True)
+    status=Column(String(20))
+    amount = Column(Float)
 
     user = relationship("User", backref="subscriptions")
 
-    def __init__(self, user_id, plan_type, transaction_type, duration_days):
-        self.user_id = user_id
-        self.plan_type = plan_type
-        self.transaction_type = transaction_type
-        self.start_date = datetime.utcnow()
-        self.expiration_date = self.start_date + timedelta(days=duration_days)
-        self.transaction_date = datetime.utcnow()

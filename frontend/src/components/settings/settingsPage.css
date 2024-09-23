@@ -1,32 +1,50 @@
+/* General styling */
 .settings-page {
     display: flex;
+    flex-direction: column;
     min-height: 100vh;
     background-color: #e4d9d9;
     font-family: Arial, sans-serif;
+    position: relative;
+    overflow: hidden; /* Prevent scrolling overflow */
 }
 
+/* Sidebar styles */
 .settings-sidebar {
-    width: 250px;
     background-color: #ff3366;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
     color: white;
+    width: 100%;
+    height: 100vh; /* Sidebar height matches full viewport */
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 100;
+    position: fixed; /* Sidebar is fixed to prevent scrolling issues */
+    top: 0;
+    left: 0;
+}
+
+.settings-sidebar.open {
+    transform: translateX(0);
 }
 
 .settings-sidebar h2 {
     margin-top: 0;
+    font-size: 1.5rem;
 }
 
 .settings-sidebar ul {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 20px 0;
 }
 
 .settings-sidebar li {
-    padding: 10px;
+    padding: 15px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-size: 1.2rem;
 }
 
 .settings-sidebar li:hover,
@@ -34,15 +52,60 @@
     background-color: #000000;
 }
 
+/* Content section */
 .settings-content {
-    flex: 1;
+    flex-grow: 1;
     padding: 20px;
     background-color: #000000;
     color: white;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: 0;
+    transition: margin-left 0.3s ease;
+    overflow-y: auto; /* Ensure content scrolls, not the whole page */
 }
 
-.settings-content div {
-    margin-bottom: 20px;
+/* Hamburger menu button */
+.hamburger {
+    display: block;
+    position: fixed;
+    top: 20px;
+    left: -100px;
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    z-index: 101;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    .settings-page {
+        flex-direction: row;
+    }
+    
+    .settings-sidebar {
+        width: 220px;
+        transform: none;
+        z-index: 10;
+    }
+
+    .settings-content {
+        margin-left: 220px;
+        padding: 30px;
+    }
+
+    .hamburger {
+        display: none; /* Hide hamburger on larger screens */
+    }
+}
+
+@media (min-width: 1200px) {
+    .settings-sidebar {
+        width: 280px;
+    }
+
+    .settings-content {
+        margin-left: 280px;
+        padding: 40px;
+    }
 }
 

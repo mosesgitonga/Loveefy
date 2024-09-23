@@ -18,12 +18,12 @@
     margin-bottom: 20px;
 }
 
-label {
+/* label {
     display: block;
     margin-bottom: 8px;
     font-weight: bold;
-    color: #ffffff;
-}
+    color: #e01f1f;
+} */
 
 input[type="text"],
 input[type="number"],

@@ -42,11 +42,13 @@ class Mpesa:
         encoded_string = base64.b64encode(data_to_encode.encode())
         return encoded_string.decode('utf-8')
 
-    def stk_push(self):
+    def stk_push(self, data):
         try:
-            data = request.json
             phone_number = data.get('phone_number')
             amount = data.get('amount')
+            logger.info(phone_number)
+            logger.info(amount)
+            
 
             if not phone_number or not amount:
                 return jsonify({'message': 'Phone number and amount are required'}), 400
@@ -65,13 +67,13 @@ class Mpesa:
                 "Password": password,
                 "Timestamp": timestamp,
                 "TransactionType": "CustomerPayBillOnline",
-                "Amount": amount,  # Amount is taken from the request body
+                "Amount": amount,
                 "PartyA": phone_number,
                 "PartyB": self.BusinessShortCode,
                 "PhoneNumber": phone_number,
-                "CallBackURL": "https://1fbf-196-96-123-101.ngrok-free.app/api/mpesa/callback",
-                "AccountReference": "loveefy.com",
-                "TransactionDesc": "Loveefy Payments"
+                "CallBackURL": "https://5cbc-154-159-237-15.ngrok-free.app/api/mpesa/callback",
+                "AccountReference": "loveefy",
+                "TransactionDesc": "LoveefyPlan"
             }
 
             response = requests.post(self.LIPA_NG_URL, json=payload, headers=headers)
