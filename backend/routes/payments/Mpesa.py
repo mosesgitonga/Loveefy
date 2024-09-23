@@ -57,7 +57,7 @@ def mpesa_express():
         try:
             existing_subscription = storage.get(Subscription, user_id=user_id)
             if existing_subscription:
-                existing_subscription.transaction_type = "Upgrade"
+                existing_subscription.transaction_type = subscription_type
                 existing_subscription.amount = amount
                 existing_subscription.plan_type = subscription_type
                 existing_subscription.transaction_id = transaction_id
