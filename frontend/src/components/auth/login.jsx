@@ -20,7 +20,7 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        api.post('v1/auth/logins', formData)
+        api.post('/api/v1/auth/logins', formData)
             .then(response => {
                 if (response.status === 200) {
                     const { current_username, current_user_id ,access_token, place_id, preference_id } = response.data;

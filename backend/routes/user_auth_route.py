@@ -14,7 +14,7 @@ from models.user import User
 
 user_auth = User_auth()
 storage = DbStorage()
-auth_bp = Blueprint('auth', __name__, url_prefix='/v1/auth')
+auth_bp = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

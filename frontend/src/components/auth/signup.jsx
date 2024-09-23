@@ -20,7 +20,7 @@ const Signup = () => {
             return;
         }
          
-        api.post('/v1/auth/registers', formData)
+        api.post('/api/v1/auth/registers', formData)
             .then(response => {
                 if (response.status === 409 && response.data.code === 600) {
                     setErrorMessage('email already exists')
