@@ -9,7 +9,7 @@ const PrivateMessage = () => {
         // Initialize the socket connection only once
         const newSocket = io.connect('https://165.232.191.136', {
             query: { token: sessionStorage.getItem('access_token') }
-        });
+        });   
 
         newSocket.on('connect', () => {
             console.log('connected to the server');
