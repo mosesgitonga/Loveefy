@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa'; 
 import styles from './Sidebar.module.css';
 import api from "../api/axios";
@@ -12,8 +12,8 @@ const Sidebar = () => {
 
     const handleNavClick = (tabName, path) => {
         setActiveTab(tabName);
-        setIsOpen(false); // Close sidebar after clicking a link
-        navigate(path);
+        setIsOpen(true); 
+        <Link to={path}></Link>
     };
 
     useEffect(() => {

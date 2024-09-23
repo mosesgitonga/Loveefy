@@ -28,7 +28,7 @@ const Login = () => {
                     sessionStorage.setItem('userId', current_user_id);
                     sessionStorage.setItem('currentUsername', current_username);
                     if (place_id && preference_id) {
-                        navigate('/discovery/home');
+                        <Link to="/home/discovery" ></Link>
                     } else if (place_id && !preference_id) {
                         navigate('/preference');
                     } else {

@@ -1,7 +1,7 @@
 import axios from 'axios';
 // "http://loveefy.botontapwater.com"
 const api = axios.create({
-  baseURL: "http://165.232.191.136/",
+  baseURL: "https://www.loveefy.africa",
   headers: {
     'Content-Type': 'application/json',
   },

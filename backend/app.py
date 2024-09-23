@@ -36,7 +36,7 @@ storage = DbStorage()
 storage.reload()
 
 # Initialize Flask app
-app = Flask(__name__, static_folder='./dist', static_url_path='/')
+app = Flask(__name__, static_folder='./dist', static_url_path='')
 
 CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, logger=True, engineio_logger=True, cors_allowed_origins="*")
