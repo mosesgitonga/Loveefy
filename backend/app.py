@@ -41,6 +41,14 @@ app = Flask(__name__, static_folder='./dist', static_url_path='/')
 CORS(app, resources={r"/*": {"origins": "*"}})
 socketio = SocketIO(app, logger=True, engineio_logger=True, cors_allowed_origins="*")
 
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    return response
+
 # Configuration settings
 app.config['REDIS_URL'] = "redis://localhost:6379/0"
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
