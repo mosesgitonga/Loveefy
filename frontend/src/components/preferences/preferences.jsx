@@ -54,7 +54,7 @@ const PreferenceForm = () => {
             validationSchema={validationSchema}
             onSubmit={async (values, { setSubmitting }) => {
               try {
-                const response = await api.post('/v1/preferences', values);
+                const response = await api.post('/api/v1/preferences', values);
 
                 if (response.status === 201) {
                   console.log('Profile created successfully');

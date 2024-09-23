@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FaBars } from 'react-icons/fa'; 
 import styles from './Sidebar.module.css';
 import api from "../api/axios";
@@ -13,7 +13,7 @@ const Sidebar = () => {
     const handleNavClick = (tabName, path) => {
         setActiveTab(tabName);
         setIsOpen(true); 
-        <Link to={path}></Link>
+        navigate(path);
     };
 
     useEffect(() => {

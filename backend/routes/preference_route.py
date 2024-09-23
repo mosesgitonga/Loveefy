@@ -6,7 +6,7 @@ from controllers.preference import Preferences
 
 preferences = Preferences()
 
-preference_bp = Blueprint('preference', __name__, url_prefix="/v1/")
+preference_bp = Blueprint('preference', __name__, url_prefix="/api/v1/")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

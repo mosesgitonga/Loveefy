@@ -15,7 +15,7 @@ const PreferenceForm = () => {
         // Fetch the existing user profile
         const fetchProfile = async () => {
             try {
-                const response = await api.get(`/v1/preference`);
+                const response = await api.get(`/api/v1/preference`);
                 const preferenceData = response.data;
                 console.log(preferenceData)
                 console.log(preferenceData);

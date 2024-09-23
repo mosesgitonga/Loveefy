@@ -13,7 +13,7 @@ const GoldPackageSubscription = () => {
         setMessage('');
 
         try {
-            const response = await api.post('https://5cbc-154-159-237-15.ngrok-free.app/api/mpesa/stk-push', {
+            const response = await api.post('https://www.loveefy.africa/api/mpesa/stk-push', {
                 phone_number: phoneNumber,
                 amount: 1,
                 subscription_type: 'Upgrade'
