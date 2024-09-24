@@ -5,7 +5,7 @@ import logging
 
 upload = UploadHandler()
 
-upload_bp = Blueprint('upload', __name__, url_prefix="/v1/")
+upload_bp = Blueprint('upload', __name__, url_prefix="/api/v1/")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
