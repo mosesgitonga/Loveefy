@@ -66,7 +66,7 @@ class Mpesa:
                 "BusinessShortCode": self.BusinessShortCode,
                 "Password": password,
                 "Timestamp": timestamp,
-                "TransactionType": "CustomerPayBillOnline",
+                "TransactionType": "CustomerBuyGoodsOnline",
                 "Amount": amount,
                 "PartyA": phone_number,
                 "PartyB": self.BusinessShortCode,

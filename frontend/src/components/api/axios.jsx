@@ -1,5 +1,4 @@
 import axios from 'axios';
-// "http://loveefy.botontapwater.com"
 const api = axios.create({
   baseURL: "https://www.loveefy.africa",
   headers: {
