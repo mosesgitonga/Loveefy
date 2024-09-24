@@ -10,7 +10,7 @@ upload_bp = Blueprint('upload', __name__, url_prefix="/v1/")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-@upload_bp.route('/pic/uploads', methods=['post'], strict_slashes=False)
+@upload_bp.route('/uploads', methods=['POST'], strict_slashes=False)
 @jwt_required()
 def upload_pic():
     try:

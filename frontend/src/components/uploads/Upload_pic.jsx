@@ -29,7 +29,7 @@ const Upload = () => {
             const formData = new FormData();
             formData.append("file", file);
 
-            const response = await api.post("/v1/pic/uploads", formData, {
+            const response = await api.post("/api/v1/uploads", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
