@@ -13,7 +13,7 @@ from models.uploads import Upload
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-UPLOAD_FOLDER = './uploads'
+UPLOAD_FOLDER = 'uploads'
 
 class UploadHandler():
     def __init__(self):

@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "start": "vite --proxy https://8ec4-105-161-182-183.ngrok-free.app"
+    "start": "vite --proxy www.loveefy.africa"
   },
   "dependencies": {
     "@react-spring/web": "^9.7.3",

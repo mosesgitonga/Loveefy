@@ -20,7 +20,7 @@ import FeedbackForm from './components/feedback';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <SocketProvider>
+    
       <Router>
         <Routes>
           <Route path='/' element={<IndexPage />} />
@@ -40,6 +40,5 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path='/feedback' element={<FeedbackForm />} />
         </Routes>
       </Router>
-    </SocketProvider>
   </React.StrictMode>,
 );

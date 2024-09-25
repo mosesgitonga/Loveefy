@@ -1,50 +1,23 @@
 import React, { useState, useEffect } from "react";
-import io from "socket.io-client";
+import { useSocket } from './socketContext'; 
 
 const PrivateMessage = () => {
     const [message, setMessage] = useState("");
-    const [socket, setSocket] = useState(null);
-
-    useEffect(() => {
-        // Initialize the socket connection only once
-        const newSocket = io.connect('https://www.loveefy.africa', {
-            query: { token: sessionStorage.getItem('access_token') }
-        });   
-
-        newSocket.on('connect', () => {
-            console.log('connected to the server');
-        });
-
-        
-        newSocket.on('disconnect', () => {
-            console.log('Disconnected from server');
-        });
-        
-        newSocket.on('error', (error) => {
-            console.log('Error:', error);
-        });
-
-        setSocket(newSocket);
-
-        // Cleanup the socket connection on unmount
-        return () => {
-            newSocket.disconnect();
-        };
-    }, []);
+    const socket = useSocket(); 
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (message.trim() && socket) {
-            // Emit the message to the server
+            console.log(message);
             socket.emit('private_message', { message });
-            setMessage(""); // Clear the input field
+            setMessage(""); 
         }
     };
 
     return (
         <div>
             <form onSubmit={handleSubmit}>
-                <input
+                <textarea
                     type="text"
                     placeholder="Type a message"
                     value={message}

@@ -1,4 +1,4 @@
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity, decode_token
 from flask import Flask, send_from_directory, request, jsonify
 from dotenv import load_dotenv
 from flask_socketio import SocketIO, join_room, leave_room, emit
@@ -79,7 +79,18 @@ jwt = JWTManager(app)
 # Socket.IO event for user connection
 @socketio.on('connect')
 def handle_connect():
-    print('Client connected')
+    auth_header = request.headers.get('Authorization')
+    if auth_header:
+        token = auth_header.split(' ')[1]  # Extract token part from "Bearer <token>"
+        try:
+            decoded_token = decode_token(token)
+            print("User authenticated:", decoded_token)
+        except Exception as e:
+            print("JWT verification failed:", e)
+            return
+    else:
+        print("Missing Authorization Header")
+        return
 
 # Utility Functions for Room Handling
 def join_room_util(room_id):
@@ -101,7 +112,6 @@ def leave_room_util(room_id):
 
 # Socket.IO event for joining a room
 @socketio.on('join_room')
-@jwt_required()
 def handle_join_room(data):
     room_id = data.get('room_id')
 
@@ -114,19 +124,34 @@ def handle_join_room(data):
 
 # Socket.IO event for leaving a room
 @socketio.on('leave_room')
-@jwt_required()
 def handle_leave_room(data):
     room_id = data.get('room_id')
     leave_room_util(room_id)
 
 # Socket.IO event for sending a message
 @socketio.on('send_message')
-@jwt_required()
 def handle_send_message(data):
     try:
+        print(data)
+        token = data.get('token')
+        print('token\n\n\n', token)
+        if token is None:
+            emit('error', {'msg': 'Missing token'})
+            return
+
+        # Decode and verify the token
+        try:
+            decoded_token = decode_token(token)
+            print('decoded token\n\n\n', decoded_token)
+            user_id = decoded_token['sub']
+        except Exception as e:
+            print("JWT verification failed:", e)
+            emit('error', {'msg': 'Invalid token'})
+            return
+
+        # Proceed with handling the message after JWT verification
         room_id = data['room_id']
         msg_content = data['content']
-        user_id = get_jwt_identity()
         user = storage.get(User, id=user_id)
         username = user.username
 
@@ -139,6 +164,7 @@ def handle_send_message(data):
             return
 
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
         # Save the message to the database
         message.save_message(
             sender_id=user_id,
@@ -149,8 +175,6 @@ def handle_send_message(data):
 
         # Emit the message to the room
         emit('receive_message', {'timestamp': timestamp, 'username': username, 'content': msg_content}, room=room_id)
-
-
 
     except Exception as e:
         emit('error', {'msg': 'Failed to send message'})

@@ -66,12 +66,12 @@ class Mpesa:
                 "BusinessShortCode": self.BusinessShortCode,
                 "Password": password,
                 "Timestamp": timestamp,
-                "TransactionType": "CustomerBuyGoodsOnline",
+                "TransactionType": "CustomerTransfer",
                 "Amount": amount,
                 "PartyA": phone_number,
                 "PartyB": self.BusinessShortCode,
                 "PhoneNumber": phone_number,
-                "CallBackURL": "https://www.loveefy.africa/api/mpesa/callback",
+                "CallBackURL": "https://9217-154-159-237-5.ngrok-free.app/api/mpesa/callback",
                 "AccountReference": "loveefy",
                 "TransactionDesc": "LoveefyPlan"
             }
