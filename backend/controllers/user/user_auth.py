@@ -2,6 +2,8 @@
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from flask import jsonify, current_app, url_for
 from itsdangerous import URLSafeTimedSerializer
+from werkzeug.exceptions import BadRequest
+from werkzeug.security import check_password_hash, generate_password_hash
 from flask_mail import Message, Mail
 from datetime import datetime, timedelta
 import os
@@ -15,6 +17,7 @@ import string
 import redis 
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_socketio import SocketIO, emit
 
 current_file_path = os.path.abspath(__file__)
 project_root = os.path.abspath(os.path.join(current_file_path, '..', '..', '..'))
@@ -23,8 +26,10 @@ sys.path.append(project_root)
 from models.engine.DBStorage import DbStorage
 from models.user import User, Otp
 from models.place import Place
+from models.admin import Admin, PowerLevel
 from models.preference import Preference
 from controllers.recommender.rule_based import Recommender
+
 
 # Initialize Limiter for rate limiting
 limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "50 per hour"])
@@ -32,7 +37,7 @@ limiter = Limiter(key_func=get_remote_address, default_limits=["200 per day", "5
 storage = DbStorage()
 
 mail = Mail()
-
+socketio = SocketIO()
 # def is_valid_email_format(email):
 #     """Verify email format using regex."""
 #     email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
@@ -46,6 +51,26 @@ class User_auth:
         self.redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)        
         print('redis client  :  \n',self.redis_client)
 
+        self.initialize_user_count()
+
+
+    def initialize_user_count(self):
+        """Initialize user count in Redis if it's not already set."""
+        if not self.redis_client.exists('user_count'):
+            user_count = self.get_user_count()
+            self.redis_client.set('user_count', user_count)
+        print(f"User count initialized in Redis: {self.redis_client.get('user_count')}")
+
+    def get_user_count(self):
+        """Get the total number of users in the database."""
+        all_users = len(self.storage.get_all(User))
+        print(f'\n\n{all_users}')
+        return all_users
+
+    def count_users_in_redis(self):
+        updated_user_count = self.redis_client.get('user_count')
+        return updated_user_count
+    
     def register_by_email(self, data):
         """Register a new user by email."""
         password = data.get('password')
@@ -59,11 +84,9 @@ class User_auth:
             return jsonify({'error': 'Username, password, and email are required'}), 400
 
         try:
-            # Check if email already exists
             if self.storage.get(User, email=email):
                 return jsonify({'error': 'Email already exists', 'code': 600}), 409
 
-            # Hash the password
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(10))
 
             # Create the user
@@ -78,6 +101,7 @@ class User_auth:
             # Save the user to the database
             self.storage.new(new_user)
             self.storage.save()
+            self.redis_client.incr('user_count')
 
             # Generate JWT token
             access_token = create_access_token(identity=new_user.id)
@@ -265,6 +289,69 @@ class User_auth:
         except Exception as e:
             print(e)
             return jsonify({"message": "Internal Server Error"}), 500
+        
 
-if __name__ == '__main__':
-    pass
+
+from werkzeug.security import generate_password_hash
+from sqlalchemy.exc import IntegrityError
+
+class AdminAuth:
+    def __init__(self):
+        self.storage = DbStorage()
+    
+    def register_super_admin(self, data):
+        required_fields = ['name', 'email', 'password']
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"{field} is required to register a super admin.")
+
+        existing_super_admin = self.storage.get(Admin, power=PowerLevel.SUPER)
+        if existing_super_admin:
+            return jsonify({"message": "Permission Denied"}), 403
+        
+        hashed_password = generate_password_hash(data['password'])
+        
+        # Create a new super admin
+        new_super_admin = Admin(
+            name=data['name'],
+            email=data['email'],
+            power=PowerLevel.SUPER,
+            password=hashed_password
+        )
+
+        try:
+            # Save to the database
+            self.storage.new(new_super_admin)
+            self.storage.save()
+            return {"status": "success", "message": "Super admin registered successfully."}
+        except IntegrityError:
+            self.storage.rollback()
+            return {"status": "error", "message": "Email already exists."}
+        
+    def admin_login(self, data):
+        required_fields = ['email', 'password']
+        
+        for field in required_fields:
+            if field not in data:
+                raise BadRequest(f'{field} is required')  
+
+        try:    
+            existing_admin = self.storage.get(Admin, email=data['email'])
+            
+            if not existing_admin:
+                return jsonify({"message": "Access Denied"}), 403
+            
+            password = data['password']
+            if not check_password_hash(existing_admin.password, data['password']):
+                return jsonify({"status": "error", "message": "Access Denied"}), 403
+                
+            access_token = create_access_token(identity=existing_admin.id)
+            return jsonify({"access_token": access_token}), 200 
+
+        except Exception as e:
+            # Log the exception and return a generic error message
+            print(f"Error during login: {e}")
+            return jsonify({"error": "An error occurred during login."}), 500 
+        
+    
+

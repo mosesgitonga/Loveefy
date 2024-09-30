@@ -8,11 +8,12 @@ current_file_path = os.path.abspath(__file__)
 project_root = os.path.abspath(os.path.join(current_file_path, '..', '..', '..'))
 sys.path.append(project_root)
 
-from controllers.user.user_auth import User_auth
+from controllers.user.user_auth import User_auth, AdminAuth
 from models.engine.DBStorage import DbStorage
 from models.user import User 
 
 user_auth = User_auth()
+admin_auth = AdminAuth()
 storage = DbStorage()
 auth_bp = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
@@ -106,3 +107,22 @@ def update_password():
 def delete_account():
     response, status_code = user_auth.delete_account()
     return response, status_code
+
+
+@auth_bp.route('/super/admin/register', methods=['POST'], strict_slashes=False)
+def admin_register():
+    data = request.json 
+
+    response = admin_auth.register_super_admin(data)
+    return response 
+
+
+@auth_bp.route('/admin/login', methods=['POST'], strict_slashes=False)
+def admin_login():
+    data = request.json 
+    response = admin_auth.admin_login(data)
+    return response 
+@auth_bp.route('/users/count', methods=['GET'], strict_slashes=False)
+def count_users():
+    response = user_auth.count_users_in_redis()
+    return response

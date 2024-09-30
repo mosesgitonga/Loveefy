@@ -114,13 +114,20 @@ def leave_room_util(room_id):
 @socketio.on('join_room')
 def handle_join_room(data):
     room_id = data.get('room_id')
-
-    unread_messages = storage.get_all(Messages, room_id=room_id, status="unread")
-    for message in unread_messages:
-        message.status = "read"
-        storage.new(message)
-    storage.save()
-    join_room_util(room_id)
+    if not room_id:
+        print('no room id received')
+        return
+    try:
+        unread_messages = storage.get_all(Messages, room_id=room_id, status="unread")
+        print('unread messages', unread_messages)
+        for message in unread_messages:
+            message.status = "read"
+            storage.new(message)
+        storage.save()
+        join_room_util(room_id)
+    except Exception as e:
+        print('was not able to join room\n')
+        return jsonify({"message": "Internal Server Error"})
 
 # Socket.IO event for leaving a room
 @socketio.on('leave_room')
@@ -132,9 +139,7 @@ def handle_leave_room(data):
 @socketio.on('send_message')
 def handle_send_message(data):
     try:
-        print(data)
         token = data.get('token')
-        print('token\n\n\n', token)
         if token is None:
             emit('error', {'msg': 'Missing token'})
             return
@@ -142,7 +147,6 @@ def handle_send_message(data):
         # Decode and verify the token
         try:
             decoded_token = decode_token(token)
-            print('decoded token\n\n\n', decoded_token)
             user_id = decoded_token['sub']
         except Exception as e:
             print("JWT verification failed:", e)
@@ -174,12 +178,13 @@ def handle_send_message(data):
         )
 
         # Emit the message to the room
+        print(f'emitting message to {room_id} content {msg_content} from {username}\n\n\n')
+
         emit('receive_message', {'timestamp': timestamp, 'username': username, 'content': msg_content}, room=room_id)
 
     except Exception as e:
         emit('error', {'msg': 'Failed to send message'})
         print(f"Error sending message: {e}")
-
 
 
 
@@ -220,4 +225,3 @@ app.register_blueprint(feedback_bp)
 if __name__ == '__main__':
     # Run the app with eventlet for production readiness
     socketio.run(app, host='0.0.0.0', port=5000)
-

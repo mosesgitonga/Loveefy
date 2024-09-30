@@ -63,8 +63,6 @@ class UploadHandler():
                 filename = secure_filename(file.filename)
                 user_dir = self.get_user_directory(user_id)
 
-
-
                 # Save the original file temporarily
                 temp_path = os.path.join(user_dir, 'temp_' + filename)
                 file.save(temp_path)
