@@ -3,7 +3,18 @@ import styles from './profile.module.css';
 import * as yup from 'yup';
 import { useFormik } from 'formik';
 import api from '../api/axios'; 
+import enLocale from 'i18n-iso-countries/langs/en.json';
+import countries from 'i18n-iso-countries';
 import { useNavigate } from 'react-router-dom';
+import Select from 'react-select';
+
+
+// Load country data for React Select
+countries.registerLocale(enLocale);
+const countryOptions = Object.entries(countries.getNames('en', { select: 'official' })).map(([value, label]) => ({
+  value,
+  label
+}));
 
 // Validation schema using Yup
 const validationSchema = yup.object({
@@ -87,6 +98,7 @@ const Profile = () => {
                                 value={formik.values.gender}
                                 onChange={formik.handleChange}
                                 className={styles.gender}
+                                required
                             >
                                 <option value="" label="Select gender" />
                                 <option value="male" label="Male" />
@@ -104,6 +116,7 @@ const Profile = () => {
                                 onChange={formik.handleChange}
                                 style={{ width: "100%" }} // Make the width responsive
                                 inputmode="numeric" // Helps mobile devices understand the input type
+                                required
                             />
                             {formik.errors.dob && <div className={styles.error}>{formik.errors.dob}</div>}
                         </label>
@@ -116,6 +129,7 @@ const Profile = () => {
                                 value={formik.values.mobile_no}
                                 onChange={formik.handleChange}
                                 style={{width: "250px"}}
+                                required
                             />
                             {formik.errors.mobile_no && <div className={styles.error}>{formik.errors.mobile_no}</div>}
                         </label>
@@ -129,6 +143,7 @@ const Profile = () => {
                                 value={formik.values.industry_major}
                                 onChange={formik.handleChange}
                                 className={styles.industryMajor}
+                                required
                             >
                                 <option value="" label="Select industry major" />
                                 <option value="health" label="Health" />
@@ -155,15 +170,29 @@ const Profile = () => {
                         </label>
                         <label htmlFor="education_level">
                             Education Level:
-                            <input
+                            <select
                                 id="education_level"
-                                type="text"
                                 name="education_level"
                                 value={formik.values.education_level}
                                 onChange={formik.handleChange}
-                                style={{width: "250px"}}
-                            />
-                            {formik.errors.education_level && <div className={styles.error}>{formik.errors.education_level}</div>}
+                                style={{ width: "250px" }}
+                                required
+                                aria-invalid={Boolean(formik.errors.education_level)}
+                                aria-describedby="education_level_error"
+                            >
+                                <option value="" label="Select education level" />
+                                <option value="kindergarten" label="Kindergarten Graduate" />
+                                <option value="primary_school" label="Primary School Graduate" />
+                                <option value="high_school" label="High School Graduate" />
+                                <option value="diploma" label="Diploma Graduate" />
+                                <option value="degree" label="Degree Graduate" />
+                                <option value="postgraduate" label="Postgraduate Graduate" />
+                            </select>
+                            {formik.errors.education_level && (
+                                <div id="education_level_error" className={styles.error} role="alert">
+                                    {formik.errors.education_level}
+                                </div>
+                            )}
                         </label>
                         <label htmlFor="career">
                             Career:
@@ -174,6 +203,7 @@ const Profile = () => {
                                 value={formik.values.career}
                                 onChange={formik.handleChange}
                                 style={{width: "250px"}}
+                                required
                             />
                             {formik.errors.career && <div className={styles.error}>{formik.errors.career}</div>}
                         </label>
@@ -187,6 +217,7 @@ const Profile = () => {
                                 value={formik.values.employment}
                                 onChange={formik.handleChange}
                                 className={styles.employment}
+                                required
                             >
                                 <option value="">I am: </option>
                                 <option value="employed">--Employed</option>
@@ -204,6 +235,7 @@ const Profile = () => {
                                 value={formik.values.employment}
                                 onChange={formik.handleChange}
                                 className={styles.employment}
+                
                             >
                                 <option value="">Are you schooling: </option>
                                 <option value="yes">Yes, i am schooling.</option>
@@ -246,13 +278,14 @@ const Profile = () => {
                         </label>
                         <label htmlFor="country">
                             Country:
-                            <input
-                                id="country"
-                                type="text"
+                            <Select
                                 name="country"
-                                value={formik.values.country}
-                                onChange={formik.handleChange}
-                                style={{width: "250px"}}
+                                options={countryOptions}
+                                onChange={option => formik.setFieldValue('country', option.value)}
+                                onBlur={formik.handleBlur}
+                                value={countryOptions.find(option => option.value === formik.values.country)}
+                                className="react-select"
+                                required
                             />
                             {formik.errors.country && <div className={styles.error}>{formik.errors.country}</div>}
                         </label>
@@ -283,7 +316,9 @@ const Profile = () => {
                             {formik.errors.sub_region && <div className={styles.error}>{formik.errors.sub_region}</div>}
                         </label>
                     </div>
-                    <button type="submit">Submit</button>
+                    <button type="submit" className="submit-button" disabled={formik.isSubmitting}>
+                        {formik.isSubmitting ? 'Submitting...' : 'Next'}
+                </button>
                 </form>
             </div>
         </div>

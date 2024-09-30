@@ -15,7 +15,7 @@
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+    background: linear-gradient(135deg, #ff3366, #ff3399);
   }
   
   /* Form styling */
@@ -37,7 +37,7 @@
     display: inline-block;
     padding: 0.75rem 1.5rem;
     border-radius: 8px;
-    background-color: #ff6f61;
+    background-color: #333;
     color: white;
     cursor: pointer;
     margin-bottom: 1rem;
@@ -53,7 +53,7 @@
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 8px;
-    background-color: #fffefe;
+    background-color: #ff3366;
     color: white;
     font-size: 1rem;
     cursor: pointer;

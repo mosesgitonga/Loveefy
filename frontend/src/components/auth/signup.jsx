@@ -12,32 +12,38 @@ const Signup = () => {
         confirmPassword: ''
     });
     const [errorMessage, setErrorMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
         if (formData.password !== formData.confirmPassword) {
             setErrorMessage('Passwords do not match');
             return;
         }
-         
+
+        setIsSubmitting(true); 
+
         api.post('/api/v1/auth/registers', formData)
             .then(response => {
+                setIsSubmitting(false); 
                 if (response.status === 409 && response.data.code === 600) {
-                    setErrorMessage('email already exists')
+                    setErrorMessage('Email already exists');
                 }
                 if (response.status === 201) {
-                    navigate('/login');
+                    sessionStorage.setItem('access_token', access_token);
+                    navigate('/profile/setup');
                 }
                 console.log(response);
             })
             .catch(error => {
+                setIsSubmitting(false); // Set isSubmitting back to false in case of an error
                 console.log(error);
                 if (error.response?.data.code === 600) {
-                    setErrorMessage("Couldn't register. Email already exists. Please login")
+                    setErrorMessage("Couldn't register. Email already exists. Please login");
                 } else if (error.response?.status === 500) {
-                    setErrorMessage('Internal server error. The problem is our servers')
-                }
-                else {
+                    setErrorMessage('Internal server error. The problem is on our servers.');
+                } else {
                     setErrorMessage('Registration failed. Please try again.');
                 }
             });
@@ -98,7 +104,9 @@ const Signup = () => {
                         required
                     />
                 </div>
-                <button type="submit">Register</button>
+                <button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Submitting...' : 'Register'}
+                </button>
                 <p className={styles.accountAlready}>Already have an Account? <a href="#">Login</a></p>
             </form>
         </div>
@@ -106,4 +114,3 @@ const Signup = () => {
 }
 
 export default Signup;
-

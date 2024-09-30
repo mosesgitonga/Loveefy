@@ -94,8 +94,11 @@
 .loading,
 .error {
     text-align: center;
-    font-size: 18px;
+    font-size: 50px;
     color: #888;
+    background-color: #ff3366;
+    height: 100vh;
+    
 }
 
 @media screen and (max-width: 768px) {

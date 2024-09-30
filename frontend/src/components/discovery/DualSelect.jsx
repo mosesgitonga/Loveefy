@@ -61,6 +61,7 @@ const DualSelect = () => {
 
     const handleLike = async (person) => {
         try {
+            updateProfiles();
             let liked_id;
    
             if (currentUserId === person.user_id1) {
@@ -77,7 +78,6 @@ const DualSelect = () => {
             if (response.data.message === "it's a match!") {
                 alert(`You have matched with ${person.username}. Start a conversation.`);
             }
-            updateProfiles();
         } catch (error) {
             console.error('Error handling like', error);
             alert('There was an error processing your like. Please try again.');

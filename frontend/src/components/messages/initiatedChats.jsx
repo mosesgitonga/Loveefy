@@ -39,15 +39,19 @@ const InitiatedChats = () => {
                 <h1>Initiated Chats</h1>
 
                 {rooms ? (
-                    rooms.map((room) => (
-                        <div
-                            className="room"
-                            key={room.room_id}
-                            onClick={() => handleRoomClick(room.room_id)}
-                        >
-                            <p>{room.opposite_username} - {room.updated_at} - {room.last_message}</p> 
-                        </div>
-                    ))
+                    rooms.length > 0 ? (
+                        rooms.map((room) => (
+                            <div
+                                className="room"
+                                key={room.room_id}
+                                onClick={() => handleRoomClick(room.room_id)}
+                            >
+                                <p>{room.opposite_username} - {room.updated_at} - {room.last_message}</p> 
+                            </div>
+                        ))
+                    ) : (
+                        <p>You have not matched with anyone yet! Chats will appear here when you do.</p>
+                    )
                 ) : (
                     <p>Loading...</p>
                 )}

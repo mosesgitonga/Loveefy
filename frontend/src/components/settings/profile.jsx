@@ -88,44 +88,6 @@ const ProfileSettings = ({ userId }) => {
                 <h2>Profile Update Setting</h2>
                 <form onSubmit={handleSave} className="profileForm">
                     <div className="row">
-                        <label htmlFor="gender">
-                            Gender:
-                            <select
-                                id="gender"
-                                name="gender"
-                                value={gender ||"gender"}
-                                onChange={(e) => setGender(e.target.value)}
-                                className="gender"
-                            >
-                                <option value="" label="Select gender" />
-                                <option value="male" label="Male" />
-                                <option value="female" label="Female" />
-                            </select>
-                        </label>
-                        <label htmlFor="dob">
-                            Date of Birth:
-                            <input
-                                id="dob"
-                                type="date"
-                                name="dob"
-                                value={dob || "dob"}
-                                onChange={(e) => setDob(e.target.value)}
-                                style={{ width: '100%' }} // Make the width responsive
-                            />
-                        </label>
-                        <label htmlFor="mobile_no">
-                            Mobile Number (will not be shared):
-                            <input
-                                id="mobile_no"
-                                type="text"
-                                name="mobile_no"
-                                value={mobileNo || "mobile_no"}
-                                onChange={(e) => setMobileNo(e.target.value)}
-                                style={{ width: '250px' }}
-                            />
-                        </label>
-                    </div>
-                    <div className="row">
                         <label htmlFor="industry_major">
                             Industry Major:
                             <select

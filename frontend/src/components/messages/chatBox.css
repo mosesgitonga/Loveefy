@@ -1,13 +1,14 @@
-/* chatBox.css */
-
+/* Main container for chat */
 .chat-container {
     display: flex;
-    height: 100vh;
+    height: 100vh;  
 }
 
 .chats {
     width: 100%;
 }
+
+/* Chat box layout */
 .chatBox {
     display: flex;
     flex-direction: column;
@@ -17,60 +18,71 @@
     margin: 0 auto;
 }
 
+/* Messages area */
 .messages {
     flex: 1;
     padding: 10px;
-    overflow-y: auto;
-    background-color: #f5f5f5;
+    overflow-y: auto; /* Enable vertical scrolling for messages */
+    background-color: #f5f5f5; /* Light background */
     display: flex;
     flex-direction: column;
+    border: 1px solid #ccc; /* Add border to messages area */
+    border-radius: 10px; /* Rounded corners */
 }
 
+/* Individual message styling */
 .message {
-    max-width: 60%;
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 10px;
-    word-wrap: break-word;
+    max-width: 60%; /* Limit message width */
+    margin-bottom: 10px; /* Space between messages */
+    padding: 10px; /* Inner padding for messages */
+    border-radius: 10px; /* Rounded corners for messages */
+    word-wrap: break-word; /* Wrap long words */
+    transition: all 0.2s; /* Smooth transition for hover effects */
 }
 
 /* Message styles for sender */
 .message.sender {
-    align-self: flex-end;
-    background-color: #ff3366;
-    color: white;
+    align-self: flex-end; /* Align sender messages to the right */
+    background-color: #ff3366; /* Sender message background */
+    color: white; /* Sender message text color */
 }
 
 /* Message styles for receiver */
 .message.receiver {
-    align-self: flex-start;
-    background-color: rgb(250, 145, 163);
-    color: black;
+    align-self: flex-start; /* Align receiver messages to the left */
+    background-color: rgb(250, 145, 163); /* Receiver message background */
+    color: black; /* Receiver message text color */
 }
 
+/* Input area styling */
 input[type="text"] {
-    width: calc(100% + 10000px);
-    padding: 10px;
-    margin: 10px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
+    width: 100%; /* Full width for input */
+    padding: 10px; /* Inner padding */
+    margin: 10px 0; /* Margin for spacing */
+    border-radius: 10px; /* Rounded corners */
+    border: 1px solid #ccc; /* Light border */
+    outline: none; /* Remove default outline */
 }
 
+/* Button styling */
 button {
-    padding: 10px 20px;
-    margin: 10px;
-    border-radius: 10px;
-    background-color: #ff3366;
-    color: white;
-    border: none;
-    cursor: pointer;
+    padding: 10px 20px; /* Padding for button */
+    border-radius: 10px; /* Rounded corners for button */
+    background-color: #ff3366; /* Button background color */
+    color: white; /* Button text color */
+    border: none; /* Remove border */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s; /* Smooth background transition */
 }
 
+/* Button hover effect */
 button:hover {
-    background-color: #ff3366;
+    background-color: #ff1a47; /* Darker shade on hover */
 }
 
+/* Send area styling */
 .send {
-    display: flex;;
+    display: flex; /* Flex layout for send area */
+    align-items: center; /* Center items vertically */
+    margin-top: 10px; /* Space above send area */
 }
-

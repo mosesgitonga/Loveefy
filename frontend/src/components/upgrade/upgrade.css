@@ -3,7 +3,8 @@
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(to bottom right, #f0e5ff, #e5f0ff);
+    background: linear-gradient(to bottom right, #ff3366, #ff3399);
+    color: white;
 }
 
 .subscription-card {

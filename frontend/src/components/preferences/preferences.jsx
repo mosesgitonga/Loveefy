@@ -261,7 +261,9 @@ const PreferenceForm = () => {
                   </div>
                 </div>
 
-                <button type="submit" className="submit-button">Next</button>
+                <button type="submit" className="submit-button" disabled={formik.isSubmitting}>
+                  {formik.isSubmitting ? 'Submitting...' : 'Next'}
+                </button>
               </Form>
             )}
           </Formik>

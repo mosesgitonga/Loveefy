@@ -14,9 +14,10 @@ import Notifications from './components/notifications/notification';
 import SettingsPage from './components/settings/settingsPage';
 import ForgotPassword from './components/verifications/forgotPassword';
 import Upgrade from './components/upgrade/upgrade';
-import { SocketProvider } from './components/messages/socketContext';
 import UserProfile from './components/profile/currentUserProfile';
 import FeedbackForm from './components/feedback';
+import SuperAdminPage from './components/admin/superAdmin';
+
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -38,6 +39,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path='/hello_user' element={<Upgrade />} />
           <Route path='/profile' element={<UserProfile /> } />
           <Route path='/feedback' element={<FeedbackForm />} />
+          <Route path="/super/admin/moses" element={<SuperAdminPage />}/>
         </Routes>
       </Router>
   </React.StrictMode>,

@@ -17,7 +17,6 @@ const Sidebar = () => {
     };
 
     useEffect(() => {
-        // Function to fetch unread messages count
         const fetchUnreadMessages = async () => {
             try {
                 const response = await api.get('/api/v1/all_unread/count');

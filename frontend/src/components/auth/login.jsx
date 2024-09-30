@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import api from "../api/axios";
 import { useNavigate } from 'react-router-dom';
 import styles from './login.module.css';
-import { Link } from 'react-router-dom'
-import axios from "axios";
+import { Link } from 'react-router-dom';
 
 
 const Login = () => {
@@ -11,27 +10,29 @@ const Login = () => {
         email: '',
         password: ''
     });
-
-    
+ 
     const [errorMessage, setErrorMessage] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false); // new state to track submission status
 
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
         api.post('/api/v1/auth/logins', formData)
             .then(response => {
+                setIsSubmitting(false); 
                 if (response.status === 200) {
                     const { current_username, current_user_id ,access_token, place_id, preference_id } = response.data;
                     sessionStorage.setItem('access_token', access_token);
                     sessionStorage.setItem('userId', current_user_id);
                     sessionStorage.setItem('currentUsername', current_username);
                     if (place_id && preference_id) {
-                        navigate('/discovery/home')
+                        navigate('/discovery/home');
                     } else if (place_id && !preference_id) {
                         navigate('/preference');
-                    } else {
+                    } else  {
                         navigate('/profile/setup'); // Default redirection if neither is set
                     }
                 } else {
@@ -39,6 +40,7 @@ const Login = () => {
                 }
             })
             .catch(error => {
+                setIsSubmitting(false); // Set isSubmitting back to false in case of an error
                 console.log(error);
                 if (error.response?.status === 403) {
                     setErrorMessage('Forbidden Email or Password. Try again');
@@ -50,7 +52,6 @@ const Login = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-
         setFormData({
             ...formData,
             [name]: value
@@ -83,7 +84,9 @@ const Login = () => {
                             required
                         />
                     </div>
-                    <button type="submit">Submit</button>
+                    <button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Submitting...' : 'Submit'}
+                    </button>
                     <p><Link to="/forgot-password">Forgot password</Link></p>
                     <p>Don't have an account? <Link to="/register">Register</Link></p>
                     {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}

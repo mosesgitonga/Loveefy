@@ -64,7 +64,7 @@ const Upload = () => {
             <div className="form">
                 <form onSubmit={handleSubmit} encType="multipart/form-data">
                     <input type="file" name="file" id="file" onChange={handleFileChange} />
-                    <label htmlFor="file">Choose a file</label>
+                    <label htmlFor="file">Choose a Picture</label>
                     {file && <p className="file-name">{file.name}</p>}
                     <button type="submit" disabled={loading}>
                         {loading ? "Uploading..." : "Upload"}
