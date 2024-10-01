@@ -17,6 +17,7 @@ from routes.messages import messages_bp
 from routes.payments.Mpesa import mpesa_bp
 from routes.notifications import notifications_bp
 from routes.feedback_route import feedback_bp
+from routes.services_route import geo_bp
 from services.message import MessageService
 from controllers.user.user_auth import User_auth
 from datetime import timedelta
@@ -218,6 +219,7 @@ app.register_blueprint(messages_bp)
 app.register_blueprint(mpesa_bp)
 app.register_blueprint(notifications_bp)
 app.register_blueprint(feedback_bp)
+app.register_blueprint(geo_bp)
 
 
 

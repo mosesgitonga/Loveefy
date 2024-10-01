@@ -101,7 +101,6 @@ class User_auth:
             # Save the user to the database
             self.storage.new(new_user)
             self.storage.save()
-            self.redis_client.incr('user_count')
 
             # Generate JWT token
             access_token = create_access_token(identity=new_user.id)
@@ -352,6 +351,8 @@ class AdminAuth:
             # Log the exception and return a generic error message
             print(f"Error during login: {e}")
             return jsonify({"error": "An error occurred during login."}), 500 
+        
+    
         
     
 

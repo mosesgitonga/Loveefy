@@ -3,3 +3,4 @@
 alembic.*
 alembic
 *.env
+alembic.ini 
