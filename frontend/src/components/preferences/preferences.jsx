@@ -75,7 +75,7 @@ const PreferenceForm = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="gender">Preferred Gender</label>
-                    <Field as="select" name="gender">
+                    <Field as="select" name="gender" required>
                       <option value="">Select the Gender You Prefer</option>
                       <option value="male">Male</option>
                       <option value="female">Female</option>
@@ -128,6 +128,7 @@ const PreferenceForm = () => {
                       onBlur={formik.handleBlur}
                       value={countryOptions.find(option => option.value === formik.values.country)}
                       className="react-select"
+                      required
                     />
                     <ErrorMessage name="country" component="div" className="error-message" />
                   </div>
@@ -149,7 +150,7 @@ const PreferenceForm = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="is_schooling">Preferred Education Status</label>
-                    <Field as="select" name="is_schooling">
+                    <Field as="select" name="is_schooling" required>
                       <option value="">Select an option</option>
                       <option value="yes">Schooling</option>
                       <option value="no">Graduated</option>
@@ -160,7 +161,7 @@ const PreferenceForm = () => {
 
                   <div className="form-group">
                     <label htmlFor="industryMajor">Preferred Partner Industry Major</label>
-                    <Field as="select" name="industryMajor">
+                    <Field as="select" name="industryMajor" required>
                       <option value="" label="Select industry major" />
                       <option value="health" label="Health" />
                       <option value="it" label="IT" />
@@ -193,13 +194,14 @@ const PreferenceForm = () => {
                       onBlur={formik.handleBlur}
                       value={formik.values.career}
                       className="text-input"
+                      required
                     />
                     <ErrorMessage name="career" component="div" className="error-message" />
                   </div>
 
                   <div className="form-group">
                     <label htmlFor="education_level">Preferred Partner Education Level</label>
-                    <Field as="select" name="education_level">
+                    <Field as="select" name="education_level" required>
                       <option value="">Select Preferred Partner Education Level</option>
                       <option value="primary">Primary Education</option>
                       <option value="secondary">Secondary Education</option>
@@ -213,13 +215,14 @@ const PreferenceForm = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="employment">Employment</label>
-                    <Field as="select" name="employment">
+                    <Field as="select" name="employment" required>
                       <option value="">I want my match to be: </option>
                       <option value="employed">Employed</option>
                       <option value="unemployed">Unemployed</option>
                       <option value="self-employed">Self Employed</option>
                       <option value="entrepreneur">Entrepreneur</option>
                     </Field>
+                    required 
                     <ErrorMessage name="employment" component="div" className="error-message" />
                   </div>
 

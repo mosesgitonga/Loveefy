@@ -164,7 +164,7 @@ const Profile = () => {
                                 <option value="construction" label="Construction" />
                                 <option value="real_estate" label="Real Estate" />
                                 <option value="security" label="Security" />
-                                <option value="others" label="Others" />
+                                <option value="Unknown" label="Others" />
                             </select>
                             {formik.errors.industry_major && <div className={styles.error}>{formik.errors.industry_major}</div>}
                         </label>

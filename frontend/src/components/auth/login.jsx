@@ -3,6 +3,7 @@ import api from "../api/axios";
 import { useNavigate } from 'react-router-dom';
 import styles from './login.module.css';
 import { Link } from 'react-router-dom';
+import fetchLocation from "../discovery/location";
 
 
 const Login = () => {
@@ -12,7 +13,7 @@ const Login = () => {
     });
  
     const [errorMessage, setErrorMessage] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false); // new state to track submission status
+    const [isSubmitting, setIsSubmitting] = useState(false); 
 
     const navigate = useNavigate();
 
@@ -29,18 +30,20 @@ const Login = () => {
                     sessionStorage.setItem('userId', current_user_id);
                     sessionStorage.setItem('currentUsername', current_username);
                     if (place_id && preference_id) {
+                        fetchLocation()
                         navigate('/discovery/home');
+                        
                     } else if (place_id && !preference_id) {
                         navigate('/preference');
                     } else  {
-                        navigate('/profile/setup'); // Default redirection if neither is set
+                        navigate('/profile/setup'); 
                     }
                 } else {
                     setErrorMessage(response.data.error || 'Login failed. Please try again.');
                 }
             })
             .catch(error => {
-                setIsSubmitting(false); // Set isSubmitting back to false in case of an error
+                setIsSubmitting(false); 
                 console.log(error);
                 if (error.response?.status === 403) {
                     setErrorMessage('Forbidden Email or Password. Try again');
@@ -87,7 +90,7 @@ const Login = () => {
                     <button type="submit" disabled={isSubmitting}>
                         {isSubmitting ? 'Submitting...' : 'Submit'}
                     </button>
-                    <p><Link to="/forgot-password">Forgot password</Link></p>
+                    <p><Link to="/auth/otp-request">Forgot password</Link></p>
                     <p>Don't have an account? <Link to="/register">Register</Link></p>
                     {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
                 </form>

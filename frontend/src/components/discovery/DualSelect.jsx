@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import api from "../api/axios";
 import "./DualSelect.css"
-
+import fetchLocation from "./location";
 const DualSelect = () => {
     const [people, setPeople] = useState([]);
     const [profilesToShow, setProfilesToShow] = useState([]);

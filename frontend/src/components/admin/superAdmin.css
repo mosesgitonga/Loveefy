@@ -1,0 +1,9 @@
+.superAdminDashboard {
+    background-color: #ff3366;
+    height: 100vh;
+}
+
+#userCount {
+    font-size: 80px;
+    margin-left: 50px;
+}

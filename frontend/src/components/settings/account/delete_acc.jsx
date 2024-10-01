@@ -20,7 +20,7 @@ const DeleteAccount = () => {
                 setMessage(feedbackResponse.data.message);
 
                 // Deleting the account
-                const deleteResponse = await api.delete('/api/v1/auth/account/delete');
+                const deleteResponse = await api.delete('/apidiscovery/notificationsdiscovery/notifications/v1/auth/account/delete');
                 if (deleteResponse.status === 200) {
                     setMessage(deleteResponse.data.message);
                     sessionStorage.setItem('access_token', '');

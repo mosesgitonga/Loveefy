@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios'
+import './superAdmin.css'
+import UserMap from './mapComponent';
 
 const SuperAdminPage = () => {
     const [userCount, setUserCount] = useState(0);
@@ -24,9 +26,11 @@ const SuperAdminPage = () => {
     }, []);
 
     return (
-        <div>
-            <h1>Super Admin Dashboard</h1>
-            <p id="userCount">Number of registered users: {userCount}</p>
+        <div className='superAdminDashboard'>
+            <h1>Loveefy Super Admin Dashboard</h1>
+            <p id="userCount">Registered Users: {userCount}</p>
+
+            <UserMap />
         </div>
     );
 };

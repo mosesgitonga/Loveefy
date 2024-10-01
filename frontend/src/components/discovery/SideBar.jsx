@@ -15,6 +15,27 @@ const Sidebar = () => {
         setIsOpen(true); 
         navigate(path);
     };
+    const handleGetLocation = () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setLocation({ latitude, longitude });
+                    
+                    // Send location to backend
+                    api.post('/api/v1/geo_location', { latitude, longitude })
+                        .then(response => console.log('Location sent:', response))
+                        .catch(error => console.error('Error sending location:', error));
+                },
+                (error) => {
+                    console.error('Error getting location:', error.message);
+                    alert('Unable to retrieve your location.');
+                }
+            );
+        } else {
+            alert('Geolocation is not supported by this browser.');
+        }
+    };
 
     useEffect(() => {
         const fetchUnreadMessages = async () => {
