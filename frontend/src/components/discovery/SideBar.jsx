@@ -39,7 +39,7 @@ const Sidebar = () => {
 
     const fetchNotificationCount = async () => {
         try {
-            const response = await api.get('/api/v1/notification_count');
+            const response = await api.get('/api/v1/all_unread/count');
             setNotificationCount(response.data.notification_count);
         } catch (err) {
             console.error('Failed to fetch notifications:', err);
