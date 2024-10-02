@@ -21,9 +21,9 @@ const AccountSettings = () => {
     return (
         <div>
             <h2>Account Settings</h2>
-            <button onClick={handleDeleteClick}>Delete Account</button>
+            {/* <button onClick={handleDeleteClick}>Delete Account</button> */}
 
-            {showConfirm && (
+            {/* {showConfirm && (
                 <div>
                     <p>Are you sure you want to delete your account?</p>
                     <button onClick={confirmDelete}>Yes, Delete</button>
@@ -31,7 +31,7 @@ const AccountSettings = () => {
                 </div>
             )}
 
-            {showDeleteForm && <DeleteAccount />}
+            {showDeleteForm && <DeleteAccount />} */}
         </div>
     );
 };

@@ -29,7 +29,7 @@ const ForgotPassword = () => {
     const handleOTPSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await api.patch('/api/v1/auth/update_password', { email, otp, newPassword });
+            const response = await api.post('/api/v1/auth/update_password', { email, otp, newPassword });
 
             if (response.status === 200) {
                 setMessage(response.data.message);

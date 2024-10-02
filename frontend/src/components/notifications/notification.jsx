@@ -96,7 +96,7 @@ const Notifications = () => {
                                         {dropdownVisible[notification.id] && (
                                             <div className="dropdown">
                                                 <div>
-                                                    <img src={notification.image_path} alt="profile image" />
+                                                    <img src={`https://www.loveefy.africa/uploads${notification.image_path}`} alt="profile image" />
                                                     <p>Industry: {notification.industry}</p>
                                                     <p>Career: {notification.career}</p>
                                                     <p>Age: {notification.age}</p>

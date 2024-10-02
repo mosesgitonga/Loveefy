@@ -12,7 +12,7 @@ likes_bp = Blueprint('likes', __name__, url_prefix='/api/v1/')
 def create_like():
     try:
         response = LikesService().create_likes()
-        return response
+        return response 
     except Exception as e:
         print(e)
         return jsonify({"message": "Internal Server Error"}), 501
@@ -32,3 +32,9 @@ def reject():
     data = request.json
     response = LikesService().reject(data)
     return response 
+
+@likes_bp.route('notification_count', methods=['GET'], strict_slashes=False)
+@jwt_required()
+def notification_count():
+    response = LikesService().count_notifications()
+    return response

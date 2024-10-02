@@ -114,7 +114,7 @@ const DualSelect = () => {
                         <div className="profileContainer">
                             {profile ? (
                                 <div className="profile-content" 
-                                    style={{ backgroundImage: `url(https://www.loveefy.africa/uploads${profile.image_path})`, border: "6px solid pink" }}>
+                                    style={{ backgroundImage: `url(${profile.image_path ? 'https://www.loveefy.africa/uploads' + profile.image_path : 'https://www.loveefy.africa/uploads' + 'defaultImage.png'})`, border: "6px solid pink" }}>
                                     <h3>Username: {profile.username}</h3>
                                     <h3>Industry: {profile.industry}</h3>
                                     <h3>Country: {profile.country}</h3>
@@ -140,3 +140,4 @@ const DualSelect = () => {
 };
 
 export default DualSelect;
+

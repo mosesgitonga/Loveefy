@@ -213,4 +213,15 @@ class LikesService:
         except Exception as e:
             print(e)
             return jsonify({"message": "Internal Server Error"})
-    
+        
+    def count_notifications(self):
+        try:
+            user_id = get_jwt_identity()
+            notification_count = self.storage.count(Notification, user_to_id=user_id)
+
+            if not notification_count:
+                return jsonify({"message": "no notification found"})
+            return jsonify({"notification_count": notification_count}), 200
+        except Exception as e:
+            print(e)
+            return ({"message": "Internal Server Error"})

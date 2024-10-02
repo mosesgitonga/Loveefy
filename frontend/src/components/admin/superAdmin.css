@@ -1,9 +1,34 @@
-.superAdminDashboard {
+.superContainer {
     background-color: #ff3366;
     height: 100vh;
 }
 
+.superAdminDashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f8f9fa; /* Light background */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    max-width: 800px;
+    margin: 20px auto; /* Center the dashboard */
+}
+
+h1 {
+    font-family: 'Orbitron', sans-serif; /* Use your preferred font */
+    color: #333; /* Darker text color */
+}
+
 #userCount {
-    font-size: 80px;
-    margin-left: 50px;
+    font-size: 1.2rem; /* Larger font size */
+    color: #007bff; /* Primary color for emphasis */
+}
+
+.error {
+    color: red; /* Red for error messages */
+}
+
+.loading {
+    color: #6c757d; /* Muted color for loading */
 }

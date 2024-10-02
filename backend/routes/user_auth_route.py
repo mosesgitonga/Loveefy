@@ -82,7 +82,6 @@ def reset_password(token):
         hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt(10))
         user.password = hashed_password.decode('utf-8')
 
-        # Save the updated user information
         storage.save()
 
         return jsonify({'message': 'Password has been reset successfully'}), 200
@@ -91,7 +90,7 @@ def reset_password(token):
         logging.error(f'Error during password reset: {e}')
         return jsonify({'error': 'Failed to reset password'}), 500
 
-@auth_bp.route('/update_password', methods=['PATCH'], strict_slashes=False)
+@auth_bp.route('/update_password', methods=['P'], strict_slashes=False)
 def update_password():
     data = request.json 
 

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import { FaBars } from 'react-icons/fa'; 
+import { FaBars, FaBell } from 'react-icons/fa'; 
 import styles from './Sidebar.module.css';
 import api from "../api/axios";
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [activeTab, setActiveTab] = useState('home');
+    const [notificationCount, setNotificationCount] = useState(0);
     const [unreadMsgSize, setUnreadMsgSize] = useState(0);
     const navigate = useNavigate();
 
@@ -15,14 +16,13 @@ const Sidebar = () => {
         setIsOpen(true); 
         navigate(path);
     };
+
     const handleGetLocation = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
-                    setLocation({ latitude, longitude });
                     
-                    // Send location to backend
                     api.post('/api/v1/geo_location', { latitude, longitude })
                         .then(response => console.log('Location sent:', response))
                         .catch(error => console.error('Error sending location:', error));
@@ -37,28 +37,39 @@ const Sidebar = () => {
         }
     };
 
+    const fetchNotificationCount = async () => {
+        try {
+            const response = await api.get('/api/v1/notification_count');
+            setNotificationCount(response.data.notification_count);
+        } catch (err) {
+            console.error('Failed to fetch notifications:', err);
+        }
+    };
+
+    useEffect(() => {
+        fetchNotificationCount();
+
+        const intervalId = setInterval(() => {
+            fetchNotificationCount();
+        }, 360000); // 6 minutes in milliseconds
+
+        return () => clearInterval(intervalId);
+    }, []);
+
     useEffect(() => {
         const fetchUnreadMessages = async () => {
             try {
                 const response = await api.get('/api/v1/all_unread/count');
-                
-                console.log(response.data.size)
                 setUnreadMsgSize(response.data.size);
-                
             } catch (error) {
-                if (error.response) {
-                    console.error('Failed to fetch unread messages count:', error.response.data);
-                } else {
-                    console.error('Error fetching unread messages count:', error.message);
-                }
+                console.error('Error fetching unread messages count:', error.message);
             }
         };
 
-        // Fetch unread messages count immediately and set interval to fetch every 40 seconds
+        // Fetch unread messages count immediately and set interval to fetch every 30 seconds
         fetchUnreadMessages();
         const intervalId = setInterval(fetchUnreadMessages, 30000);
 
-        // Cleanup interval on component unmount
         return () => clearInterval(intervalId);
     }, []);
 
@@ -83,6 +94,7 @@ const Sidebar = () => {
                     >
                         <div className={styles["nav-item"]}>Home</div>
                     </li>
+
                     <li
                         className={activeTab === 'chats' ? styles.active : ''}
                         onClick={() => handleNavClick('chats', '/discovery/chats')}
@@ -94,12 +106,21 @@ const Sidebar = () => {
                             )}
                         </div>
                     </li>
+
                     <li
                         className={activeTab === 'notifications' ? styles.active : ''}
                         onClick={() => handleNavClick('notifications', '/discovery/notifications')}
                     >
-                        <div className={styles["nav-item"]}>Notifications</div>
+                        <div className={styles["nav-item"]}>
+                            Notifications
+                            {notificationCount > 0 && (
+                                <span className={styles.unreadBadge}>
+                                    <FaBell /> {notificationCount}
+                                </span>
+                            )}
+                        </div>
                     </li>
+
                     <li
                         className={activeTab === 'profile' ? styles.active : ''}
                         onClick={() => handleNavClick('profiles', '/profile')}
@@ -113,12 +134,14 @@ const Sidebar = () => {
                     >
                         <div className={styles["nav-item"]}>Settings</div>
                     </li>
+
                     <li
                         className={activeTab === 'upgrade' ? styles.active : ''}
                         onClick={() => handleNavClick('upgrade', '/hello_user')}
                     >
                         <div className={styles["nav-item"]}>Upgrade</div>
                     </li>
+
                     <li
                         className={activeTab === 'feedback' ? styles.active : ''}
                         onClick={() => handleNavClick('feedback', '/feedback')}

@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Table
+from sqlalchemy import create_engine, Table, func
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm.exc import NoResultFound
 from contextlib import contextmanager
@@ -52,6 +52,7 @@ class DbStorage:
         except Exception as e:
             logging.error(f'An error occurred while adding new object: {e}')
 
+
     def save(self):
         try:
             with self.get_session() as session:
@@ -101,6 +102,17 @@ class DbStorage:
             logging.error(f'An error occurred while fetching {cls.__name__} objects: {e}')
             return None
 
+    def count(self, cls, **kwargs):
+        try:
+            with self.get_session() as session:
+                query = session.query(func.count(cls.id))
+                if kwargs:
+                    query = query.filter_by(**kwargs)
+
+                return query.scalar()
+        except Exception as e:
+            print(e)
+            return None
     def get_multiple(self, cls, ids):
         try:
             with self.get_session() as session:

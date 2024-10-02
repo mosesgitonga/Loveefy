@@ -1,0 +1,20 @@
+# robots.txt for Loveefy website
+
+# Allow all user-agents to access everything
+User-agent: *
+Allow: /
+
+# Disallow crawlers from accessing specific sections (like admin pages)
+Disallow: /dicovery/home/
+Disallow: /settings/
+Disallow: /profile/
+Disallow: /c/
+
+# Prevent indexing of any URL query parameters (optional, if you use them)
+Disallow: /*?*
+
+# Specify the location of the sitemap
+Sitemap: https://www.loveefy.com/sitemap.xml
+
+# Crawl-delay (optional, specify a delay for crawlers if the site is resource-heavy)
+# Crawl-delay: 10
