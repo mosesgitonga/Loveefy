@@ -1,46 +1,61 @@
+/* Container */
 .notificationContainer {
     display: flex;
-    margin-left: 0px; /* Adjust based on your sidebar width */
-
+    flex-direction: column;
+    margin-left: 0; /* Adjusted based on sidebar width */
 }
 
 .notifications-container {
-    padding: 20px 0;
+    padding: 20px;
     background-color: #ff3366;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     flex-grow: 1;
     margin-left: 250px;
+    min-height: 100vh;
+    transition: margin-left 0.3s ease; /* Smooth transition for responsive view */
 }
 
+/* Heading */
 .notifications-container h2 {
     margin-bottom: 20px;
-    font-size: 24px;
-    color: #333;
+    font-size: 28px;
+    color: #fff; /* Enhanced for better contrast */
+    font-weight: 600;
 }
 
+/* Notifications List */
 .notifications-list {
     list-style-type: none;
     padding: 0;
+    margin: 0;
 }
 
 .notification-item {
     background-color: #fff;
     border: 1px solid #ddd;
-    padding: 15px;
-    margin-bottom: 10px;
-    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.notification-item:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
 }
 
 .notification-item:last-child {
     margin-bottom: 0;
 }
 
+/* Notification Content */
 .notification-message {
-    font-size: 16px;
+    font-size: 18px;
     color: #555;
 }
 
@@ -49,6 +64,8 @@
     color: #48ff00;
     text-transform: capitalize;
 }
+
+/* Profile Section */
 .profile {
     position: relative;
     display: inline-block;
@@ -56,60 +73,118 @@
 }
 
 .profile img {
-    width: 200px; /* Adjust size as needed */
-    height: 200px;
+    width: 250px; /* Adjusted size for better responsiveness */
+    height: 250px;
     border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ff3366;
 }
 
 .dropdown {
     position: absolute;
-    top: 60px; /* Adjust based on your image size */
+    top: 120%; /* Adjusted based on image size */
     left: 0;
     background-color: #fff;
     border: 1px solid #ccc;
-    padding: 5px 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 220px; /* Controlled width for consistent layout */
 }
 
 .dropdown a {
     text-decoration: none;
     color: #007bff;
+    margin-top: 5px;
 }
 
 .dropdown:hover {
     background-color: #f5f5f5;
 }
 
+/* Fade-Out Effect */
 .fade-out {
     opacity: 0;
     transition: opacity 0.5s ease-out;
 }
 
-
-
+/* Loading and Error Styles */
 .loading,
 .error {
     text-align: center;
-    font-size: 50px;
-    color: #888;
+    font-size: 24px;
+    color: #fff;
     background-color: #ff3366;
-    height: 100vh;
-    
+    padding: 40px 0;
+    border-radius: 8px;
 }
 
+/* Hover Effects for Buttons */
+button {
+    padding: 10px 20px;
+    background-color: #ff3366;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #ff1f50;
+}
+
+/* Responsive Design */
 @media screen and (max-width: 768px) {
     .notifications-container {
         margin-left: 0;
-        height: 100vh;
+        padding: 15px;
     }
 
     .notification-item {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
+        grid-gap: 15px;
+        padding: 15px;
     }
 
+    .notification-message {
+        font-size: 16px;
+    }
+
+    .profile img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .dropdown {
+        width: 100%; /* Adjust dropdown to take full width on smaller screens */
+        top: 110%; /* Adjust top position based on smaller profile image */
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .notifications-container {
+        padding: 10px;
+    }
+
+    .notification-item {
+        padding: 10px;
+    }
+
+    .profile img {
+        width: 100%;
+        height: 100%;
+        border-radius: 0%;
+    }
+
+    .dropdown {
+        width: 90%; /* Even more flexible on mobile */
+        padding: 10px;
+    }
 }

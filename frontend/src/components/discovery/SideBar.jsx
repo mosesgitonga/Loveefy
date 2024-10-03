@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from 'react-router-dom';
 import { FaBars, FaBell } from 'react-icons/fa'; 
 import styles from './Sidebar.module.css';
@@ -13,93 +13,91 @@ const Sidebar = () => {
 
     const handleNavClick = (tabName, path) => {
         setActiveTab(tabName);
-        setIsOpen(true); 
         navigate(path);
     };
 
-    const handleGetLocation = () => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    
-                    api.post('/api/v1/geo_location', { latitude, longitude })
-                        .then(response => console.log('Location sent:', response))
-                        .catch(error => console.error('Error sending location:', error));
-                },
-                (error) => {
-                    console.error('Error getting location:', error.message);
-                    alert('Unable to retrieve your location.');
-                }
-            );
-        } else {
-            alert('Geolocation is not supported by this browser.');
-        }
-    };
-
-    const fetchNotificationCount = async () => {
+    const fetchNotificationCount = useCallback(async () => {
         try {
-            const response = await api.get('/api/v1/all_unread/count');
+            const response = await api.get('/api/v1/notification_count');
             setNotificationCount(response.data.notification_count);
         } catch (err) {
             console.error('Failed to fetch notifications:', err);
         }
+    }, []);
+
+    const fetchUnreadMessages = useCallback(async () => {
+        try {
+            const response = await api.get('/api/v1/all_unread/count');
+            setUnreadMsgSize(response.data.size);
+        } catch (error) {
+            console.error('Error fetching unread messages count:', error.message);
+        }
+    }, []);
+
+    const handleGetLocation = () => {
+        if (!navigator.geolocation) {
+            alert('Geolocation is not supported by this browser.');
+            return;
+        }
+        
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const { latitude, longitude } = position.coords;
+                try {
+                    await api.post('/api/v1/geo_location', { latitude, longitude });
+                } catch (error) {
+                    console.error('Error sending location:', error);
+                }
+            },
+            (error) => {
+                console.error('Error getting location:', error.message);
+                alert('Unable to retrieve your location.');
+            }
+        );
     };
 
     useEffect(() => {
         fetchNotificationCount();
+        const notificationIntervalId = setInterval(fetchNotificationCount, 25000);
 
-        const intervalId = setInterval(() => {
-            fetchNotificationCount();
-        }, 360000); // 6 minutes in milliseconds
-
-        return () => clearInterval(intervalId);
-    }, []);
+        return () => clearInterval(notificationIntervalId);
+    }, [fetchNotificationCount]);
 
     useEffect(() => {
-        const fetchUnreadMessages = async () => {
-            try {
-                const response = await api.get('/api/v1/all_unread/count');
-                setUnreadMsgSize(response.data.size);
-            } catch (error) {
-                console.error('Error fetching unread messages count:', error.message);
-            }
-        };
-
-        // Fetch unread messages count immediately and set interval to fetch every 30 seconds
         fetchUnreadMessages();
-        const intervalId = setInterval(fetchUnreadMessages, 30000);
+        const messageIntervalId = setInterval(fetchUnreadMessages, 30000);
 
-        return () => clearInterval(intervalId);
-    }, []);
+        return () => clearInterval(messageIntervalId);
+    }, [fetchUnreadMessages]);
 
-    const toggleSidebar = () => {
-        setIsOpen(!isOpen);
-    };
+    const toggleSidebar = () => setIsOpen(prev => !prev);
 
     return (
         <>
-            {/* Hamburger Icon */}
-            <div className={styles.hamburger} onClick={toggleSidebar} aria-expanded={isOpen} aria-label="Toggle Sidebar">
+            <button 
+                className={styles.hamburger} 
+                onClick={toggleSidebar} 
+                aria-expanded={isOpen} 
+                aria-label="Toggle Sidebar"
+            >
                 <FaBars />
-            </div>
+            </button>
 
-            {/* Sidebar */}
-            <div className={`${styles["side-nav"]} ${isOpen ? styles.open : ''}`}>
+            <nav className={`${styles.sideNav} ${isOpen ? styles.open : ''}`}>
                 <h1>Loveefy</h1>
                 <ul>
                     <li
                         className={activeTab === 'home' ? styles.active : ''}
                         onClick={() => handleNavClick('home', '/discovery/home')}
                     >
-                        <div className={styles["nav-item"]}>Home</div>
+                        <div className={styles.navItem}>Home</div>
                     </li>
 
                     <li
                         className={activeTab === 'chats' ? styles.active : ''}
                         onClick={() => handleNavClick('chats', '/discovery/chats')}
                     >
-                        <div className={styles["nav-item"]}>
+                        <div className={styles.navItem}>
                             Messages
                             {unreadMsgSize > 0 && (
                                 <span className={styles.unreadBadge}>{unreadMsgSize}</span>
@@ -111,7 +109,7 @@ const Sidebar = () => {
                         className={activeTab === 'notifications' ? styles.active : ''}
                         onClick={() => handleNavClick('notifications', '/discovery/notifications')}
                     >
-                        <div className={styles["nav-item"]}>
+                        <div className={styles.navItem}>
                             Notifications
                             {notificationCount > 0 && (
                                 <span className={styles.unreadBadge}>
@@ -125,31 +123,31 @@ const Sidebar = () => {
                         className={activeTab === 'profile' ? styles.active : ''}
                         onClick={() => handleNavClick('profiles', '/profile')}
                     >
-                        <div className={styles["nav-item"]}>Profile</div>
+                        <div className={styles.navItem}>Profile</div>
                     </li>
 
                     <li
                         className={activeTab === 'settings' ? styles.active : ''}
                         onClick={() => handleNavClick('settings', '/discovery/settings')}
                     >
-                        <div className={styles["nav-item"]}>Settings</div>
+                        <div className={styles.navItem}>Settings</div>
                     </li>
 
                     <li
                         className={activeTab === 'upgrade' ? styles.active : ''}
                         onClick={() => handleNavClick('upgrade', '/hello_user')}
                     >
-                        <div className={styles["nav-item"]}>Upgrade</div>
+                        <div className={styles.navItem}>Upgrade</div>
                     </li>
 
                     <li
                         className={activeTab === 'feedback' ? styles.active : ''}
                         onClick={() => handleNavClick('feedback', '/feedback')}
                     >
-                        <div className={styles["nav-item"]}>Feedback</div>
+                        <div className={styles.navItem}>Feedback</div>
                     </li>
                 </ul>
-            </div>
+            </nav>
         </>
     );
 };

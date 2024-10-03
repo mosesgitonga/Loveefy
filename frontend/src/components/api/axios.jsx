@@ -11,7 +11,6 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('access_token');
-    console.log('token', token)
     const excludedEndpoints = ['api/v1/auth/logins', 'api/v1/auth/registers'];
 
     if (!excludedEndpoints.includes(config.url) && token) {

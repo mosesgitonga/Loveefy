@@ -1,7 +1,4 @@
-/* Sidebar.module.css */
-
-/* Sidebar styles */
-.side-nav {
+.sideNav {
     width: 250px;
     background-color: #ff3366;
     color: white;
@@ -12,20 +9,35 @@
     padding-top: 20px;
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
-    z-index: 1000;
+    z-index: 1000; 
 }
 
-/* Sidebar when open */
-.side-nav.open {
+.sideNav.open {
     transform: translateX(0);
 }
 
-/* Hide hamburger icon on larger screens */
 .hamburger {
-    display: none;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    font-size: 30px;
+    color: #fcfbfb;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 1100; 
+    display: block;
+    width: 40px;
+    height: 40px;
+    background-color: #ff3366;
 }
 
-/* List styling */
+@media screen and (min-width: 769px) {
+    .hamburger {
+        display: none;
+    }
+}
+
 ul {
     list-style-type: none;
     padding: 0;
@@ -38,63 +50,47 @@ li {
 }
 
 li:hover {
-    color:#ff3366;
+    color: #ff3366;
     box-shadow: 0px 5px 14px #fff;
     background-color: #fcfbfb;
 }
 
-/* Active link styling */
-.active .nav-item {
+.active .navItem {
     background-color: #ff3366;
     color: #fdfdfd;
     border-radius: 4px;
     padding: 10px;
 }
 
-/* Nav item styling */
-.nav-item {
+.navItem {
     font-size: 18px;
 }
 
 .unreadBadge {
-    background-color: rgba(0, 0, 0, 0.863); /* Background color for the unread badge */
+    background-color: rgba(0, 0, 0, 0.863);
     border: 2px solid #fff;
-    color: white;          /* Text color for the unread badge */
-    border-radius: 50%;    /* Makes the badge round */
-    padding: 4px 8px;      /* Adjust padding for better appearance */
-    font-size: 0.75rem;    /* Font size for the text inside the badge */
-    position: relative;    /* Positioning for future enhancements */
-    top: -10px;            /* Adjust the badge position vertically */
-    left: 10px;            /* Adjust the badge position horizontally */
-    font-weight: bold;     /* Make the number inside the badge bold */
-    display: inline-block; /* Ensure badge stays inline */
-    min-width: 20px;       /* Minimum width to ensure round shape */
-    text-align: center;    /* Center the text inside the badge */
+    color: white;
+    border-radius: 50%;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: inline-block;
+    min-width: 20px;
+    text-align: center;
 }
 
-/* Media Query for smaller screens */
 @media screen and (max-width: 768px) {
-    /* Sidebar should be hidden by default */
-    .side-nav {
+    .sideNav {
         transform: translateX(-100%);
     }
 
-    /* Show hamburger icon on smaller screens */
     .hamburger {
         display: block;
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        font-size: 24px;
-        color: #fcfbfb;
-        z-index: 1100;
     }
 }
 
-/* Media Query for larger screens */
 @media screen and (min-width: 769px) {
-    /* Show sidebar and hide hamburger icon */
-    .side-nav {
+    .sideNav {
         transform: translateX(0);
     }
 

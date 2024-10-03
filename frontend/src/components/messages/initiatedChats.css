@@ -45,6 +45,10 @@
     color: rgb(0, 0, 0);
 }
 
+.loading {
+    margin: 50%;
+}
+
 @media screen and (max-width: 768px) {
     .chatsBox {
         padding-left: 0px;

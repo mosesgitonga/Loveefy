@@ -53,7 +53,7 @@ const InitiatedChats = () => {
                         <p>You have not matched with anyone yet! Chats will appear here when you do.</p>
                     )
                 ) : (
-                    <p>Loading...</p>
+                    <p className="loading">Loading...</p>
                 )}
             </div>
         </div>

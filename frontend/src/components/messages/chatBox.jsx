@@ -137,6 +137,7 @@ const ChatBox = () => {
         }} 
     />
         <button
+                className="sendButton"
                 onClick={sendMessage}
                 style={{
                     padding: '10px 20px',

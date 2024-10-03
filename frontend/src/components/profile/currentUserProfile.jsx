@@ -3,19 +3,18 @@ import api from "../api/axios";
 import "./currentUserProfile.css";
 import Sidebar from "../discovery/SideBar";
 import { useNavigate } from 'react-router-dom';
-
+import { FaCamera } from "react-icons/fa";
 
 const UserProfile = () => {
     const [profile, setProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     useEffect(() => {
         const userId = sessionStorage.getItem('userId');
         const fetchProfile = async () => {
             try {
-                // Update the URL to match the backend route with a URL parameter
                 const response = await api.get(`/api/v1/profile/${userId}`);
                 console.log(response.data);
                 setProfile(response.data.message); // Adjust if the response structure differs
@@ -31,7 +30,7 @@ const UserProfile = () => {
 
     const handleUploadClick = () => {
         navigate('/upload')
-    }
+    };
 
     if (loading) {
         return <div className="loading">Loading...</div>;
@@ -41,16 +40,23 @@ const UserProfile = () => {
         return <div className="error">{error}</div>;
     }
 
-
     return (
-        <div>
+        <div className="profile-page-container">
             <Sidebar />
-            <div className="user-profile-container">
+            <div className="user-profile-content">
                 <div className="profile-header">
-                        <button className="upload-button" onClick={handleUploadClick}>Update Picture</button>
-
-                        <img src={`https://www.loveefy.africa/uploads${profile.image_path}`} alt="Profile image" className="profile-image" />                    <div className="profile-basic-info">
-                                                
+                    <div className="profile-image-wrapper">
+                        <img
+                            src={`https://www.loveefy.africa/uploads${profile.image_path}`}
+                            alt="Profile"
+                            className="profile-image"
+                        />
+                        {/* Camera icon overlay */}
+                        <div className="camera-icon" onClick={handleUploadClick}>
+                            <FaCamera size={20} />
+                        </div>
+                    </div>
+                    <div className="profile-basic-info">
                         <h1 className="username">{profile.username}</h1>
                         <p className="career">{profile.career} - {profile.industry_major}</p>
                         <p className="location">{profile.region}, {profile.sub_region}, {profile.country}</p>
