@@ -1,34 +1,216 @@
-.superContainer {
-    background-color: #ff3366;
+/* General container styling */
+
+.sidebar {
+    min-width: 200px;
+    margin-right: 12px;
+    background-color: #000000;
     height: 100vh;
+    width: 23%;
+    border-radius: 50px;
+    color: #ffffff;
 }
 
-.superAdminDashboard {
+.sidebar-title {
+    background-color: #ff3366;
+    font-size: 35px;
+    border-radius: 50px;
+    padding: 5px;
+}
+.admin-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    justify-content: center;
+    align-items: flex-start;
+    background-color: #000000;
+    min-height: 100vh;
     padding: 20px;
-    background-color: #f8f9fa; /* Light background */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    max-width: 800px;
-    margin: 20px auto; /* Center the dashboard */
+    font-family: 'Arial', sans-serif;
+}
+#dashboard-head {
+    color:#ff3366;
+}
+.admin-dashboard {
+    width: 100%;
+    max-width: 1200px;
+    background-color: #000000;
+    padding: 30px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    border: 1px solid #fff;
+    
 }
 
 h1 {
-    font-family: 'Orbitron', sans-serif; /* Use your preferred font */
-    color: #333; /* Darker text color */
+    font-size: 28px;
+    margin-bottom: 20px;
+    color: #000000;
 }
 
-#userCount {
-    font-size: 1.2rem; /* Larger font size */
-    color: #007bff; /* Primary color for emphasis */
+/* User stats section */
+.stat-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    display: block;
 }
 
+.registered {
+    color:#1deb4d
+}
+.stat-text {
+    font-size: 99px;
+}
+
+.map-toggle-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.map-toggle-button:hover {
+    background-color: #0056b3;
+}
+
+/* User list table */
+.user-list-section {
+    margin-bottom: 30px;
+}
+
+.user-list-section h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+.user-table th, .user-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.user-table th {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+.user-table td {
+    color: #333;
+}
+
+.user-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.view-profile-button {
+    padding: 8px 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.view-profile-button:hover {
+    background-color: #218838;
+}
+
+/* User profile details section */
+.user-details-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #f4f6f9;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.user-details-section h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.user-details-section p {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.user-details-section button {
+    padding: 8px 15px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.user-details-section button:hover {
+    background-color: #c82333;
+}
+
+/* Feedback section */
+.feedback-section h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.feedback-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    background-color: #f9f9f9;
+}
+
+.feedback-table th, .feedback-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.feedback-table th {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+}
+
+.feedback-table td {
+    color: #333;
+}
+
+.feedback-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Error message styling */
 .error {
-    color: red; /* Red for error messages */
+    color: #dc3545;
+    font-size: 16px;
 }
 
-.loading {
-    color: #6c757d; /* Muted color for loading */
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .admin-dashboard {
+        padding: 20px;
+    }
+
+    .user-table, .feedback-table {
+        font-size: 14px;
+    }
+
+    .map-toggle-button, .view-profile-button, .user-details-section button {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
 }

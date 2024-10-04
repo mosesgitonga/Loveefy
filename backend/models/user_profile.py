@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, DateTime, ForeignKey, func
+from sqlalchemy import Column, String, DateTime, ForeignKey, func, Text 
 from sqlalchemy.orm import relationship
 from .base_model import Base
 
@@ -17,6 +17,7 @@ class User_profile(Base):
     is_schooling = Column(String(25))
     career = Column(String(50), nullable=True)
     has_child = Column(String(10), default='no')
+    bio = Column(Text, nullable=False)
 
     user_id = Column(String(36), ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
 

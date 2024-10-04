@@ -1,0 +1,17 @@
+/* Gallery.css */
+.gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px; /* Space between images */
+}
+
+.gallery-item {
+    flex: 1 1 calc(33.333% - 16px); /* Three items per row with space */
+    box-sizing: border-box;
+}
+
+.gallery-item img {
+    width: 100%;
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}

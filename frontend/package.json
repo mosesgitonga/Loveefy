@@ -11,6 +11,8 @@
     "start": "vite --proxy www.loveefy.africa"
   },
   "dependencies": {
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@react-spring/web": "^9.7.3",
     "axios": "^1.7.5",
     "formik": "^2.4.6",

@@ -9,6 +9,7 @@ const Sidebar = () => {
     const [activeTab, setActiveTab] = useState('home');
     const [notificationCount, setNotificationCount] = useState(0);
     const [unreadMsgSize, setUnreadMsgSize] = useState(0);
+    const userId = sessionStorage.getItem('userId')
     const navigate = useNavigate();
 
     const handleNavClick = (tabName, path) => {
@@ -84,7 +85,7 @@ const Sidebar = () => {
             </button>
 
             <nav className={`${styles.sideNav} ${isOpen ? styles.open : ''}`}>
-                <h1>Loveefy</h1>
+                <h1 className={styles.loveefyHead}>Loveefy</h1>
                 <ul>
                     <li
                         className={activeTab === 'home' ? styles.active : ''}
@@ -121,7 +122,7 @@ const Sidebar = () => {
 
                     <li
                         className={activeTab === 'profile' ? styles.active : ''}
-                        onClick={() => handleNavClick('profiles', '/profile')}
+                        onClick={() => handleNavClick('profiles', `/profile/${userId}`)}
                     >
                         <div className={styles.navItem}>Profile</div>
                     </li>

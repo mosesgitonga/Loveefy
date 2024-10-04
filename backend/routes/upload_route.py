@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from controllers.uploads import UploadHandler
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import logging 
@@ -19,4 +19,10 @@ def upload_pic():
     except Exception as e:
         logger.exception("Internal server error")
         return jsonify({"message": "Internal server error"}), 500 
-        
+    
+@upload_bp.route('/gallery', methods=['GET'], strict_slashes=False)
+def show_gallery():
+    userId = request.args.get('userId') 
+    data = type('Data', (object,), {'userId': userId})()  
+    response = upload.view_user_gallery(data)
+    return response

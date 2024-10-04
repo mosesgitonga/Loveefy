@@ -199,32 +199,42 @@ class Profile:
         
     def get_profile(self, user_id):
         try:
-            print(f'\n\n {user_id}')
             user = self.storage.get(User, id=user_id)
             user_profile = self.storage.get(User_profile, user_id=user_id)
-            user_image = self.storage.get(Upload, user_id=user_id)
+            user_image = self.storage.get(Upload, user_id=user_id, is_primary=True)
             place = self.storage.get(Place, id=user.place_id)
+
+            if user_profile.DOB:
+                today = datetime.today()
+                birthdate = user_profile.DOB
+                age = today.year - birthdate.year 
+            else:
+                age = None
+
+            image_path = user_image.image_path if user_image else None
+
             profile_details = {
+                "user_id": user.id,
                 "industry_major": user_profile.industry_major,
                 "career": user_profile.career,
-                "dob": user_profile.DOB,
+                "age": age,
                 "username": user.username,
-                "employment": user_profile.employment,
                 "has_child": user_profile.has_child,
                 "is_schooling": user_profile.is_schooling,
                 "education_level": user_profile.education_level,
                 "mobile_no": user_profile.mobile_no,
-                "image_path": user_image.image_path,
+                "image_path": image_path, 
                 "country": place.country,
                 "region": place.region,
                 "sub_region": place.sub_region,
-                "joined_at": user.created_at,
+                "bio": user_profile.bio
             }
 
-            return jsonify({"message": profile_details })
+            return jsonify({"message": profile_details})
+
         except Exception as e:
-            logger.info(e)
-            return jsonify({"message": "Internal Server Error"})
+            logger.error(f"Error fetching profile for user {user_id}: {e}")
+            return jsonify({"message": "Internal Server Error"}), 500
 
 
 if __name__ == '__main__':

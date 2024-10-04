@@ -11,6 +11,11 @@
     transition: transform 0.3s ease-in-out;
     z-index: 1000; 
 }
+.loveefyHead {
+    font-size: 45px;
+    padding: 12px;
+    margin-left: 10px;
+}
 
 .sideNav.open {
     transform: translateX(0);

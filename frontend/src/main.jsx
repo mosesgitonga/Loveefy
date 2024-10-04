@@ -17,6 +17,7 @@ import Upgrade from './components/upgrade/upgrade';
 import UserProfile from './components/profile/currentUserProfile';
 import FeedbackForm from './components/feedback';
 import SuperAdminPage from './components/admin/superAdmin';
+import Gallery from './components/profile/galleryPage';
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -37,8 +38,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path='/discovery/settings' element={<SettingsPage />} />
           <Route path='/auth/otp-request' element={<ForgotPassword />} />
           <Route path='/hello_user' element={<Upgrade />} />
-          <Route path='/profile' element={<UserProfile /> } />
+          <Route path='/profile/:userId' element={<UserProfile /> } />
           <Route path='/feedback' element={<FeedbackForm />} />
+          <Route path='/gallery' element={<Gallery />} />
           <Route path="/super/admin/moses" element={<SuperAdminPage />}/>
         </Routes>
       </Router>

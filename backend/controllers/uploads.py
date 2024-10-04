@@ -15,6 +15,13 @@ logger = logging.getLogger(__name__)
 
 UPLOAD_FOLDER = 'uploads'
 
+def serialize_upload(upload):
+    return {
+        "id": upload.id, 
+        "user_id": upload.user_id,
+        "image_path": upload.image_path,
+        "is_primary": upload.is_primary,
+    }
 class UploadHandler():
     def __init__(self):
         self.storage = DbStorage()
@@ -79,12 +86,15 @@ class UploadHandler():
                 # Removing the temporary file
                 os.remove(temp_path)
 
-                user_dir_exists = self.is_directory_empty(user_dir)
-                 # Check if the user's directory is empty
-                if user_dir_exists:
-                    is_primary = True
-                else:
-                    is_primary = False
+                existing_primary = self.storage.get(Upload, user_id=user_id, is_primary=True)
+
+                # If a primary exists, set it to False (demote it)
+                if existing_primary:
+                    existing_primary.is_primary = False
+                    self.storage.new(existing_primary)
+                    self.storage.save() 
+
+                is_primary = True
 
                 #extract image path that will work on react public dir
                 current_time = datetime.now()
@@ -108,3 +118,17 @@ class UploadHandler():
             except Exception as e:
                 logger.error(f"An error occurred while processing the file: {str(e)}")
                 return jsonify({"message": "An error occurred while processing the file", "error": str(e)}), 500
+
+    def view_user_gallery(self, data):
+        user_id = data.userId
+
+        try:
+            images = self.storage.get_all(Upload, user_id=user_id)
+            if not images:
+                return jsonify({"message": "No images found"}), 404
+            
+            serialized_images = [serialize_upload(upload) for upload in images]
+            return jsonify({"message": "Images retrieved", "data": serialized_images}), 200
+        except Exception as e:
+            print(f"Error retrieving images for user {user_id}: {e}")
+            return jsonify({"message": "Internal Server Error"}), 500

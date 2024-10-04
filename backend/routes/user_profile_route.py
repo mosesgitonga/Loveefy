@@ -109,6 +109,12 @@ def update_gender():
 @profile_bp.route('/profile/<userId>', methods=['GET'], strict_slashes=False)
 @jwt_required()
 def get_user_profile(userId):
-    
-    response = profile.get_profile(userId)
-    return response
+    try:
+        response = profile.get_profile(userId)
+        
+        if response is None:
+            return jsonify({"message": "User profile not found"}), 404
+        return response 
+    except Exception as e:
+        print(f"Error fetching profile for user {userId}: {e}")
+        return jsonify({"message": "Internal Server Error"}), 500

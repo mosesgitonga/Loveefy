@@ -30,6 +30,7 @@
     color: white;
     text-shadow: 0px 0px 5px rgba(0, 0, 0, 0.7);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
 }
 
 .profile-content h3, .profile-content h4 {
@@ -47,8 +48,17 @@
     transition: background-color 0.3s ease;
 }
 
+
 .profile-content button:hover {
     background-color: rgba(255, 255, 255, 1);
+}
+.profile-link-icon {
+    position: absolute;
+    top: 10px;
+}
+
+.profile-link-icon svg {
+    color: rgb(0, 0, 0); 
 }
 
 .prfileContainer {

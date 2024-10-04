@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUserCircle } from '@fortawesome/free-solid-svg-icons'; // Add the user icon
 import api from "../api/axios";
-import "./DualSelect.css"
-import fetchLocation from "./location";
+import "./DualSelect.css";
+
 const DualSelect = () => {
     const [people, setPeople] = useState([]);
     const [profilesToShow, setProfilesToShow] = useState([]);
@@ -10,7 +12,7 @@ const DualSelect = () => {
     const [error, setError] = useState(null);
     const [currentUserId, setCurrentUserId] = useState(null);
     const [currentIndex, setCurrentIndex] = useState(0);
-    
+
     const navigate = useNavigate(); 
 
     useEffect(() => {
@@ -43,11 +45,9 @@ const DualSelect = () => {
                 setLoading(false);
             }
         };
-        
-    
+
         fetchRecommendations();
     }, []);
-
 
     useEffect(() => {
         const userId = sessionStorage.getItem("userId");
@@ -115,6 +115,11 @@ const DualSelect = () => {
                             {profile ? (
                                 <div className="profile-content" 
                                     style={{ backgroundImage: `url(${profile.image_path ? 'https://www.loveefy.africa/uploads' + profile.image_path : 'https://www.loveefy.africa/uploads' + 'defaultImage.png'})`, border: "6px solid pink" }}>
+                                    <Link to={`/profile/${profile.opposite_id}`} className="profile-link-icon">
+                                        <FontAwesomeIcon icon={faUserCircle} size="2x" color="white" />
+                                        <p>view profile</p>
+                                    </Link>
+                                    
                                     <h3>Username: {profile.username}</h3>
                                     <h3>Industry: {profile.industry}</h3>
                                     <h3>Country: {profile.country}</h3>
@@ -140,4 +145,3 @@ const DualSelect = () => {
 };
 
 export default DualSelect;
-

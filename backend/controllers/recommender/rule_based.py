@@ -270,10 +270,16 @@ class Recommender:
                 else:
                     age = None
 
+                if recommendation.user_id1 == current_user_id:
+                    opposite_id = recommendation.user_id2 
+                else:
+                    opposite_id = recommendation.user_id1
+
                 recommendation_data = {
                     "id": recommendation.id,
                     "user_id1": recommendation.user_id1,
                     "user_id2": recommendation.user_id2,
+                    "opposite_id": opposite_id,
                     "score": recommendation.score,
                     "username": other_user.username.upper(),
                     "image_path": other_user_image.image_path if other_user_image else None,

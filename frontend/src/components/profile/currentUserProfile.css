@@ -2,7 +2,8 @@
     display: flex;
     justify-content: flex-start;
     padding: 20px;
-    background-color: #f4f4f9;
+    background-color: #ff3366;
+    height: 100vh;
 }
 
 .user-profile-content {
