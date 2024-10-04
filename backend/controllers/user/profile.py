@@ -201,8 +201,11 @@ class Profile:
         try:
             user = self.storage.get(User, id=user_id)
             user_profile = self.storage.get(User_profile, user_id=user_id)
-            user_image = self.storage.get(Upload, user_id=user_id, is_primary=True)
+            user_image = self.storage.get(Upload, user_id=user_id)
             place = self.storage.get(Place, id=user.place_id)
+
+            if user_image is None:
+                user_image = self.storage.get(Upload, user_id=user_id)
 
             if user_profile.DOB:
                 today = datetime.today()
