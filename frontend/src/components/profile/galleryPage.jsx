@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import api from '../api/axios';
+import './gallerPage.css'
 
 const Gallery = () => {
     const [images, setImages] = useState([]);
@@ -9,15 +10,14 @@ const Gallery = () => {
 
     const location = useLocation();
 
-    // Helper function to extract query params
     const getUserIdFromQuery = () => {
         const params = new URLSearchParams(location.search);
         return params.get('userId');
     };
 
     useEffect(() => {
-        const userId = getUserIdFromQuery();  // Extract userId from query string
-        console.log("userId from query:", userId);  // Debugging query params
+        const userId = getUserIdFromQuery();
+        console.log("userId from query:", userId);
 
         if (!userId) {
             console.error("userId is undefined or empty");
@@ -27,19 +27,16 @@ const Gallery = () => {
         }
 
         const fetchImages = async () => {
-            const userId = getUserIdFromQuery();
-            
             try {
                 const response = await api.get(`/api/v1/gallery?userId=${userId}`);
                 console.log("Response status:", response);
-        
+
                 if (response.status === 404) {
                     setError('No images found for this user.');
                 } else {
-                    console.log(response.data)
-                    const data = await response.json();
-                    console.log("Parsed JSON data:", data);
-                    setImages(data.data || []);  
+                    const data = response.data;
+                    console.log("Parsed data:", data);
+                    setImages(data.data || []);
                 }
             } catch (err) {
                 console.error("Error fetching images:", err.message);
@@ -48,10 +45,9 @@ const Gallery = () => {
                 setLoading(false);
             }
         };
-        
 
-        fetchImages();  // Call fetchImages inside useEffect
-    }, [location.search]);  // Run the effect when query params (search) change
+        fetchImages();
+    }, [location.search]);
 
     if (loading) {
         return <p>Loading images...</p>;
@@ -68,7 +64,7 @@ const Gallery = () => {
             ) : (
                 images.map((image) => (
                     <div key={image.id} className="gallery-item">
-                        <img src={image.image_path} alt={`Image ${image.id}`} />
+                        <img src={`www.loveefy.africa/uploads${image.image_path}`} alt={`Image ${image.id}`} />
                     </div>
                 ))
             )}

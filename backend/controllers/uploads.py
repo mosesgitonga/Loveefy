@@ -132,7 +132,7 @@ class UploadHandler():
 
             serialized_images = [serialize_upload(upload) for upload in images]
             
-            return jsonify({"message": "Images found", "data": serialized_images}), 200  
+            return jsonify(serialized_images), 200  
         except Exception as e:
             print(f"Error retrieving images for user {user_id}: {e}")
             return jsonify({"message": "Internal Server Error"}), 500
