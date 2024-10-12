@@ -46,7 +46,9 @@
 }
 
 .loading {
-    margin: 50%;
+    margin: 10%;
+    background-color: #ff3366;
+    height: 100vh;
 }
 
 @media screen and (max-width: 768px) {

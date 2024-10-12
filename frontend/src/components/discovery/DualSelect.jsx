@@ -34,6 +34,7 @@ const DualSelect = () => {
                         setPeople(Array.isArray(fetchedRecommendations) ? fetchedRecommendations : []);
                         sessionStorage.setItem('profiles', JSON.stringify(fetchedRecommendations));
                         setProfilesToShow(fetchedRecommendations.slice(0, 2));
+
                     } else {
                         throw new Error('Failed to fetch recommendations');
                     }

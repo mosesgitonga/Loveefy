@@ -40,7 +40,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path='/hello_user' element={<Upgrade />} />
           <Route path='/profile/:userId' element={<UserProfile /> } />
           <Route path='/feedback' element={<FeedbackForm />} />
-          <Route path='/gallery' element={<Gallery />} />
+          <Route path="/gallery" element={<Gallery />} />
           <Route path="/super/admin/moses" element={<SuperAdminPage />}/>
         </Routes>
       </Router>

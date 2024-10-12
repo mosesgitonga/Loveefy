@@ -1,29 +1,57 @@
-// Gallery.jsx
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import api from '../api/axios';
 
-const Gallery = ({ userId }) => {
+const Gallery = () => {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    const location = useLocation();
+
+    // Helper function to extract query params
+    const getUserIdFromQuery = () => {
+        const params = new URLSearchParams(location.search);
+        return params.get('userId');
+    };
+
     useEffect(() => {
+        const userId = getUserIdFromQuery();  // Extract userId from query string
+        console.log("userId from query:", userId);  // Debugging query params
+
+        if (!userId) {
+            console.error("userId is undefined or empty");
+            setError("Invalid user ID");
+            setLoading(false);
+            return;
+        }
+
         const fetchImages = async () => {
+            const userId = getUserIdFromQuery();
+            
             try {
-                const response = await fetch(`/api/v1/gallery?userId=${userId}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch images');
+                const response = await api.get(`/api/v1/gallery?userId=${userId}`);
+                console.log("Response status:", response);
+        
+                if (response.status === 404) {
+                    setError('No images found for this user.');
+                } else {
+                    console.log(response.data)
+                    const data = await response.json();
+                    console.log("Parsed JSON data:", data);
+                    setImages(data.data || []);  
                 }
-                const data = await response.json();
-                setImages(data.data || []); // Adjust based on your JSON structure
             } catch (err) {
+                console.error("Error fetching images:", err.message);
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
         };
+        
 
-        fetchImages();
-    }, [userId]); // Fetch images when userId changes
+        fetchImages();  // Call fetchImages inside useEffect
+    }, [location.search]);  // Run the effect when query params (search) change
 
     if (loading) {
         return <p>Loading images...</p>;

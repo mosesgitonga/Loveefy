@@ -29,6 +29,11 @@ const UserProfile = () => {
         fetchProfile();
     }, []);
 
+    const handleGalleryClick = (userId) => {
+        console.log(userId)
+        navigate(`/gallery?userId=${userId}`);
+    };
+
     const handleUploadClick = () => {
         navigate('/upload')
     };
@@ -69,7 +74,7 @@ const UserProfile = () => {
 
                 <div className="profile-details">
                     <h2>About</h2>
-                    <button>Gallery</button>
+                    <button id="galleryButton" onClick={() => handleGalleryClick(userId)}>Gallery</button>
                     <p><strong>Age: </strong> {(profile.age)}</p>
                     <p><strong>Education Level:</strong> {profile.education_level}</p>
                     <p><strong>Employment:</strong> {profile.employment}</p>
