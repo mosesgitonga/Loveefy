@@ -64,7 +64,7 @@ const Gallery = () => {
             ) : (
                 images.map((image) => (
                     <div key={image.id} className="gallery-item">
-                        <img src={`www.loveefy.africa/uploads${image.image_path}`} alt={`Image ${image.id}`} />
+                        <img src={`https://www.loveefy.africa/uploads${image.image_path}`} alt={`Image ${image.id}`} />
                     </div>
                 ))
             )}

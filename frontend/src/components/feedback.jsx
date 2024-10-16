@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import './feedback.css'; // Ensure this CSS file exists and is properly styled
-import api from './api/axios'; // Make sure this is set up correctly for your POST requests
+import './feedback.css'; 
+import api from './api/axios';
 
 const FeedbackForm = () => {
     const [remarks, setRemarks] = useState('');
@@ -11,10 +11,8 @@ const FeedbackForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // Ensure you're sending a POST request with proper payload
             const response = await api.post('/api/v1/feedback', { remarks, suggestions, ratings: rating });
 
-            // Directly use response.data if using axios
             if (response.status === 200) {
                 setMessage(response.data.message);
                 setRemarks('');

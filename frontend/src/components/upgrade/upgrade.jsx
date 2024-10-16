@@ -16,7 +16,7 @@ const GoldPackageSubscription = () => {
             const response = await api.post('https://www.loveefy.africa/api/mpesa/stk-push', {
                 phone_number: phoneNumber,
                 amount: 1,
-                subscription_type: 'Upgrade'
+                subscription_type: 'gold'
             });
 
             if (response.data.status === 'pending') {
