@@ -90,7 +90,7 @@ def reset_password(token):
         logging.error(f'Error during password reset: {e}')
         return jsonify({'error': 'Failed to reset password'}), 500
 
-@auth_bp.route('/update_password', methods=['P'], strict_slashes=False)
+@auth_bp.route('/update_password', methods=['POST'], strict_slashes=False)
 def update_password():
     data = request.json 
 
