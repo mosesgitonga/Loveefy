@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import IndexPage from './components';
+// import IndexPage from './components';
+import App from './App';
 import Signup from './components/auth/signup';
 import Login from './components/auth/login';
 import Profile from './components/profile/profile';
@@ -18,6 +19,7 @@ import UserProfile from './components/profile/currentUserProfile';
 import FeedbackForm from './components/feedback';
 import SuperAdminPage from './components/admin/superAdmin';
 import Gallery from './components/profile/galleryPage';
+import BlogDetails from './pages/Blog/BlogDetails';
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -25,7 +27,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     
       <Router>
         <Routes>
-          <Route path='/' element={<IndexPage />} />
+          <Route path='/' element={<App />} />
+          <Route path='/articles/:slug' element={ <BlogDetails />} />
           <Route path='/register' element={<Signup />} />
           <Route path='/login' element={<Login />} />
           <Route path='/profile/setup' element={<Profile />} />
