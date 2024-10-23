@@ -12,8 +12,8 @@ const LandingTestimonials = () => {
             key={testimonial.id} 
             className="bg-gray-50 shadow-md rounded-lg p-6 border-l-4 border-[#ff3366]"
           >
-            <p className="italic text-lg mb-4">"{testimonial.content}"</p>
-            <cite className="font-bold text-gray-600">- {testimonial.author}</cite>
+            <p className="italic md:text-lg text-sm mb-4">"{testimonial.content}"</p>
+            <cite className="font-bold md:text-base text-sm text-gray-600">- {testimonial.author}</cite>
           </div>
         ))}
       </div>
