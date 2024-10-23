@@ -1,16 +1,37 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { FaChevronUp } from 'react-icons/fa'
 
 export default function Footer() {
+    const [showButton, setShowButton] = useState(false);
+
+  const handleScroll = () => {
+      window.scrollY > 100 ? setShowButton(true) : setShowButton(false);
+  };
+
+  useEffect(() => {
+      window.addEventListener('scroll', handleScroll);
+      return () => {
+          window.removeEventListener('scroll', handleScroll);
+      };
+  }, []);
+
+  const scrollToTop = () => {
+    // Smooth scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
-    <footer className="md:flex justify-between footer bg-gray-200 text-gray-700 rounded md:p-8 p-4">
-        <div className='md:flex items-center justify-between gap-8'>
+    <>
+        <footer className="md:flex justify-between footer bg-gray-200 text-gray-700 rounded md:p-8 p-4">
+        <div className='md:flex items-center justify-between md:gap-8'>
             <nav className="grid grid-flow-col gap-4">
-                <a className="link link-hover">About us</a>
-                <a className="link link-hover">Contact</a>
-                <a className="link link-hover">Jobs</a>
-                <a className="link link-hover">Press kit</a>
+                <a href='#about' className="link link-hover">About us</a>
+                <a href='#careers' className="link link-hover">Careers</a>
+                <a href='#support' className="link link-hover">Support</a>
+                <a href='#contact' className="link link-hover">Contact</a>
             </nav>
+
             <nav>
                 <div className="grid grid-flow-col gap-4">
                 <a>
@@ -52,9 +73,21 @@ export default function Footer() {
         <aside>
             <p>
                 Copyright &copy; {new Date().getFullYear()} | All rights reserved 
-                <Link to="/" className="link link-hover text-red-500"> Loveefy.</Link>
+                <Link to="/" className="link link-hover text-[#ff3366]"> Loveefy.</Link>
             </p>
         </aside>
-        </footer>
+
+        
+    </footer>
+
+    <div
+        onClick={scrollToTop}
+        className={`${showButton ? "block" : "hidden"} fixed bottom-4 right-4 p-3 bg-[#ff3366] text-white rounded-full shadow-md focus:outline-none `}
+    >
+        <FaChevronUp className="md:text-base text-sm" />
+    </div>
+
+    </>
+
   )
 }

@@ -49,4 +49,62 @@ const careerData = [
     }
   ];
   
-  export { careerData };
+
+  const featuresData = [
+    {
+      id: 1,
+      title: "Advanced Matching",
+      description:
+        "Our sophisticated algorithms analyze your career goals and location to provide you with the most compatible matches.",
+    },
+    {
+      id: 2,
+      title: "User-Friendly Interface",
+      description:
+        "Enjoy a seamless and intuitive experience with our easy-to-navigate platform designed for professionals.",
+    },
+    {
+      id: 3,
+      title: "Privacy & Security",
+      description:
+        "We prioritize your privacy and security, ensuring that your data is protected and your interactions are safe.",
+    },
+    {
+      id: 4,
+      title: "Personalized Recommendations",
+      description:
+        "Receive tailored recommendations based on your career preferences and relationship goals.",
+    },
+  ];
+
+
+  const testimonialsData = [
+    {
+      id: 1,
+      content:
+        "I was skeptical about finding a partner who could help me with my medical needs, but Loveefy made it possible.",
+      author: "Emily, Software Engineer",
+    },
+    {
+      id: 2,
+      content:
+        "I never thought I'd find someone who understands the demands of my medical career, but Loveefy made it possible.",
+      author: "Daniel, Surgeon",
+    },
+    {
+      id: 3,
+      content:
+        "As a business professional, finding a partner who understands my career goals was important. Loveefy made that happen.",
+      author: "Sarah, Business Consultant",
+    },
+    {
+      id: 4,
+      content:
+        "As a business professional, finding a partner who understands my career goals was important. Loveefy made that happen.",
+      author: "Lisa, Hotel Manager",
+    },
+  ];
+  
+
+  
+  export { careerData, featuresData, testimonialsData };

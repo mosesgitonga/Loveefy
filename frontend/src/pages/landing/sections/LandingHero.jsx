@@ -1,14 +1,14 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
-// import { ArrowRight } from 'lucide-react'
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FaArrowRight } from 'react-icons/fa'; // Importing react-icons
 
 export default function LandingHero() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   return (
-    <section className="relative  text-white">
-      <div className="absolute inset-0 bg-red-400 opacity-80"></div>
-      <div className="relative mx-auto px-4 py-24 md:py-24 flex flex-col md:flex-row items-center">
+    <section className="relative text-white">
+      <div className="absolute inset-0 bg-[#ff3366ec] opacity-80"></div>
+      <div className="relative mx-auto px-4 py-24 md:py-24 flex flex-col md:flex-row items-center md:gap-12">
         <div className="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">Find Love Through Career</h1>
           <p className="text-xl mb-8">
@@ -19,9 +19,10 @@ export default function LandingHero() {
             className="bg-white text-gray-800 font-bold py-3 px-8 rounded-full hover:bg-purple-100 transition duration-300 flex items-center justify-center"
           >
             Join For Free
-            {/* <ArrowRight className="ml-2 h-5 w-5" /> */}
+            <FaArrowRight className="ml-2 h-5 w-5" /> {/* Replacing ArrowRight with react-icons */}
           </button>
         </div>
+
         <div className="md:w-1/2 flex justify-center">
           <div className="grid grid-cols-2 gap-4">
             <img
@@ -38,5 +39,5 @@ export default function LandingHero() {
         </div>
       </div>
     </section>
-  )
+  );
 }
