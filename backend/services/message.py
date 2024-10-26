@@ -31,7 +31,7 @@ class MessageService:
             self.storage.new(new_member2)
             self.storage.save()
 
-            return jsonify({"message": "Private room created", "room_id": new_room.id}), 201
+            return new_room.id
         except Exception as e:
             print(f"Error creating room: {e}")
             return jsonify({"error": "Internal Server Error"}), 500

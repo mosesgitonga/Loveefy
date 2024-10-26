@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
-from flask import jsonify, current_app, url_for
+from flask import jsonify, current_app, url_for, request 
 from itsdangerous import URLSafeTimedSerializer
 from werkzeug.exceptions import BadRequest
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -26,6 +26,9 @@ sys.path.append(project_root)
 from models.engine.DBStorage import DbStorage
 from models.user import User, Otp
 from models.place import Place
+from models.uploads import Upload
+from models.user_profile import User_profile
+from models.recommendation import Recommendation
 from models.admin import Admin, PowerLevel
 from models.preference import Preference
 from controllers.recommender.rule_based import Recommender
@@ -49,7 +52,6 @@ class User_auth:
         self.created_at = datetime.now()
         self.mail = mail
         self.redis_client = redis.StrictRedis(host='localhost', port=6379, db=0, decode_responses=True)        
-        print('redis client  :  \n',self.redis_client)
 
         self.initialize_user_count()
 
@@ -64,7 +66,6 @@ class User_auth:
     def get_user_count(self):
         """Get the total number of users in the database."""
         all_users = len(self.storage.get_all(User))
-        print(f'\n\n{all_users}')
         return all_users
 
     def count_users_in_redis(self):
@@ -81,11 +82,11 @@ class User_auth:
         #     return jsonify({'error': 'Invalid email format'}), 400
 
         if not password or not email or not username:
-            return jsonify({'error': 'Username, password, and email are required'}), 400
+            return {'error': 'Username, password, and email are required'}, 400
 
         try:
             if self.storage.get(User, email=email):
-                return jsonify({'error': 'Email already exists', 'code': 600}), 409
+                return {'error': 'Email already exists', 'code': 600}, 409
 
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(10))
 
@@ -106,11 +107,11 @@ class User_auth:
             access_token = create_access_token(identity=new_user.id)
 
             logging.info('User has been registered successfully')
-            return jsonify({'message': 'User registered successfully', 'access_token': access_token}), 201
+            return {'message': 'User registered successfully', 'access_token': access_token}, 201
 
         except Exception as e:
             logging.error(f'Error during registration: {e}')
-            return jsonify({'error': 'An error occurred during registration'}), 500
+            return {'error': 'An error occurred during registration'}, 500
 
     @limiter.limit("5 per minute")
     def user_login(self, email, password):
@@ -118,21 +119,21 @@ class User_auth:
         try:
             existing_user = self.storage.get(User, email=email)
             if not existing_user:
-                return jsonify(message="User not found"), 404
+                return {"message": "User not found"}, 404
 
             # Verify password
             if not bcrypt.checkpw(password.encode('utf-8'), existing_user.password.encode('utf-8')):
-                return jsonify(message='Wrong password or email'), 403
+                return {"message": "Wrong password or email"}, 403
 
             # Create access token
             access_token = create_access_token(identity=existing_user.id)
-            return jsonify({
+            return {
                 "access_token": access_token,
                 "place_id": existing_user.place_id, 
                 "preference_id": existing_user.preference_id,
                 "current_user_id": existing_user.id,
                 "current_username": existing_user.username
-            }), 200
+            }, 200
 
         except Exception as e:
             logging.error(f'Error during login: {e}')
@@ -150,7 +151,7 @@ class User_auth:
             "username": user.username,
             "email": user.email
         }
-        return jsonify(user_details), 200
+        return jsonify(user_details)
     
     def generate_otp(self, email):
         """Generate a 6-digit OTP."""
@@ -175,32 +176,34 @@ class User_auth:
 
     def verify_otp(self, data):
         try:
-            otp = data.get('otp')
+            otp = data.get('token')
             email = data.get('email')
+            print('otp:', otp)
 
             if not otp:
-                return jsonify({"message": "No OTP provided"}), 400
+                return {"message": "No OTP provided"}, 400
 
             if not email:
-                return jsonify({"message": "No email provided"}), 400
+                return {"message": "No email provided"}, 400
 
-            # Retrieve OTP from Redis
             stored_otp = self.redis_client.get(f'otp:{email}')
             if stored_otp is None:
-                return jsonify({"message": "No OTP has been generated or it has expired"}), 401
+                return {"message": "No OTP has been generated or it has expired"}, 401
 
             # Check if stored_otp is bytes or string and decode if needed
             if isinstance(stored_otp, bytes):
                 stored_otp = stored_otp.decode('utf-8')
 
             if stored_otp != otp:
-                return jsonify({"message": "Access Denied - Wrong OTP"}), 403
+                return {"message": "Access Denied - Wrong OTP"}, 403
 
-            return jsonify({"message": "Access Granted - You may change your password"}), 200
+            res = self.update_password(data)
+            return res
+            
 
         except Exception as e:
             logging.error(f'Error verifying OTP: {e}')
-            return jsonify({"error": "Internal Server Error"}), 500
+            return {"error": "Internal Server Error"}, 500
 
 
             
@@ -209,7 +212,7 @@ class User_auth:
             # Generate OTP
             otp = self.generate_otp(user.email)
             if otp is None:
-                return jsonify({'message': 'Internal Server Error'}), 500
+                return {'message': 'Internal Server Error'}, 500
             
             print('Sending OTP:', otp)
             msg = Message(subject="Password Reset Request",
@@ -221,73 +224,68 @@ class User_auth:
             print('send response', send_response)
             if send_response is None:
                 logging.error('email sent')
-                return jsonify({"message": f" OTP(One Time Password) has been sent to your email: {user.email}"}), 200
+                return {"message": f" OTP(One Time Password) has been sent to your email: {user.email}"}, 200
             
             print('Send response:', send_response)
-            return jsonify({"error": "Something went wrong"}), 500
+            return {"error": "Something went wrong"}, 500
 
         except Exception as e:
             logging.error(f'Error sending reset email: {e}')
-            return jsonify({'error': 'Internal Server Error'}), 500
+            return {'error': 'Internal Server Error'}, 500
         
     def update_password(self, data):
-        new_password = data.get('newPassword')
+        new_password = data.get('new_password')
         email = data.get('email')
-        
+
+        if not new_password or not email:
+            logging.error("Missing newPassword or email in request")
+            return {"error": "Both email and new password are required"}, 400
+
         try:
-            # Fetch user by email
             user = self.storage.get(User, email=email)
             if user is None:
                 logging.info('User not found')
-                return jsonify({"error": "User not found"}), 404
-
-            # Decode user password from the database
+                return {"error": "User not found"}, 404
             
-            hashed_password = user.password.encode('utf-8')
+            old_hashed_password = user.password.encode('utf-8')
+            new_password_encoded = new_password.encode('utf-8')
 
-            # Compare the new password with the hashed password
-            if bcrypt.checkpw(new_password.encode('utf-8'), hashed_password):
-                return jsonify({"error": "Your old password cannot be your new password"}), 400
+            if bcrypt.checkpw(new_password_encoded, old_hashed_password):
+                return {"error": "Your old password cannot be your new password"}, 400
 
-            # Hash the new password
-            hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
+            hashed_password = bcrypt.hashpw(new_password_encoded, bcrypt.gensalt())
 
-            # Update the user's password with the new hashed password
             user.password = hashed_password
             self.storage.new(user)
-            self.storage.save()  # Assuming this method commits the changes to the database
+            self.storage.save()
 
-            return jsonify({"message": "Password updated successfully"}), 200
+            return {"message": "Password updated successfully"}, 200
 
         except Exception as e:
             logging.error(f'Error updating password: {e}')
-            return jsonify({"error": "Internal Server Error"}), 500
+            return {"error": "Internal Server Error"}, 500
+
+
         
-    def delete_account(self):
+    def delete_account(self, data):
         user_id = get_jwt_identity()
+        password = data.get('password')
         try:
             user = self.storage.get(User, id=user_id)
-            preference = self.storage.get(Preference, id=user.preference_id)
-            place = self.storage.get(Place, id=user.place_id)
+            if not bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+                return {"Forbidden": "Wrong password"}, 403
 
             if  user:
                 self.storage.delete(obj=user)
                 self.storage.new(user)
-            if preference:
-                self.storage.delete(obj=preference)
-                self.storage.new(preference)
-            if preference:
-                self.storage.delete(obj=place)
-                self.storage.new(place)
-
-            self.storage.save()
+                self.storage.save()
 
             recommender = Recommender()
             recommender.recommend_users()
-            return jsonify({"message": "User Deleted Successfully"}), 200
+            return {"message": "User Deleted Successfully"}, 200
         except Exception as e:
             print(e)
-            return jsonify({"message": "Internal Server Error"}), 500
+            return {"message": "Internal Server Error"}, 500
         
 
 

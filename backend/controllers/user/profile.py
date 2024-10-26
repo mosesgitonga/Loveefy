@@ -104,7 +104,7 @@ class Profile:
             self.storage.new(new_profile)
             self.storage.save()
 
-            return jsonify({"message": "Profile created successfully"}), 201
+            return {"message": "Profile created successfully"}, 201
 
         except MySQLdb._exceptions.IntegrityError as ie:
             self.storage.rollback()

@@ -7,17 +7,18 @@ from flask_redis import FlaskRedis
 from models.engine.DBStorage import DbStorage
 from models.user import User
 from models.messages import RoomMember, Messages
-from routes.user_auth_route import auth_bp
+#from routes.user_auth_route import auth_bp
 from routes.user_profile_route import profile_bp
-from routes.preference_route import preference_bp
+#from routes.preference_route import preference_bp
 from routes.upload_route import upload_bp
-from routes.recommender_route import recommender_bp
+#from routes.recommender_route import recommender_bp
 from routes.matches.likes import likes_bp
 from routes.messages import messages_bp
 from routes.payments.Mpesa import mpesa_bp
 from routes.notifications import notifications_bp
 from routes.feedback_route import feedback_bp
 from routes.services_route import geo_bp
+from routes import api_bp
 from services.message import MessageService
 from controllers.user.user_auth import User_auth
 from datetime import timedelta
@@ -209,11 +210,12 @@ def get_uploaded_file(filename):
 
 
 # Register blueprints
-app.register_blueprint(auth_bp)
+#app.register_blueprint(auth_bp)
+app.register_blueprint(api_bp)
 app.register_blueprint(profile_bp)
-app.register_blueprint(preference_bp)
+#app.register_blueprint(preference_bp)
 app.register_blueprint(upload_bp)
-app.register_blueprint(recommender_bp)
+#app.register_blueprint(recommender_bp)
 app.register_blueprint(likes_bp)
 app.register_blueprint(messages_bp)
 app.register_blueprint(mpesa_bp)

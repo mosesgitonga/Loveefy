@@ -1,9 +1,11 @@
-from flask import Flask, Blueprint, request, jsonify, request
+from flask import Flask, Blueprint, request, jsonify
+from flask_restx import Api, Resource, fields, Namespace
 from flask_jwt_extended import jwt_required
 import os
 import sys 
 import logging
 import bcrypt
+
 current_file_path = os.path.abspath(__file__)
 project_root = os.path.abspath(os.path.join(current_file_path, '..', '..', '..'))
 sys.path.append(project_root)
@@ -15,113 +17,165 @@ from models.user import User
 user_auth = User_auth()
 admin_auth = AdminAuth()
 storage = DbStorage()
-auth_bp = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
 
-# Configure logging
+#auth_bp = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
+auth_api = Namespace('api/v1/auth', description="Auth")
+#login_api = Namespace('login', description='login user')
+
+#api = Namespace('login', description="login endpoints")
+
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('auth')
 
-@auth_bp.route('/registers/', methods=['POST'], strict_slashes=False)
-def register():
-    try:
-        data = request.get_json()
-        if not data:
-            print('no data')
-            return jsonify({'no data retrieved'})
-        registration_response = user_auth.register_by_email(data)
-        if registration_response is not None:
-            return registration_response
-        print('an error occured while registering user')            
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
+user_model = auth_api.model('User', {
+    'email': fields.String(required=True, description='User email'),
+    'password': fields.String(required=True, description='User password'),
+    'username': fields.String(required=True, description='username required')
+})
 
-@auth_bp.route('/logins', methods=['POST'], strict_slashes=False)
-def login():
-    data = request.get_json() 
-    access_token = user_auth.user_login(data.get('email'), data.get('password'))
-    if isinstance(access_token, str):
-        return jsonify({"access_token": {access_token}}), 200
-    return access_token
+login_model = auth_api.model('Login', {
+    'email': fields.String(required=True, description="User email"),
+    'password': fields.String(required=True, description="User password")
+})
 
-@auth_bp.route('/reset_password_request', methods=['POST'], strict_slashes=False)
-def reset_password_request():
-    data = request.json
-    email = data.get('email')
-    logging.info(email)
-    if not email:
-        return jsonify({'error': 'Email is required'}), 400
+reset_password_model = auth_api.model('Resetpassword', {
+    "email": fields.String(required=True, description="user email"),
+    "token": fields.String(required=True, description="token"),
+    "new_password": fields.String(required=True, description="new password")
+})
+token_request_model = auth_api.model('TokenRequest', {
+    "email": fields.String(required=True, description="user email"),
+})
 
-    user = storage.get(User, email=email)
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
-
-    try:
-        res = user_auth.send_otp_via_email(user)
-        return res
-    except Exception as e:
-        logging.error(f'Error sending reset email: {e}')
-        return jsonify({'error': 'Failed to send reset email'}), 500
-    
-@auth_bp.route('/reset_password/<token>', methods=['POST'], strict_slashes=False)
-def reset_password(token):
-    try:
-        email = user_auth.verify_reset_token(token)
-        if not email:
-            return jsonify({'error': 'Invalid or expired token'}), 400
-
-        data = request.json
-        new_password = data.get('password')
-        if not new_password:
-            return jsonify({'error': 'Password is required'}), 400
-
-        # Retrieve the user and update their password
-        user = storage.get(User, email=email)
-        if not user:
-            return jsonify({'error': 'User not found'}), 404
-
-        hashed_password = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt(10))
-        user.password = hashed_password.decode('utf-8')
-
-        storage.save()
-
-        return jsonify({'message': 'Password has been reset successfully'}), 200
-
-    except Exception as e:
-        logging.error(f'Error during password reset: {e}')
-        return jsonify({'error': 'Failed to reset password'}), 500
-
-@auth_bp.route('/update_password', methods=['POST'], strict_slashes=False)
-def update_password():
-    data = request.json 
-
-    otp_verification_response, otp_status_code = user_auth.verify_otp(data)
-    if otp_status_code != 200:
-        return otp_verification_response
-
-    password_update_response = user_auth.update_password(data)
-    return password_update_response
-
-@auth_bp.route('/account/delete', methods=['DELETE'], strict_slashes=False)
-@jwt_required()
-def delete_account():
-    response, status_code = user_auth.delete_account()
-    return response, status_code
+del_account_model = auth_api.model('DeleteAccount', {
+    "password": fields.String(required=True, description='user password')
+})
 
 
-@auth_bp.route('/super/admin/register', methods=['POST'], strict_slashes=False)
-def admin_register():
-    data = request.json 
+@auth_api.route('/registers/')
+class Register(Resource):
+    @auth_api.expect(user_model)
+    def post(self):
+        try:
+            data = request.get_json()
+            if not data:
+                logger.error("No data retrieved in register request")
+                return jsonify({'error': 'No data retrieved'}), 400
+            
+            registration_response = user_auth.register_by_email(data)
+            if registration_response is not None:
+                return registration_response
+            
+            logger.error("Error occurred while registering user")
+            return jsonify({'error': 'Registration failed'}), 500
+        except ValueError as ve:
+            logger.error(f"Invalid data format: {ve}")
+            return jsonify({'error': 'Invalid input format'}), 400
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return jsonify({'error': str(e)}), 500
 
-    response = admin_auth.register_super_admin(data)
-    return response 
+@auth_api.route('/logins')
+class Login(Resource):
+    @auth_api.expect(login_model)
+    def post(self):
+        try:
+            data = request.get_json()
+            if not data:
+                logger.error("No data retrieved in login request")
+                return jsonify({'error': 'No data retrieved'}), 400
+            
+            response, status_code = user_auth.user_login(data.get('email'), data.get('password'))
+            return response, status_code
+        except ValueError as ve:
+            logger.error(f"Invalid data format: {ve}")
+            return jsonify({'error': 'Invalid input format'}), 400
+        except Exception as e:
+            logger.error(f"Unexpected error: {str(e)}")
+            return jsonify({'error': str(e)}), 500
+
+@auth_api.route('/token_request')
+class ResetPasswordRequest(Resource):
+    @auth_api.expect(token_request_model)
+    def post(self):
+        try:
+            data = request.json
+            email = data.get('email')
+            if not email:
+                logger.error("No email provided")
+                return jsonify({'error': 'Email is required'}), 400
+
+            user = storage.get(User, email=email)
+            if not user:
+                logger.info(f"User with email {email} not found")
+                return jsonify({'error': 'User not found'}), 404
+
+            res = user_auth.send_otp_via_email(user)
+            return res
+        except Exception as e:
+            logger.error(f"Error sending reset email: {e}")
+            return jsonify({'error': 'Failed to send reset email'}), 500
+
+@auth_api.route('/reset_password')
+class ResetPassword(Resource):
+    @auth_api.expect(reset_password_model)
+    def post(self):
+        try:  
+            data = request.json 
+            response = user_auth.verify_otp(data)
+            return response
+
+        except Exception as e:
+            logger.error(f"Error during password reset: {e}")
+            return jsonify({'error': 'Failed to reset password'}), 500
+
+@auth_api.route('/update_password')
+class UpdatePassword(Resource):
+    def post(self):
+        try:
+            data = request.json
+            otp_verification_response, otp_status_code = user_auth.verify_otp(data)
+            if otp_status_code != 200:
+                return otp_verification_response
+
+            password_update_response = user_auth.update_password(data)
+            return password_update_response
+        except Exception as e:
+            logger.error(f"Error updating password: {e}")
+            return jsonify({'error': 'Failed to update password'}), 500
+
+@auth_api.route('/account/delete')
+class DeleteAccount(Resource):
+    @jwt_required()
+    @auth_api.expect(del_account_model)
+    def delete(self):
+        try:
+            data = request.json 
+            response, status_code = user_auth.delete_account(data)
+            return response, status_code
+        except Exception as e:
+            logger.error(f"Error deleting account: {e}")
+            return jsonify({'error': 'Failed to delete account'}), 500
+
+@auth_api.route('/super/admin/register')
+class AdminRegister(Resource):
+    def post(self):
+        try:
+            data = request.json
+            response = admin_auth.register_super_admin(data)
+            return response
+        except Exception as e:
+            logger.error(f"Error registering super admin: {e}")
+            return jsonify({'error': 'Failed to register super admin'}), 500
 
 
-@auth_bp.route('/admin/login', methods=['POST'], strict_slashes=False)
-def admin_login():
-    data = request.json 
-    response = admin_auth.admin_login(data)
-    return response 
-@auth_bp.route('/users/count', methods=['GET'], strict_slashes=False)
-def count_users():
-    response = user_auth.count_users_in_redis()
-    return response
+
+@auth_api.route('/users/count')
+class CountUsers(Resource):
+    def get(self):
+        try:
+            response = user_auth.count_users_in_redis()
+            return response
+        except Exception as e:
+            logger.error(f"Error counting users: {e}")
+            return jsonify({'error': 'Failed to count users'}), 500
