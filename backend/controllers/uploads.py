@@ -120,15 +120,19 @@ class UploadHandler():
                 return jsonify({"message": "An error occurred while processing the file", "error": str(e)}), 500
 
     def view_user_gallery(self, data):
-        user_id = data.userId
+        user_id = getattr(data, 'userId', None)  
+
+        if not user_id:
+            return jsonify({"message": "Invalid or missing userId"}), 400  
 
         try:
             images = self.storage.get_all(Upload, user_id=user_id)
             if not images:
-                return jsonify({"message": "No images found"}), 404
-            
+                return jsonify({"message": "No images found", "data": []}), 404
+
             serialized_images = [serialize_upload(upload) for upload in images]
-            return jsonify({"message": "Images retrieved", "data": serialized_images}), 200
+            
+            return jsonify(serialized_images), 200  
         except Exception as e:
             print(f"Error retrieving images for user {user_id}: {e}")
             return jsonify({"message": "Internal Server Error"}), 500

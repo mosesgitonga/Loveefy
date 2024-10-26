@@ -55,10 +55,10 @@ class Recommender:
                 self.storage.new(new_recommendation)
             self.storage.save()
 
-            return jsonify({"message": "Recommendations created successfully"}), 201
+            return {"message": "Recommendations created successfully"}, 201
         except Exception as e:
             logging.error(f"Error in recommend_users: {e}")
-            return jsonify({'message': 'Internal Server Error'}) 
+            return {'message': 'Internal Server Error'}
 
     def process_user(self, i, users, preferences, profiles, places, recommendations):
         current_user = users[i]
@@ -195,40 +195,31 @@ class Recommender:
     def fetch_recommendations(self):
         try:
             current_user_id = get_jwt_identity()
-            logging.info(f"Current user ID: {current_user_id}")
 
             current_user = self.storage.get(User, id=current_user_id)
-            logging.info(f"Current user preference ID: {current_user.preference_id}")
 
             recommendations = self.storage.get_all(Recommendation)
-            logging.info(f"Fetched all recommendations: {recommendations}")
 
             user_recommendations = [rec for rec in recommendations if rec.user_id1 == current_user_id or rec.user_id2 == current_user_id]
             logging.info(f"Filtered recommendations for current user: {user_recommendations}")
 
             if not user_recommendations:
                 logging.info("No recommendations found")
-                return jsonify([]), 200
+                return [], 200
 
             user_ids = []
             for rec in user_recommendations:
                 user_ids.append(rec.user_id2 if rec.user_id1 == current_user_id else rec.user_id1)
-            logging.info(f"Other user IDs from recommendations: {user_ids}")
 
             users = self.storage.get_multiple(User, ids=user_ids)
-            logging.info(f"Fetched users: {users}")
 
             profiles = self.storage.get_multiple(User_profile, ids=user_ids)
-            logging.info(f"Fetched profiles: {profiles}")
 
             places = self.storage.get_multiple(Place, ids=[user.place_id for user in users])
-            logging.info(f"Fetched places: {places}")
 
             images = self.storage.get_multiple(Upload, ids=user_ids)
-            logging.info(f"Fetched images: {images}")
 
             preferences = self.storage.get_multiple(Preference, ids=[user.preference_id for user in users])
-            logging.info(f"Fetched preferences: {preferences}")
 
             user_map = {user.id: user for user in users}
             profile_map = {profile.user_id: profile for profile in profiles}
@@ -240,9 +231,8 @@ class Recommender:
             current_user_preference = self.storage.get(Preference, id=current_user.preference_id)
             if not current_user_preference:
                 logging.error(f"Current user preference not found for ID: {current_user.preference_id}")
-                return jsonify({"message": "Internal Server Error"}), 500
+                return {"message": "Internal Server Error"}, 500
             
-            logging.info(f"Current user preference: {current_user_preference}")
 
             recommendation_list = []
 
@@ -253,10 +243,7 @@ class Recommender:
                 other_user_place = place_map.get(other_user.place_id)
                 other_user_image = image_map.get(other_user_id)
                 other_user_preference = preference_map.get(other_user.preference_id)
-
-                logging.info(f"Other user preference: {other_user_preference}")
-
-
+ 
                 if recommendation.score < 5:
                     continue
 
@@ -264,7 +251,6 @@ class Recommender:
                     dob = other_user_profile.DOB
                     if isinstance(dob, str):
                         dob = datetime.strptime(dob, '%Y-%m-%d')
-                    # Calculate age
                     today = datetime.today()
                     age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
                 else:
@@ -291,11 +277,9 @@ class Recommender:
                 } 
                 
                 recommendation_list.append(recommendation_data)
-                logging.info(f"Recommendation added: {recommendation_data}")
 
-            logging.info(f"Final recommendation list: {recommendation_list}")
-            return jsonify(recommendation_list), 200
+            return recommendation_list
 
         except Exception as e:
             logging.error(f"Error fetching recommendations: {e}")
-            return jsonify({"message": "Internal Server Error"}), 500
+            return {"message": "Internal Server Error"}, 500

@@ -62,7 +62,7 @@ const SettingsPage = () => {
                 {activeTab === 'preference' && <PreferenceForm />}
                 {activeTab === 'account' && <AccountSettings />}
                 {activeTab === 'security' && <SecuritySettings />}
-                {activeTab === 'interaction' && <InteractionSettings />}
+                {/* {activeTab === 'interaction' && <InteractionSettings />} */}
                 {activeTab === 'content' && <ContentSettings />}
                 {activeTab === 'accessibility' && <AccessibilitySettings />}
                 {activeTab === 'location' && <LocationSettings />}

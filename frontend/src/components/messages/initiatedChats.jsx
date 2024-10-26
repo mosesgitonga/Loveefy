@@ -29,7 +29,7 @@ const InitiatedChats = () => {
     }, []); 
 
     const handleRoomClick = (roomId) => {
-        navigate(`/c/${roomId}`);  // Navigating to the conversation room
+        navigate(`/c/${roomId}`);  
     };
 
     return (

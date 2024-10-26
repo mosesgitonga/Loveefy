@@ -79,7 +79,7 @@ class LikesService:
             self.logger.info("Match already exists")
             return jsonify({"message": "Match already exists"}), 200
 
-        room = self.messageService.create_private_room(liker_id, liked_id)
+        self.messageService.create_private_room(liker_id, liked_id)
 
         new_match = Matches(
             id=str(uuid.uuid4()),
@@ -90,8 +90,8 @@ class LikesService:
         self.storage.new(new_match)
         self.storage.save()
 
-        # Create a notification for the liked user
-        notification_message = "It's a match! You both liked each other."
+        notification_message = "It's a match! You can now send each other messages."
+        
         notification = Notification(
             id=str(uuid.uuid4()),
             user_to_id=liked_id,
@@ -118,20 +118,12 @@ class LikesService:
 
     def likeback(self):
         try:
-            print('liking back...')
-            data = request.get_json()  # Correct method to get JSON data
-            print(data)
+            data = request.get_json()  
             liked_id = data.get('userId')
             liker_id = get_jwt_identity()
             notification_id = data.get('notificationId')
-            print({"type": type(liked_id), "liked id":liked_id})
-            print(type(notification_id))
-            print('notification id: ', notification_id)
             if liked_id is None or notification_id is None:
-                print('missing')
                 return jsonify({"message": "user_id and notificationId are required."}), 400
-            print('data present!\n')
-            # Ensure that `_create_match` returns a response
             match_response = self._create_match(liker_id, liked_id)
             if match_response:
                 notification = self.storage.get(Notification, id=notification_id)
@@ -183,7 +175,7 @@ class LikesService:
                     "image_path": user_image_dict.get(notification.user_from_id),
                     "industry": user_profile_dict[notification.user_from_id].industry_major,
                     "career": user_profile_dict[notification.user_from_id].career,
-                    "age": calculate_age(user_profile_dict[notification.user_from_id].DOB),  # Calculate age here
+                    "age": calculate_age(user_profile_dict[notification.user_from_id].DOB),  
                     "gender": user_profile_dict[notification.user_from_id].gender,
                     "employment": user_profile_dict[notification.user_from_id].employment,
                     "education_level": user_profile_dict[notification.user_from_id].education_level

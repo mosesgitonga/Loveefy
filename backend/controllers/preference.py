@@ -17,12 +17,13 @@ class Preferences:
     def create_preference(self):
         try:
             current_user_id = get_jwt_identity()
-            data = request.get_json()  # Use get_json() for JSON payload
+            data = request.get_json()  
+            print(data)
 
             # Extract data from the request payload
             gender = data.get('gender', '').lower()
-            min_age = int(data.get('minAge', 0))
-            max_age = int(data.get('maxAge', 0))
+            min_age = int(data.get('minAge'))
+            max_age = int(data.get('maxAge'))
             country = data.get('country', '').lower()
             region = data.get('region', '').lower()
             industry_major = data.get('industryMajor', '').lower()
@@ -35,23 +36,23 @@ class Preferences:
             wants_child = data.get('wantsChild', 'yes').lower()
             
             # Validate the input data
-            allowed_gender = ['male', 'female', 'transgender', 'non-binary']
+            allowed_gender = ['male', 'female']
             if gender not in allowed_gender:
-                return jsonify({"message": "Loveefy does not recognize the gender"}), 400
+                return {"message": "Loveefy does not recognize this gender"}, 400
 
             if min_age < 18:
-                return jsonify({"message": "Teens below 18 are not allowed"}), 400
+                return {"message": "kids below 18 are not allowed"}, 400
             
             if max_age > 200:
-                return jsonify({"message": "Please pick a realistic max age"}), 400
+                return {"message": "Please pick a realistic max age"}, 400
 
             current_user = self.storage.get(User, id=current_user_id)
             if not current_user:
-                return jsonify({"message": "User not found"}), 404
+                return {"message": "User not found"}, 404
 
             # Check if user already has a preference
             if current_user.preference_id:
-                return jsonify({"message": "User already has a preference"}), 400
+                return {"message": "User already has a preference"}, 400
 
             # Create a new preference
             new_preference = Preference(
@@ -82,13 +83,13 @@ class Preferences:
 
             self.logger.info(f"Preference created successfully for user_id: {current_user_id}")
 
-            return jsonify({"message": "User preference created successfully"}), 201
+            return {"message": "User preference created successfully"}, 201
         except ValueError as ve:
             self.logger.error(f"Value error: {ve}")
-            return jsonify({"message": "Invalid input"}), 400
+            return {"message": "Invalid input"}, 400
         except Exception as e:
             self.logger.exception("Internal server error")
-            return jsonify({"message": "Internal server error"}), 500
+            return {"message": "Internal server error"}, 500
         
     def show_preference(self):
         user_id = get_jwt_identity()
