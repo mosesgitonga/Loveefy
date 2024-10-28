@@ -23,7 +23,7 @@ auth_api = Namespace('api/v1/auth', description="Auth")
 #login_api = Namespace('login', description='login user')
 
 #api = Namespace('login', description="login endpoints")
-
+   
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('auth')
 

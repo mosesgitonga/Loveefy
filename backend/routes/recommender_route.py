@@ -43,7 +43,7 @@ class Recommend(Resource):
 class FetchRecommendation(Resource):
     @jwt_required()
     @recommender_api.doc(description="Fetch user-specific recommendations")
-    @recommender_api.response(200, 'Recommendations successfully retrieved', [recommendation_model])
+    @recommender_api.response(200, 'Recommendations successfully retrieved')
     @recommender_api.response(500, 'Internal Server Error')
     def get(self):
         """
