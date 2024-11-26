@@ -146,7 +146,6 @@ def handle_send_message(data):
             emit('error', {'msg': 'Missing token'})
             return
 
-        # Decode and verify the token
         try:
             decoded_token = decode_token(token)
             user_id = decoded_token['sub']
@@ -154,8 +153,8 @@ def handle_send_message(data):
             print("JWT verification failed:", e)
             emit('error', {'msg': 'Invalid token'})
             return
-
-        # Proceed with handling the message after JWT verification
+        
+      # Proceed with handling the message after JWT verification
         room_id = data['room_id']
         msg_content = data['content']
         user = storage.get(User, id=user_id)
@@ -182,6 +181,45 @@ def handle_send_message(data):
         # Emit the message to the room
         print(f'emitting message to {room_id} content {msg_content} from {username}\n\n\n')
 
+        emit('receive_message', {'timestamp': timestamp, 'username': username, 'content': msg_content}, room=room_id)
+
+    except Exception as e:
+        emit('error', {'msg': 'Failed to send message'})
+        print(f"Error sending message: {e}")
+
+@socketio.on('unmatched_user_send_message')
+def handle_send_message_from_unmatched(data):
+    try:
+        token = data.get('token')
+        if token is None:
+            emit('error', {'msg': 'Missing token'})
+            return
+
+        try:
+            decoded_token = decode_token(token)
+            user_id = decoded_token['sub']
+        except Exception as e:
+            print("JWT verification failed:", e)
+            emit('error', {'msg': 'Invalid token'})
+            return
+        
+        # Proceed with handling the message after JWT verification
+        receiver_id = data.get('receiver_id')
+        room_id = message.create_private_room(receiver_id, user_id)
+        msg_content = data['content']
+        user = storage.get(User, id=user_id)
+        username = user.username
+
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # Save the message to the database
+        message.save_message(
+            sender_id=user_id,
+            receiver_id=receiver_id,
+            room_id=room_id,
+            message=msg_content
+        )
+        # Emit the message to the room
         emit('receive_message', {'timestamp': timestamp, 'username': username, 'content': msg_content}, room=room_id)
 
     except Exception as e:

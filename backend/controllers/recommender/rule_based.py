@@ -192,6 +192,7 @@ class Recommender:
 
     def calculate_child_preference_score(self, current_user_preference, other_user_profile):
         return 7 if "any" in current_user_preference.wants_child and other_user_profile.has_child == "yes" else 0
+    
     def fetch_recommendations(self):
         try:
             current_user_id = get_jwt_identity()
@@ -227,7 +228,6 @@ class Recommender:
             image_map = {image.user_id: image for image in images}
             preference_map = {preference.id: preference for preference in preferences}
 
-            # Ensure current user preference is fetched correctly
             current_user_preference = self.storage.get(Preference, id=current_user.preference_id)
             if not current_user_preference:
                 logging.error(f"Current user preference not found for ID: {current_user.preference_id}")

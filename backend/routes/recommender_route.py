@@ -11,6 +11,7 @@ logging.basicConfig(level=logging.INFO)
 recommender = Recommender()
 recommender_api = Namespace('api/v1/', description="Recommendation API endpoints")
 
+
 # Swagger models for the responses
 recommendation_model = recommender_api.model('Recommendation', {
     'user_id': fields.Integer(description='Recommended user ID'),

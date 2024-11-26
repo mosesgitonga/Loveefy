@@ -17,7 +17,7 @@ class User_profile(Base):
     is_schooling = Column(String(25))
     career = Column(String(50), nullable=True)
     has_child = Column(String(10), default='no')
-    bio = Column(Text, nullable=False)
+    bio = Column(Text)
 
     user_id = Column(String(36), ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
 
