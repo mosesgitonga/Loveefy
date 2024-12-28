@@ -14,7 +14,11 @@ load_dotenv()
 
 class DbStorage:
     def __init__(self):
-        self.db_uri = os.getenv('SQLALCHEMY_DATABASE_URI')
+        if os.getenv('FLASK_LOVEEFY_ENV') == 'production':
+            self.db_uri = os.getenv('LOVEEFY_PRODUCTION_DATABASE_URI')
+        else:
+            self.db_uri = os.getenv('LOVEEFY_DEVELOPMENT_DATABASE_URI')
+
         self.__engine = create_engine(
             self.db_uri,
             pool_size=20,

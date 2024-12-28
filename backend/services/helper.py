@@ -8,6 +8,7 @@ from models.payment import Subscription
 
 storage = DbStorage()
 
+
 def restrict_unsubscribed_males(func):
     @wraps(func)
     def decorated_function(*args, **kwargs):
