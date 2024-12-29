@@ -23,7 +23,6 @@ class Recommender:
 
     def recommend_users(self):
         try:
-            self.storage.delete_and_create_table('recommendations')
             users = self.storage.get_all(User) 
 
             logging.info(f"Total users: {len(users)}")
@@ -77,13 +76,18 @@ class Recommender:
                 continue  # Skip comparing user to themselves
 
             other_user = users[j]
+
             pair = tuple(sorted((current_user.id, other_user.id)))
 
             if pair in self.processed_pairs:
                 logging.info(f"Skipping already processed pair: {pair}")
-                continue  # Skip already processed pairs
+                continue  
 
-            self.processed_pairs.add(pair)  # Mark this pair as processed
+            self.processed_pairs.add(pair)
+
+            # ensuring no duplicate recommendation.
+            if self.storage.check_existing_recommendation(current_user.id, other_user.id):
+                continue
 
             other_user_preference = preferences.get(other_user.preference_id)
             other_user_profile = profiles.get(other_user.id)
@@ -91,8 +95,8 @@ class Recommender:
 
             if not other_user or not other_user_preference or not other_user_profile or not other_user_place:
                 logging.warning(f"Missing data for other user {other_user.id}")
-                continue  # Skip if other user data is missing
-
+                continue  
+            
             score = self.calculate_score(current_user_place, other_user_place, current_user_preference, other_user_preference, current_user_profile, other_user_profile)
             logging.info(f"Calculated score for pair {current_user.id}-{other_user.id}: {score}")
 
@@ -103,11 +107,13 @@ class Recommender:
                     "score": score 
                 })
 
-
     def calculate_score(self, current_user_place, other_user_place, current_user_preference, other_user_preference, current_user_profile, other_user_profile):
         try:
             score = 0
-
+            if self.is_gender_compatible(current_user_profile, current_user_preference, other_user_profile, other_user_preference) == False:
+                logging.info("Gender not compatible")
+                score = 0
+                return score
 
             score += self.calculate_basic_score()
             logging.info(f"Basic score: {score}")
@@ -122,16 +128,6 @@ class Recommender:
             industry_score = self.calculate_industry_score(current_user_profile, other_user_preference)
             score += industry_score if industry_score is not None else 0
             logging.info(f"Score after industry: {score}")
-
-            child_preference_score = self.calculate_child_preference_score(current_user_preference, other_user_profile)
-            score += child_preference_score if child_preference_score is not None else 0
-            logging.info(f"Final score: {score}")
-
-
-            if self.is_gender_compatible(current_user_profile, current_user_preference, other_user_profile, other_user_preference) == False:
-                logging.info("Gender not compatible")
-                score = 0
-                return 0
 
             return score
         except Exception as e:

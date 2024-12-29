@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Initialize Recommender and Blueprint
 recommender = Recommender()
-recommender_api = Namespace('api/v1/', description="Recommendation API endpoints")
+recommender_api = Namespace('v1/', description="Recommendation API endpoints")
 
 
 # Swagger models for the responses

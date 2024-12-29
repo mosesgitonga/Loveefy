@@ -19,7 +19,7 @@ admin_auth = AdminAuth()
 storage = DbStorage()
 
 #auth_bp = Blueprint('auth', __name__, url_prefix='/api/v1/auth')
-auth_api = Namespace('api/v1/auth', description="Auth")
+auth_api = Namespace('v1/auth', description="Auth")
 #login_api = Namespace('login', description='login user')
 
 #api = Namespace('login', description="login endpoints")

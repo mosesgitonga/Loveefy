@@ -8,6 +8,7 @@ import logging
 from models.base_model import Base
 from models.user_profile import User_profile
 from models.uploads import Upload
+from models.recommendation import Recommendation
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
@@ -156,6 +157,18 @@ class DbStorage:
                 logging.info(f'Table {table_name} deleted and recreated successfully')
         except Exception as e:
             logging.error(f'An error occurred while deleting table {table_name}: {e}')
+
+    def check_existing_recommendation(self, user_id1, user_id2):
+        try:
+            with self.get_session() as session:
+                res = session.query(Recommendation).filter(
+                    (Recommendation.user_id1 == user_id1) & 
+                    (Recommendation.user_id2 == user_id2)
+                ).first()
+                return res is not None
+        except Exception as e:
+            logging.error("Error occurred when checking existing recommendation", e)
+            return False
 
     def close(self):
         self.Session.remove()

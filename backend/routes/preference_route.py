@@ -8,7 +8,7 @@ from controllers.preference import Preferences
 preferences = Preferences()
 
 # Define the API namespace
-preference_api = Namespace('api/v1/', description="User preference API endpoints")
+preference_api = Namespace('v1/', description="User preference API endpoints")
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -47,7 +47,7 @@ preference_model_update = preference_api.model('PreferenceUpdate', {
 })
 
 # Routes
-@preference_api.route('/preference')
+@preference_api.route('/preferences')
 class PreferenceResource(Resource):
     
     @jwt_required()

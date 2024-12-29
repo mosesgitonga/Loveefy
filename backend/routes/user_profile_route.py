@@ -10,7 +10,7 @@ from controllers.user.user_auth import User_auth
 
 # Setup Blueprint and Namespace
 profile_bp = Blueprint('profile', __name__, url_prefix='/api/v1/')
-profile_api = Namespace('api/v1/', description="API for user's Profile")
+profile_api = Namespace('v1/', description="API for user's Profile")
 
 profile = Profile()
 place = Place_control()
