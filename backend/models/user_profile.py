@@ -12,7 +12,7 @@ class User_profile(Base):
     DOB = Column(DateTime, nullable=False)  # Date of Birth
     mobile_no = Column(String(16), unique=True, nullable=False, index=True)
     education_level = Column(String(36))
-    industry_major = Column(String(25), nullable=False)
+    industry_major = Column(String(25), nullable=False) 
     employment = Column(String(25))
     is_schooling = Column(String(25))
     career = Column(String(50), nullable=True)

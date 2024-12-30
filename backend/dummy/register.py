@@ -5,7 +5,7 @@ json_file = "./dummy_users.json"
 with open(json_file, 'r') as file:
     users = json.load(file)
 
-api_url = "https://www.loveefy.africa/api/v1/auth/registers"
+api_url = "http://127.0.0.1:5000/v1/auth/registers"
 
 for user in users:
     try:

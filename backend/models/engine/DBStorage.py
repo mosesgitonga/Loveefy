@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Table, func
+from sqlalchemy import create_engine, Table, func, or_
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.orm.exc import NoResultFound
 from contextlib import contextmanager
@@ -89,23 +89,32 @@ class DbStorage:
             return None
 
     def get_all(self, cls, page=1, per_page=30, **kwargs):
+        """
+        Fetch all objects of a given class with optional filtering and pagination.
+
+        :param cls: SQLAlchemy model class
+        :param page: Page number for pagination
+        :param per_page: Number of items per page
+        :param kwargs: Filtering criteria
+        :return: List of results or SQLAlchemy query object
+        """
         try:
             with self.get_session() as session:
-                filters = [getattr(cls, key) == value for key, value in kwargs.items()]
-                query = session.query(cls).filter(*filters)
+                # Validate and build filters
+                valid_filters = {key: value for key, value in kwargs.items() if hasattr(cls, key)}
+                filters = [getattr(cls, key) == value for key, value in valid_filters.items()]
+                query = session.query(cls).filter(or_(*filters))
 
-                if cls.__name__ == 'User':
+                # Apply pagination if the class requires it
+                if getattr(cls, 'use_pagination', True):
                     query = query.limit(per_page).offset((page - 1) * per_page)
 
-                if cls.__name__ == 'Messages':
-                    query = query.limit(per_page).offset((page - 1) * per_page)
-                
-                result = query.all()
-                logging.info(f'Fetched all {cls.__name__} objects with filters: {kwargs}')
-                return result
+                results = query.all()
+                logging.info(f'Fetched {len(results)} {cls.__name__} objects with filters: {kwargs}')
+                return results
         except Exception as e:
-            logging.error(f'An error occurred while fetching {cls.__name__} objects: {e}')
-            return None
+            logging.error(f"Error fetching {cls.__name__} objects: {e}")
+            raise
 
     def count(self, cls, **kwargs):
         try:

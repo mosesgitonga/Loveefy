@@ -5,7 +5,7 @@ from routes.user_profile_route import profile_api
 from routes.preference_route import preference_api
 from routes.recommender_route import recommender_api 
 
-api_bp = Blueprint('api', __name__, url_prefix='/api')
+api_bp = Blueprint('api', __name__, url_prefix='/')
 api = Api(api_bp, 
           version='1.0',
           title='Loveefy Api',

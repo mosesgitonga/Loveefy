@@ -44,6 +44,8 @@ class Recommend(Resource):
 class FetchRecommendation(Resource):
     @jwt_required()
     @recommender_api.doc(description="Fetch user-specific recommendations")
+    @recommender_api.param('page', 'The page number for pagination', type=int, default=1, required=False)
+    @recommender_api.param('per_page', 'Number of recommendations per page', type=int, default=12, required=False)
     @recommender_api.response(200, 'Recommendations successfully retrieved')
     @recommender_api.response(500, 'Internal Server Error')
     def get(self):
@@ -53,10 +55,11 @@ class FetchRecommendation(Resource):
         Retrieves and returns the current user's recommendations.
         """
         try:
+            page = request.args.get('page', default=1, type=int)
+            per_page=request.args.get('per_page', default=12, type=int)
             current_user_id = get_jwt_identity()
             logging.info(f"Fetching recommendations for user ID: {current_user_id}")
-            recommendations, status_code = recommender.fetch_recommendations()
-            print("Recommendations\n:", recommendations)
+            recommendations, status_code = recommender.fetch_recommendations(page=page, per_page=per_page)
             return recommendations, status_code
         except Exception as e:
             logging.error(f"Fetching recommendations error: {e}")

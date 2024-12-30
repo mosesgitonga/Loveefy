@@ -189,46 +189,36 @@ class Recommender:
     def calculate_child_preference_score(self, current_user_preference, other_user_profile):
         return 7 if "any" in current_user_preference.wants_child and other_user_profile.has_child == "yes" else 0
     
-    def fetch_recommendations(self):
+    def fetch_recommendations(self, page=1, per_page=12):
         try:
             current_user_id = get_jwt_identity()
-
             current_user = self.storage.get(User, id=current_user_id)
 
-            recommendations = self.storage.get_all(Recommendation)
-
+            recommendations = self.storage.get_all(Recommendation, page=page, per_page=per_page, user_id1=current_user_id, user_id2=current_user_id)
             user_recommendations = [rec for rec in recommendations if rec.user_id1 == current_user_id or rec.user_id2 == current_user_id]
-            logging.info(f"Filtered recommendations for current user: {user_recommendations}")
 
             if not user_recommendations:
                 logging.info("No recommendations found")
-                return [], 200
+                return [{"recommendations": []}], 200
 
-            user_ids = []
+            user_ids = set()
             for rec in user_recommendations:
-                user_ids.append(rec.user_id2 if rec.user_id1 == current_user_id else rec.user_id1)
+                other_user_id = rec.user_id2 if rec.user_id1 == current_user_id else rec.user_id1
+                user_ids.add(other_user_id)
 
-            users = self.storage.get_multiple(User, ids=user_ids)
-
+            users = self.storage.get_multiple(User, ids=list(user_ids))
             profiles = self.storage.get_multiple(User_profile, ids=user_ids)
-
             places = self.storage.get_multiple(Place, ids=[user.place_id for user in users])
-
             images = self.storage.get_multiple(Upload, ids=user_ids)
 
-            preferences = self.storage.get_multiple(Preference, ids=[user.preference_id for user in users])
-
-            user_map = {user.id: user for user in users}
-            profile_map = {profile.user_id: profile for profile in profiles}
-            place_map = {place.id: place for place in places}
-            image_map = {image.user_id: image for image in images}
-            preference_map = {preference.id: preference for preference in preferences}
+            user_map = {user.id: user for user in users if user}
+            profile_map = {profile.user_id: profile for profile in profiles if profile}
+            place_map = {place.id: place for place in places if place}
+            image_map = {image.user_id: image for image in images if image}
 
             current_user_preference = self.storage.get(Preference, id=current_user.preference_id)
             if not current_user_preference:
-                logging.error(f"Current user preference not found for ID: {current_user.preference_id}")
                 return {"message": "Internal Server Error"}, 500
-            
 
             recommendation_list = []
 
@@ -236,26 +226,24 @@ class Recommender:
                 other_user_id = recommendation.user_id2 if recommendation.user_id1 == current_user_id else recommendation.user_id1
                 other_user = user_map.get(other_user_id)
                 other_user_profile = profile_map.get(other_user_id)
-                other_user_place = place_map.get(other_user.place_id)
+                other_user_place = place_map.get(other_user.place_id if other_user else None)
                 other_user_image = image_map.get(other_user_id)
-                other_user_preference = preference_map.get(other_user.preference_id)
- 
+
                 if recommendation.score < 5:
                     continue
 
-                if other_user_profile:
+                age = None
+                if other_user_profile and other_user_profile.DOB:
                     dob = other_user_profile.DOB
-                    if isinstance(dob, str):
-                        dob = datetime.strptime(dob, '%Y-%m-%d')
+                    if isinstance(dob, datetime):
+                        dob = dob.strftime('%Y-%m-%d') 
                     today = datetime.today()
-                    age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+                    dob_datetime = datetime.strptime(dob, '%Y-%m-%d')  
+                    age = today.year - dob_datetime.year - ((today.month, today.day) < (dob_datetime.month, dob_datetime.day))                
                 else:
                     age = None
 
-                if recommendation.user_id1 == current_user_id:
-                    opposite_id = recommendation.user_id2 
-                else:
-                    opposite_id = recommendation.user_id1
+                opposite_id = recommendation.user_id2 if recommendation.user_id1 == current_user_id else recommendation.user_id1
 
                 recommendation_data = {
                     "id": recommendation.id,
@@ -270,12 +258,12 @@ class Recommender:
                     "region": other_user_place.region if other_user_place else None,
                     "age": age,
                     "gender": other_user_profile.gender if other_user_profile else None
-                } 
-                
+                }
+
                 recommendation_list.append(recommendation_data)
 
-            return recommendation_list
-
+            return recommendation_list, 200
+            
         except Exception as e:
             logging.error(f"Error fetching recommendations: {e}")
-            return {"message": "Internal Server Error"}, 500
+            return {"error": "Internal Server Error"}, 500
