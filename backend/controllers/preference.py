@@ -21,19 +21,17 @@ class Preferences:
             print(data)
 
             # Extract data from the request payload
-            gender = data.get('gender', '').lower()
+            gender = data.get('desired_gender', '').lower()
             min_age = int(data.get('minAge'))
             max_age = int(data.get('maxAge'))
-            country = data.get('country', '').lower()
-            region = data.get('region', '').lower()
-            industry_major = data.get('industryMajor', '').lower()
-            career = data.get('career').lower()
-            education_level = data.get('education_level').lower()
+            country = data.get('desired_country', '').lower()
+            region = data.get('desired_region', '').lower()
+            industry_major = data.get('desired_industry', '').lower()
+            occupation = data.get('occupation').lower()
+            education_level = data.get('desired_education_level').lower()
             employment = data.get('employment').lower()
-            is_schooling = data.get('is_schooling').lower()
-            fav_hobby = data.get('favHobby', '')
-            has_child = data.get('hasChild', '').lower()
-            wants_child = data.get('wantsChild', 'yes').lower()
+            is_schooling = data.get('is_schooling')
+            radius = data.get('radius')
             
             # Validate the input data
             allowed_gender = ['male', 'female']
@@ -57,18 +55,17 @@ class Preferences:
             # Create a new preference
             new_preference = Preference(
                 id=str(uuid.uuid4()),
-                gender=gender,
+                desired_gender=gender,
                 min_age=min_age,
                 max_age=max_age,
                 country=country,
                 region=region,
                 industry_major=industry_major,
-                career=career,
+                occupation=occupation,
                 education_level=education_level,
                 employment=employment,
                 is_schooling=is_schooling,
-                fav_hobby=fav_hobby,
-                wants_child=wants_child,
+                radius=radius,
                 created_at=datetime.now(),
             )
             
@@ -107,9 +104,7 @@ class Preferences:
                 "region": preferences.region,
                 "min_age": preferences.min_age,
                 "max_age": preferences.max_age,
-
             }
-            print(preferences)
             if not preferences:
                 return jsonify({"error": "did not find any preference"}), 404
             return jsonify({"message": preferences}), 200
@@ -122,13 +117,12 @@ class Preferences:
         if not data:
             return jsonify({"message": "No data to update"}), 400  # 400 for Bad Request
 
-        gender = data.get('gender')
-        industry_major = data.get('industry_major')
-        career = data.get('career')
+        gender = data.get('desired_gender')
+        industry_major = data.get('desired_industry')
+        career = data.get('desired_occupation')
         min_age = data.get('minAge')
         max_age = data.get('max_age')
-        education_level = data.get('education_level')
-        education_status = data.get('education_status')
+        education_level = data.get('desired_education_level')
 
         try:
             user_id = get_jwt_identity()
@@ -141,7 +135,6 @@ class Preferences:
                 print('preference not found\n')
                 return jsonify({"message": "Preferences not found"}), 404 
 
-            # Update preferences if provided
             if gender:
                 preference.gender = gender
                 self.storage.new(preference)
@@ -159,9 +152,6 @@ class Preferences:
                 self.storage.new(preference)
             if education_level:
                 preference.education_level = education_level
-                self.storage.new(preference)
-            if education_status:
-                preference.education_status = education_status
                 self.storage.new(preference)
             self.storage.save()
 

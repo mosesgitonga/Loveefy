@@ -31,42 +31,33 @@ class Profile:
             user_id = get_jwt_identity()
 
             # Retrieve and validate data
-           
-            print('data:  ',data)
             gender = data.get('gender').lower()
             dob = data.get('dob')
-            mobile_no = data.get('mobile_no')
+            first_name = data.get('first_name').lower()
+            occupation = data.get('occupation', '').lower() 
+            institution = data.get('institution', '').lower()
             industry_major = data.get('industry_major', '').lower()
             education_level = data.get('education_level').lower()
-            career = data.get('career').lower()
             has_child = data.get('has_child', 'no').lower()
-            employment = data.get('employment').lower()
             is_schooling = data.get('is_schooling').lower()
             country = data.get('country').lower()
             region = data.get('region').lower()
             sub_region = data.get('sub_region').lower()
 
-            print('details extracted!')
             # Validate age
             dob = datetime.strptime(dob, '%Y-%m-%d')
             today = datetime.today()
             age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
-            print('age', age)
-            if age <= 10:
-                return make_response(jsonify({"message": "babies are not welcome. You should be breast feeding"}), 403)
             if age < 18:
-                return make_response(jsonify({"message": "Kids are not welcome, go play video games"}), 403)
+                return make_response(jsonify({"message": "Hold on! Comeback when you are old enough to vote"}), 403)
     
 
             # Check if profile already exists
-            existing_profile = self.storage.check_existing_profile(user_id, mobile_no=mobile_no)
+            existing_profile = self.storage.get(User_profile, user_id=user_id)
             existing_user = self.storage.get(User, id=user_id)
             if existing_profile:
                 if existing_profile.user_id == user_id:
                     return make_response(jsonify({"message": "User already has a profile"}), 409)
-                if existing_profile.mobile_no == mobile_no:
-                    print('mobile number already exists')
-                    return make_response(jsonify({"message": "Mobile number already exists"}), 409)
 
             # Create a new place if necessary
             new_place = Place(
@@ -87,15 +78,14 @@ class Profile:
                 created_at=datetime.now(),
                 updated_at=datetime.now(),
                 gender=gender,
-                mobile_no=mobile_no,
+                first_name=first_name,
                 user_id=user_id,
                 industry_major=industry_major,
                 education_level=education_level,
-                career=career,
-                employment=employment,
+                occupation=occupation,
                 is_schooling=is_schooling, 
                 has_child=has_child,
-                DOB=dob
+                DOB=dob 
             )
 
             # Use storage methods to handle session and transactions
@@ -149,18 +139,16 @@ class Profile:
 
             # Mapping fields to their corresponding models
             field_to_model = {
-                'username': User,
+                'first_name': User_profile,
                 'gender': User_profile,
-                'country': Place,
                 'industry_major': User_profile,
+                'institution': User_profile,
                 'education_level': User_profile,
-                'career': User_profile,
+                'occupation': User_profile,
                 'dob': User_profile,
+                'country': Place,
                 'region': Place,
                 'sub_region': Place,
-                'age': User_profile,  
-                'mobile_no': User_profile,
-                'subscription_type': User_profile 
             }
 
             # Iterate over the fields in the request data
@@ -219,18 +207,24 @@ class Profile:
             profile_details = {
                 "user_id": user.id,
                 "industry_major": user_profile.industry_major,
-                "career": user_profile.career,
+                "occupation": user_profile.occupation,
                 "age": age,
-                "username": user.username,
+                "first_name": user_profile.first_name,
                 "has_child": user_profile.has_child,
                 "is_schooling": user_profile.is_schooling,
                 "education_level": user_profile.education_level,
-                "mobile_no": user_profile.mobile_no,
                 "image_path": image_path, 
                 "country": place.country,
                 "region": place.region,
                 "sub_region": place.sub_region,
-                "bio": user_profile.bio
+                "about_me": user_profile.about_me,
+                "personality": user_profile.personality,
+                "career_goals": user_profile.career_goals,
+                "achievements": user_profile.achievements,
+                "linkedIn_profile": user_profile.linkedIn_profile,
+                "favourite_music_genre": user_profile.favourite_music_genre,
+                "love_language": user_profile.love_language,
+                "spiritual_beliefs": user_profile.spiritual_beliefs,
             }
 
             return jsonify({"message": profile_details})

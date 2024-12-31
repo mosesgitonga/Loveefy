@@ -11,7 +11,6 @@ class User(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     email = Column(String(254), nullable=False, unique=True, index=True)
     password = Column(String(150), nullable=False)
-    username = Column(String(80), unique=True, nullable=False, index=True)
 
     place_id = Column(String(36), ForeignKey('places.id'), index=True)
     place = relationship("Place", back_populates="user", uselist=False)

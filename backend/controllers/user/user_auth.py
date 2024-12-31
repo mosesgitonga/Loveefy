@@ -76,12 +76,11 @@ class User_auth:
         """Register a new user by email."""
         password = data.get('password')
         email = data.get('email')
-        username = data.get('username')
         
         # if not is_valid_email_format(email):
         #     return jsonify({'error': 'Invalid email format'}), 400
 
-        if not password or not email or not username:
+        if not password or not email:
             return {'error': 'Username, password, and email are required'}, 400
 
         try:
@@ -96,7 +95,6 @@ class User_auth:
                 created_at=self.created_at,
                 email=email,
                 password=hashed_password.decode('utf-8'),
-                username=username
             )
 
             # Save the user to the database
@@ -139,19 +137,19 @@ class User_auth:
             logging.error(f'Error during login: {e}')
             return jsonify(error="An error occurred during login"), 500
         
-    @jwt_required()
-    def get_user(self):
-        """Retrieve the currently authenticated user's details."""
-        user_id = get_jwt_identity()
-        user = self.storage.get(User, id=user_id)
-        if not user:
-            return jsonify({'error': 'User not found'}), 404
+    # @jwt_required()
+    # def get_user(self):
+    #     """Retrieve the currently authenticated user's details."""
+    #     user_id = get_jwt_identity()
+    #     user = self.storage.get(User, id=user_id)
+    #     if not user:
+    #         return jsonify({'error': 'User not found'}), 404
 
-        user_details = {
-            "username": user.username,
-            "email": user.email
-        }
-        return jsonify(user_details)
+    #     user_details = {
+    #         "username": user.username,
+    #         "email": user.email
+    #     }
+    #     return jsonify(user_details)
     
     def generate_otp(self, email):
         """Generate a 6-digit OTP."""

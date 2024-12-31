@@ -11,14 +11,12 @@ class FeedbackHandler:
     def create_feedback(self, data):
         user_id = get_jwt_identity()
         remarks = data.get('remarks')
-        suggestions = data.get('suggestions')
         ratings = data.get('ratings')
         try:
 
             new_feedback = Feedback(
                 user_id=user_id,
                 remarks=remarks,
-                suggestions=suggestions,
                 ratings=ratings
             )
             self.storage.new(new_feedback)

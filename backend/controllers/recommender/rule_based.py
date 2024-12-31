@@ -169,7 +169,7 @@ class Recommender:
 
     def calculate_country_score(self, current_user_place, other_user_place):
         if current_user_place.country == other_user_place.country:
-            return 10
+            return 25
         return 0
     
     def calculate_region_score(self, current_user_place, other_user_place):
@@ -177,17 +177,20 @@ class Recommender:
             return 11
         return 0
  
-    def calculate_industry_score(self, current_user_profile, other_user_preference):
+    def calculate_industry_score(self, current_user_profile, other_user_profile=None, other_user_preference=None):
         score = 0
-        if current_user_profile.industry_major == other_user_preference.industry_major:
-            score += 12
+        if current_user_profile.industry_major == other_user_profile.industry_major:
+            score += 10
+        if other_user_preference.desired_industry_major:
+            if current_user_profile.industry_major == other_user_preference.desired_industry_major:
+                score += 16
         return score
 
-    def calculate_hobby_score(self, current_user_preference, other_user_profile):
-        return 4 if current_user_preference.fav_hobby == other_user_profile.fav_hobby else 0
+    # def calculate_hobby_score(self, current_user_preference, other_user_profile):
+    #     return 4 if current_user_preference.fav_hobby == other_user_profile.fav_hobby else 0
 
-    def calculate_child_preference_score(self, current_user_preference, other_user_profile):
-        return 7 if "any" in current_user_preference.wants_child and other_user_profile.has_child == "yes" else 0
+    # def calculate_child_preference_score(self, current_user_preference, other_user_profile):
+    #     return 7 if "any" in current_user_preference.wants_child and other_user_profile.has_child == "yes" else 0
     
     def fetch_recommendations(self, page=1, per_page=12):
         try:

@@ -133,3 +133,4 @@ class Place_control:
         except Exception as e:
             print(e)
             return jsonify({"message": "Internal server Error"}), 500
+
