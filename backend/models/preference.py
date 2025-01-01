@@ -21,8 +21,9 @@ class Preference(Base):
     is_schooling = Column(Boolean)
 
 
+    user_id = Column(String(36), ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
 
-    user = relationship("User", uselist=False, back_populates="preference")
+    user = relationship("User", back_populates="preference", foreign_keys=[user_id])
 
     def serialize(self):
         return {

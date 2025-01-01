@@ -84,7 +84,6 @@ class Login(Resource):
             if not data:
                 logger.error("No data retrieved in login request")
                 return jsonify({'error': 'No data retrieved'}), 400
-            
             response, status_code = user_auth.user_login(data.get('email'), data.get('password'))
             return response, status_code
         except ValueError as ve:

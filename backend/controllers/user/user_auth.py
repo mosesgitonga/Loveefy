@@ -127,15 +127,12 @@ class User_auth:
             access_token = create_access_token(identity=existing_user.id)
             return {
                 "access_token": access_token,
-                "place_id": existing_user.place_id, 
-                "preference_id": existing_user.preference_id,
                 "current_user_id": existing_user.id,
-                "current_username": existing_user.username
             }, 200
 
         except Exception as e:
             logging.error(f'Error during login: {e}')
-            return jsonify(error="An error occurred during login"), 500
+            return jsonify({"error": "An error occurred during login"}), 500
         
     # @jwt_required()
     # def get_user(self):

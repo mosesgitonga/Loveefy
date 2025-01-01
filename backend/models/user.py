@@ -12,23 +12,30 @@ class User(Base):
     email = Column(String(254), nullable=False, unique=True, index=True)
     password = Column(String(150), nullable=False)
 
-    place_id = Column(String(36), ForeignKey('places.id'), index=True)
-    place = relationship("Place", back_populates="user", uselist=False)
+    #place_id = Column(String(36), ForeignKey('places.id', ondelete='CASCADE'), unique=True, nullable=True, index=True)
+    place = relationship("Place", back_populates="user", cascade="all, delete-orphan", uselist=False)
 
-    preference_id = Column(String(36), ForeignKey('preferences.id'), nullable=True, index=True)
-    preference = relationship("Preference", uselist=False, back_populates="user")
+    #preference_id = Column(String(36), ForeignKey('preferences.id', ondelete='CASCADE'), unique=True, nullable=True, index=True)
+    preference = relationship("Preference", back_populates="user", cascade="all, delete-orphan", uselist=False)
 
     profile = relationship("User_profile", back_populates="user", cascade="all, delete-orphan", uselist=False)
-
     feedback = relationship('Feedback', back_populates="user", cascade="all, delete-orphan", uselist=False)
     uploads = relationship("Upload", back_populates="user", cascade="all, delete-orphan")
 
-
+    def has_filled_place(self):
+        """ Check if the user has filled the place field. """
+        return self.place is not None
+    
+    def has_filled_preference(self):
+        return self.preference is not None
+    
+    def has_filled_profile(self):
+        return self.profile is not None
+    
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
-            "username": self.username,
             "place_id": self.place_id,
             "preference_id": self.preference_id
         }

@@ -1,5 +1,4 @@
-from sqlalchemy import Column, String, DateTime, func
-from sqlalchemy.dialects.mysql import ENUM as MysqlEnum
+from sqlalchemy import Column, String, DateTime, Enum, func
 import enum
 import uuid
 from .base_model import Base
@@ -16,8 +15,7 @@ class Admin(Base):
     
     name = Column(String(25), nullable=False)
     
-    # Use MySQL-specific ENUM type
-    power = Column(MysqlEnum(PowerLevel), default=PowerLevel.ORDINARY)
+    power = Column(Enum(PowerLevel, name="power_level"), default=PowerLevel.ORDINARY, nullable=False)
     
     email = Column(String(60), unique=True, nullable=False)
     

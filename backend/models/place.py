@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from sqlalchemy import Column, String, Integer, DateTime, func, Float, DECIMAL
+from sqlalchemy import Column, String, Integer, DateTime, func, Float, DECIMAL, ForeignKey
 from sqlalchemy.orm import relationship
 from .base_model import Base
 
@@ -14,7 +14,8 @@ class Place(Base):
     longitude = Column(DECIMAL(11, 8), nullable=True)
     latitude = Column(DECIMAL(10, 8), nullable=True)
 
-    user = relationship("User", uselist=False, back_populates="place")
+    user_id = Column(String(36), ForeignKey('users.id', ondelete='CASCADE'), nullable=False, index=True)
+    user = relationship("User", back_populates="place")
 
     def serialize(self):
         return {
@@ -23,5 +24,5 @@ class Place(Base):
             "region": self.region,
             "sub_region": self.sub_region,
             "longitude": self.longitude,
-            "latitude": self.latitude
+            "latitude": self.latitude 
         }

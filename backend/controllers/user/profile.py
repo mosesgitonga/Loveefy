@@ -31,18 +31,18 @@ class Profile:
             user_id = get_jwt_identity()
 
             # Retrieve and validate data
-            gender = data.get('gender').lower()
+            gender = data.get('gender', '').lower()
             dob = data.get('dob')
             first_name = data.get('first_name').lower()
             occupation = data.get('occupation', '').lower() 
             institution = data.get('institution', '').lower()
             industry_major = data.get('industry_major', '').lower()
-            education_level = data.get('education_level').lower()
-            has_child = data.get('has_child', 'no').lower()
-            is_schooling = data.get('is_schooling').lower()
-            country = data.get('country').lower()
-            region = data.get('region').lower()
-            sub_region = data.get('sub_region').lower()
+            education_level = data.get('education_level', '').lower()
+            has_child = data.get('has_child', 0)
+            is_schooling = data.get('is_schooling', 0)
+            country = data.get('country', '').lower()
+            region = data.get('region', '').lower()
+            sub_region = data.get('sub_region', '').lower()
 
             # Validate age
             dob = datetime.strptime(dob, '%Y-%m-%d')
@@ -54,10 +54,10 @@ class Profile:
 
             # Check if profile already exists
             existing_profile = self.storage.get(User_profile, user_id=user_id)
+        
             existing_user = self.storage.get(User, id=user_id)
             if existing_profile:
-                if existing_profile.user_id == user_id:
-                    return make_response(jsonify({"message": "User already has a profile"}), 409)
+                return {"message": "profile already exists"}, 409
 
             # Create a new place if necessary
             new_place = Place(
@@ -69,9 +69,6 @@ class Profile:
                 updated_at=datetime.now()
             )
 
-            # Update user's place_id
-            existing_user.place_id = new_place.id
-
             # Create a new user profile
             new_profile = User_profile(
                 id=str(uuid.uuid4()),
@@ -80,6 +77,7 @@ class Profile:
                 gender=gender,
                 first_name=first_name,
                 user_id=user_id,
+                institution=institution,
                 industry_major=industry_major,
                 education_level=education_level,
                 occupation=occupation,
@@ -156,8 +154,8 @@ class Profile:
                 Get_object = field_to_model.get(field)
                 if not Get_object:
                     logger.error(f"Attempted to update an unrecognized field: {field}")
-                    continue  # Skip this field and continue with others
-
+                    continue  
+                
                 # Fetch the correct object based on the field
                 if Get_object == User_profile:
                     existing_user_profile = self.storage.get(Get_object, user_id=id)
