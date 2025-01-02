@@ -52,7 +52,7 @@ del_account_model = auth_api.model('DeleteAccount', {
 })
 
 
-@auth_api.route('/registers/')
+@auth_api.route('/registers')
 class Register(Resource):
     @auth_api.expect(user_model)
     def post(self):

@@ -21,7 +21,15 @@ class Recommender:
         self.storage = DbStorage()
         self.processed_pairs = set()  
 
+    def recommend_by_profile(self):
+
+        self.calculate_score(current_user_place, other_user_place, current_user_preference, current_user_profile, other_user_profile)
+    
     def recommend_users(self):
+        """
+        utilizes both profile and preference information.
+        This cannot be used during registration since the preference is collected later when the user decides to update it.
+        """
         try:
             users = self.storage.get_all(User) 
 

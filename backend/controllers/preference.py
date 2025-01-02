@@ -27,9 +27,7 @@ class Preferences:
             country = data.get('desired_country', '').lower()
             region = data.get('desired_region', '').lower()
             industry_major = data.get('desired_industry', '').lower()
-            occupation = data.get('occupation').lower()
             education_level = data.get('desired_education_level').lower()
-            employment = data.get('employment').lower()
             is_schooling = data.get('is_schooling')
             radius = data.get('radius')
             
@@ -49,8 +47,9 @@ class Preferences:
                 return {"message": "User not found"}, 404
 
             # Check if user already has a preference
-            if current_user.preference_id:
-                return {"message": "User already has a preference"}, 400
+            existing_preference = self.storage.get(Preference, user_id=current_user_id)
+            if existing_preference:
+                return {"message": "preference already exists"}, 409
 
             # Create a new preference
             new_preference = Preference(
@@ -58,21 +57,17 @@ class Preferences:
                 desired_gender=gender,
                 min_age=min_age,
                 max_age=max_age,
-                country=country,
-                region=region,
-                industry_major=industry_major,
-                occupation=occupation,
-                education_level=education_level,
-                employment=employment,
+                desired_country=country,
+                desired_region=region,
+                desired_industry=industry_major,
+                desired_education_level=education_level,
                 is_schooling=is_schooling,
                 radius=radius,
                 created_at=datetime.now(),
             )
             
-            # Associate the preference with the current user
             current_user.preference_id = new_preference.id
 
-            # Save the new preference and update the user
             self.storage.new(new_preference)
             self.storage.new(current_user)
             self.storage.save()
