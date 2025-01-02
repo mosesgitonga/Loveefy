@@ -31,7 +31,7 @@ const Signup = () => {
 
         setIsSubmitting(true); 
 
-        api.post('/api/v1/auth/registers', formData)
+        api.post('v1/auth/registers', formData)
             .then(response => {
                 setIsSubmitting(false); 
                 if (response.status === 409 && response.data.code === 600) {
@@ -109,20 +109,6 @@ const Signup = () => {
                         onChange={handleChange} 
                         required
                     />
-                </div>
-                <div className={styles.formgroup}>
-                    <label htmlFor="username">YOUR NAME</label>
-                    <input 
-                        type="text" 
-                        placeholder="johndoe23"
-                        name="username" 
-                        value={formData.username}
-                        autoComplete="off"
-                        onChange={handleChange}
-                        required
-                    />
-                    {/* Display the validation message if the username contains an email pattern */}
-                    {usernameValidationMessage && <p className={styles.error}>{usernameValidationMessage}</p>}
                 </div>
 
                 <button type="submit" disabled={isSubmitting}>

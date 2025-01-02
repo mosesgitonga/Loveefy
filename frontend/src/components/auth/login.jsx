@@ -21,7 +21,7 @@ const Login = () => {
         e.preventDefault();
         setIsSubmitting(true);
 
-        api.post('/api/v1/auth/logins', formData)
+        api.post('/v1/auth/logins', formData)
             .then(response => {
                 setIsSubmitting(false); 
                 if (response.status === 200) {

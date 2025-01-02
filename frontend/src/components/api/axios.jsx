@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: "https://www.loveefy.africa",
+  baseURL: "http://localhost:5000",
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,7 +11,7 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem('access_token');
-    const excludedEndpoints = ['api/v1/auth/logins', 'api/v1/auth/registers'];
+    const excludedEndpoints = ['v1/auth/logins', 'v1/auth/registers'];
 
     if (!excludedEndpoints.includes(config.url) && token) {
       config.headers.Authorization = `Bearer ${token}`;
