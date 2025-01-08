@@ -59,7 +59,7 @@ def test_create_profile(base_url, headers, dummy_user):
     """Test profile creation."""
     global SCORE, OVERALL_SCORE, gender
     OVERALL_SCORE += 1
-    gender = random.choice(['male', 'female'])
+    gender = random.choice(['male', 'female', 'male'])
     occupation = random.choice(['doctor', "teacher", "software engineer"])
     payload = {
         "gender": gender,
