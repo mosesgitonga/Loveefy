@@ -88,25 +88,36 @@ class DbStorage:
             logging.error(f'An error occurred while fetching {cls.__name__} object: {e}')
             return None
 
-    def get_all(self, cls, page=1, per_page=30, **kwargs):
+    def get_all(self, cls, page=1, per_page=30, use_pagination=False, use_and=False, **kwargs):
         """
-        Fetch all objects of a given class with optional filtering and pagination.
-
-        :param cls: SQLAlchemy model class
-        :param page: Page number for pagination
-        :param per_page: Number of items per page
-        :param kwargs: Filtering criteria
-        :return: List of results or SQLAlchemy query object
+            Fetch all objects of a given class with optional filtering and pagination.
+            
+            Allows dynamic switching between AND/OR conditions.
+            
+            :param cls: SQLAlchemy model class
+            :param page: Page number for pagination
+            :param per_page: Number of items per page
+            :param use_pagination: Whether to apply pagination
+            :param use_or: Whether to use OR logic for filters (default is AND)
+            :param kwargs: Filtering criteria
+            :return: List of results or SQLAlchemy query object
         """
         try:
             with self.get_session() as session:
-                # Validate and build filters
                 valid_filters = {key: value for key, value in kwargs.items() if hasattr(cls, key)}
-                filters = [getattr(cls, key) == value for key, value in valid_filters.items()]
-                query = session.query(cls).filter(or_(*filters))
 
-                # Apply pagination if the class requires it
-                if getattr(cls, 'use_pagination', True):
+                query = session.query(cls)
+
+                # Apply filters with AND/OR logic based on use_or
+                if use_and:
+                    for key, value in valid_filters.items():
+                        query = query.filter(getattr(cls, key) == value) 
+                else:
+                    filters = [getattr(cls, key) == value for key, value in valid_filters.items()]
+                    query = query.filter(or_(*filters))  
+
+
+                if use_pagination:
                     query = query.limit(per_page).offset((page - 1) * per_page)
 
                 results = query.all()

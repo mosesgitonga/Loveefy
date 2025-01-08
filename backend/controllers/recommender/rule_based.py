@@ -11,19 +11,72 @@ import uuid
 import logging
 from datetime import datetime
 import concurrent.futures
+from dateutil.relativedelta import relativedelta
 
 logging.basicConfig(level=logging.INFO)
 
 THRESHOLD_SCORE = 0
 
+import uuid
+import logging
 class Recommender:
-    def __init__(self):
-        self.storage = DbStorage()
-        self.processed_pairs = set()  
+    def __init__(self, storage):
+        self.storage = storage
+        self.processed_pairs = set()
 
-    def recommend_by_profile(self):
+    def for_uninitialized_users(self, page, per_page):
+        try:
+            user_id = get_jwt_identity()
+            user_profile = self.storage.get(User_profile, user_id=user_id)
+            user_place = self.storage.get(Place, user_id=user_id)
+            user_image = self.storage.get(Upload, user_id=user_id)
 
-        self.calculate_score(current_user_place, other_user_place, current_user_preference, current_user_profile, other_user_profile)
+            desired_gender = 'female' if user_profile.gender == 'male' else 'male'
+            desired_country = user_place.country
+
+            profiles = self.storage.get_all(User_profile, use_and=True, gender=desired_gender, country=desired_country, page=page, per_page=per_page)
+            user_ids = {profile.user_id for profile in profiles if profile.user_id != user_id}
+
+            users = self.storage.get_multiple(User, ids=user_ids)
+            places = self.storage.get_multiple(Place, ids=user_ids)
+            images = self.storage.get_multiple(Upload, ids=user_ids)
+
+            user_map = {user.id: user for user in users}
+            place_map = {place.user_id: place for place in places}
+            image_map = {image.user_id: image for image in images}
+
+            recommendations = []
+
+            for profile in profiles:
+                user = user_map.get(profile.user_id)
+                place = place_map.get(profile.user_id)
+                image = image_map.get(profile.user_id)
+
+                # Calculate the user's age from the DOB
+                age = relativedelta(datetime.now(), profile.DOB).years
+
+                recommendations.append({
+                    "id": str(uuid.uuid4()),
+                    "user_id1": user_id,
+                    "user_id2": profile.user_id,
+                    "opposite_id": user.id,
+                    "score": 0, 
+                    "first_name": profile.first_name,
+                    "image_path": image.file_path if image else None,
+                    "industry": profile.industry_major,
+                    "country": place.country,
+                    "region": place.region,
+                    "age": age,
+                    "gender": profile.gender
+                })
+
+            return recommendations
+
+        except Exception as e:
+            logging.error(f"Error: {e}")
+            return {"message": "Internal Server Error"}, 500
+
+
     
     def recommend_users(self):
         """
@@ -205,7 +258,7 @@ class Recommender:
             current_user_id = get_jwt_identity()
             current_user = self.storage.get(User, id=current_user_id)
 
-            recommendations = self.storage.get_all(Recommendation, page=page, per_page=per_page, user_id1=current_user_id, user_id2=current_user_id)
+            recommendations = self.storage.get_all(Recommendation, page=page, per_page=per_page, use_pagination=True, user_id1=current_user_id, user_id2=current_user_id)
             user_recommendations = [rec for rec in recommendations if rec.user_id1 == current_user_id or rec.user_id2 == current_user_id]
 
             if not user_recommendations:
@@ -278,3 +331,11 @@ class Recommender:
         except Exception as e:
             logging.error(f"Error fetching recommendations: {e}")
             return {"error": "Internal Server Error"}, 500
+
+
+if __name__ == "__main__":
+    storage = DbStorage()
+    recommender = Recommender(storage)
+
+    x = recommender.fetch_recommendations_from_profile("7b9a1bc7-72b2-43f2-8a5e-2d8343f246e5", page=1, per_page=10)
+    print(x)

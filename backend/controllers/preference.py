@@ -11,7 +11,7 @@ import uuid
 class Preferences:
     def __init__(self):
         self.storage = DbStorage()
-        self.recommender = Recommender()
+        self.recommender = Recommender(self.storage)
         self.logger = logging.getLogger(__name__)
 
     def create_preference(self):

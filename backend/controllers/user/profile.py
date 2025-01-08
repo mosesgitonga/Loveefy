@@ -66,7 +66,8 @@ class Profile:
                 region=region,
                 sub_region=sub_region,
                 created_at=datetime.now(),
-                updated_at=datetime.now()
+                updated_at=datetime.now(),
+                user_id=user_id
             )
 
             # Create a new user profile

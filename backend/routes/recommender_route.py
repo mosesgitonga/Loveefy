@@ -4,11 +4,12 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_restx import Api, Resource, fields, Namespace
 import logging
 from controllers.recommender.rule_based import Recommender
-
+from models.engine.DBStorage import DbStorage
 logging.basicConfig(level=logging.INFO)
 
+storage = DbStorage()
 # Initialize Recommender and Blueprint
-recommender = Recommender()
+recommender = Recommender(storage)
 recommender_api = Namespace('v1/', description="Recommendation API endpoints")
 
 
@@ -17,6 +18,17 @@ recommendation_model = recommender_api.model('Recommendation', {
     'user_id': fields.Integer(description='Recommended user ID'),
     'score': fields.Float(description='Recommendation score based on rules')
 })
+
+@recommender_api.route('/no_current_setup')
+class Fetch_Profiles(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            recommendations = recommender.for_uninitialized_users(page=10, per_page=10)
+            return recommendations
+        except Exception as e:
+            logging.error(e)
+            return {"error": "Internal Server Error"}
 
 # Routes and logic
 @recommender_api.route('/recommend')
