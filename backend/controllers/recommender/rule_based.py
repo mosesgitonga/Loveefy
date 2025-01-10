@@ -11,6 +11,7 @@ import uuid
 import logging
 from datetime import datetime
 import concurrent.futures
+import queue
 from dateutil.relativedelta import relativedelta
 
 logging.basicConfig(level=logging.INFO)
@@ -80,8 +81,7 @@ class Recommender:
     
     def recommend_users(self):
         """
-        utilizes both profile and preference information.
-        This cannot be used during registration since the preference is collected later when the user decides to update it.
+        Utilizes both profile and preference information to recommend users.
         """
         try:
             users = self.storage.get_all(User) 
@@ -89,23 +89,43 @@ class Recommender:
             logging.info(f"Total users: {len(users)}")
 
             # Fetch all preferences, profiles, and places in one go
-            preferences = {pref.id: pref for pref in self.storage.get_all(Preference)}
+            preferences = {pref.user_id: pref for pref in self.storage.get_all(Preference)}
             profiles = {profile.user_id: profile for profile in self.storage.get_all(User_profile)}
-            places = {place.id: place for place in self.storage.get_all(Place)}
+            places = {place.user_id: place for place in self.storage.get_all(Place)}
 
-            recommendations = []
+            recommendations = []  # Final list to store recommendations
+            recommendations_queue = queue.Queue()  # Thread-safe queue
             users_length = len(users)
-            
+
             with concurrent.futures.ThreadPoolExecutor() as executor:
-                futures = []
-                for i in range(users_length):
-                    futures.append(executor.submit(self.process_user, i, users, preferences, profiles, places, recommendations))
-                
-                concurrent.futures.wait(futures)
+                futures = [
+                    executor.submit(
+                        self.process_user,
+                        i,
+                        users,
+                        preferences,
+                        profiles,
+                        places,
+                        recommendations_queue
+                    )
+                    for i in range(users_length)
+                ]
+
+                # Ensure all threads finish and log any exceptions
+                for future in concurrent.futures.as_completed(futures):
+                    if exception := future.exception():
+                        logging.error(f"Thread encountered an error: {exception}")
+
+            # Collect results from the queue into the recommendations list
+            while not recommendations_queue.empty():
+                recommendations.append(recommendations_queue.get())
 
             logging.info(f"Total recommendations to save: {len(recommendations)}")
+
+            # Save recommendations to storage
             self.processed_pairs = set()
             for rec in recommendations:
+                logging.info(f"user id 1: {rec['user_id1']}, user id 2: {rec['user_id2']}, score: {rec['score']}")
                 new_recommendation = Recommendation(
                     id=str(uuid.uuid4()),
                     user_id1=rec['user_id1'],
@@ -120,63 +140,79 @@ class Recommender:
             logging.error(f"Error in recommend_users: {e}")
             return {'message': 'Internal Server Error'}
 
-    def process_user(self, i, users, preferences, profiles, places, recommendations):
+    def process_user(self, i, users, preferences, profiles, places, recommendations_queue):
         current_user = users[i]
-        logging.info(f"Current user: {current_user.id}")
+        logging.info(f"Processing user: {current_user.id}")
 
-        current_user_preference = preferences.get(current_user.preference_id)
+        # Early return if any essential data is missing
+        current_user_preference = preferences.get(current_user.id)
         current_user_profile = profiles.get(current_user.id)
-        current_user_place = places.get(current_user.place_id)
+        current_user_place = places.get(current_user.id)
 
         if not current_user or not current_user_preference or not current_user_profile or not current_user_place:
-            logging.warning(f"Missing data for current user {current_user.id}")
+            logging.warning(f"Missing data for user {current_user.id}, skipping...")
             return
 
+        # Process comparisons with other users
         for j in range(len(users)):
             if i == j:
-                continue  # Skip comparing user to themselves
+                continue  
 
             other_user = users[j]
 
+            # Skip already processed pairs
             pair = tuple(sorted((current_user.id, other_user.id)))
-
             if pair in self.processed_pairs:
                 logging.info(f"Skipping already processed pair: {pair}")
-                continue  
+                continue
 
             self.processed_pairs.add(pair)
 
-            # ensuring no duplicate recommendation.
+            # Check if the recommendation already exists
             if self.storage.check_existing_recommendation(current_user.id, other_user.id):
                 continue
 
-            other_user_preference = preferences.get(other_user.preference_id)
+            # Fetch data for the other user
+            other_user_preference = preferences.get(other_user.id)
             other_user_profile = profiles.get(other_user.id)
-            other_user_place = places.get(other_user.place_id)
+            other_user_place = places.get(other_user.id)
 
             if not other_user or not other_user_preference or not other_user_profile or not other_user_place:
-                logging.warning(f"Missing data for other user {other_user.id}")
-                continue  
-            
-            score = self.calculate_score(current_user_place, other_user_place, current_user_preference, other_user_preference, current_user_profile, other_user_profile)
-            logging.info(f"Calculated score for pair {current_user.id}-{other_user.id}: {score}")
+                logging.warning(f"Missing data for user {other_user.id}, skipping...")
+                continue
 
-            if score > THRESHOLD_SCORE:
-                recommendations.append({
-                    "user_id1": current_user.id,
-                    "user_id2": other_user.id,
-                    "score": score 
-                })
+            # Calculate the compatibility score
+            score = self.calculate_score(
+                current_user_place,
+                other_user_place,
+                current_user_preference,
+                other_user_preference,
+                current_user_profile,
+                other_user_profile
+            )
+
+            if score == 0:
+                logging.info(f"Pair {current_user.id}-{other_user.id} has no compatible score, skipping...")
+                continue
+
+            # Add to thread-safe queue
+            recommendations_queue.put({
+                "user_id1": current_user.id,
+                "user_id2": other_user.id,
+                "score": score
+            })
+
+            logging.info(f"Recommendation for pair {current_user.id}-{other_user.id} with score {score} added.")
+
 
     def calculate_score(self, current_user_place, other_user_place, current_user_preference, other_user_preference, current_user_profile, other_user_profile):
         try:
-            score = 0
+            logging.info(f"{current_user_preference.desired_gender}, {other_user_preference.desired_gender}")
             if self.is_gender_compatible(current_user_profile, current_user_preference, other_user_profile, other_user_preference) == False:
                 logging.info("Gender not compatible")
-                score = 0
-                return score
+                return 0
 
-            score += self.calculate_basic_score()
+            score = self.calculate_basic_score()
             logging.info(f"Basic score: {score}")
 
             if other_user_place:
@@ -198,28 +234,12 @@ class Recommender:
     def is_gender_compatible(self, current_user_profile, current_user_preference, other_user_profile, other_user_preference):
         """
         Checks compatibility based on gender preferences.
-
-        This function assumes a user's preference can include multiple genders.
-        Compatibility is considered true if:
-        - The current user's preference includes the other user's gender.
-        - The other user's preference includes the current user's gender.
-
-        Args:
-            current_user_profile (object): Current user's profile information.
-            current_user_preference (object): Current user's gender preference.
-            other_user_profile (object): Other user's profile information.
-            other_user_preference (object): Other user's gender preference.
-
-        Returns:
-            bool: True if compatible, False otherwise.
         """
-
         # Check if other user's gender is in current user's preference
-        if other_user_profile.gender in current_user_preference.gender:
-            if other_user_preference.gender != current_user_profile.gender:
+        if other_user_profile.gender in current_user_preference.desired_gender:
+            if other_user_preference.desired_gender != current_user_profile.gender:
                 return False
-            # Check if current user's gender is in other user's preference (ensures mutual interest)
-            return current_user_profile.gender in other_user_preference.gender
+            return current_user_profile.gender in other_user_preference.desired_gender
         else:
             return False
     def is_age_compatible(self, current_user_profile, other_user_preference):
@@ -239,12 +259,11 @@ class Recommender:
         return 0
  
     def calculate_industry_score(self, current_user_profile, other_user_profile=None, other_user_preference=None):
-        score = 0
-        if current_user_profile.industry_major == other_user_profile.industry_major:
-            score += 10
-        if other_user_preference.desired_industry_major:
-            if current_user_profile.industry_major == other_user_preference.desired_industry_major:
-                score += 16
+        score = 0 
+
+        if current_user_profile and other_user_preference: 
+            if other_user_preference.desired_industry and current_user_profile.industry_major == other_user_preference.desired_industry:
+                score += 16 
         return score
 
     # def calculate_hobby_score(self, current_user_preference, other_user_profile):

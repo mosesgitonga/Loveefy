@@ -64,18 +64,23 @@ class Preferences:
                 is_schooling=is_schooling,
                 radius=radius,
                 created_at=datetime.now(),
+                user_id=current_user_id
             )
             
-            current_user.preference_id = new_preference.id
 
             self.storage.new(new_preference)
-            self.storage.new(current_user)
+            #self.storage.new(current_user)
             self.storage.save()
-            self.recommender.recommend_users()
+            if self.storage.get(Preference, id=new_preference.id):
+                current_user.setup_complete = True
 
-            self.logger.info(f"Preference created successfully for user_id: {current_user_id}")
+                self.recommender.recommend_users()
 
-            return {"message": "User preference created successfully"}, 201
+                self.logger.info(f"Preference created successfully for user_id: {current_user_id}")
+
+                return {"message": "User preference created successfully"}, 201  
+            else:
+                return {"message": "unable to create preference"}, 500
         except ValueError as ve:
             self.logger.error(f"Value error: {ve}")
             return {"message": "Invalid input"}, 400

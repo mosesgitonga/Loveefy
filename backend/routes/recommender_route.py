@@ -19,7 +19,7 @@ recommendation_model = recommender_api.model('Recommendation', {
     'score': fields.Float(description='Recommendation score based on rules')
 })
 
-@recommender_api.route('/no_current_setup')
+@recommender_api.route('/recommendation/no_current_setup')
 class Fetch_Profiles(Resource):
     @jwt_required()
     def get(self):
