@@ -16,17 +16,15 @@ logger = logging.getLogger(__name__)
 
 # Define models
 preference_model = preference_api.model('Preference', {
-    'gender': fields.String(required=True, description='Preferred gender, e.g., male/female'),
+    'desired_gender': fields.String(required=True, description='Preferred gender, e.g., male/female'),
     'minAge': fields.String(required=True, description='Preferred minimum age'),
     'maxAge': fields.String(required=True, description='Preferred maximum age'),
-    'country': fields.String(required=True, description='Preferred country'),
-    'region': fields.String(required=True, description='Preferred region within the country'),
-    'industry_major': fields.String(required=True, description='Preferred industry major'),
-    'career': fields.String(required=True, description='Preferred partner career'),
+    'desired_country': fields.String(required=True, description='Preferred country'),
+    'desired_region': fields.String(required=True, description='Preferred region within the country'),
+    'desired_industry': fields.String(required=True, description='Preferred industry major'),
     'education_level': fields.String(required=True, description='Preferred partner education level'),
     'employment': fields.String(required=True, description='Preferred partner employment status'),
     'is_schooling': fields.String(required=True, description='Does user prefer partner who is schooling? (yes/no/any)'),
-    'fav_hobby': fields.String(required=True, description='Preferred partner hobby'),
     'wants_child': fields.String(required=True, description='Does user prefer partner with children? (yes/no/any)'),
 })
 
@@ -51,6 +49,7 @@ preference_model_update = preference_api.model('PreferenceUpdate', {
 class PreferenceResource(Resource):
     
     @jwt_required()
+    @preference_api.response(201, "success")
     @preference_api.expect(preference_model)
     def post(self):
         """Create a new user preference"""

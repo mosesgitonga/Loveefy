@@ -68,11 +68,13 @@ class Preferences:
             )
             
 
-            self.storage.new(new_preference)
             #self.storage.new(current_user)
+            self.storage.new(new_preference)
             self.storage.save()
             if self.storage.get(Preference, id=new_preference.id):
                 current_user.setup_complete = True
+                self.storage.new(current_user)
+                self.storage.save()
 
                 self.recommender.recommend_users()
 

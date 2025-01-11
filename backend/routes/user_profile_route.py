@@ -22,18 +22,18 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 profile_model = profile_api.model("ProfileFormModel",
-    {"country": fields.String(required=True, description="user country"),
-    "region": fields.String(required=True, description="user region"),
-    "sub_region": fields.String(required=True, description="sub region"),
-    "gender": fields.String(required=True, description="user gender"),
-    "dob": fields.String(required=True, description="date of birth (%Y-%m-%d)"),
-    "mobile_no": fields.String(required=True, description="mobile no"),
-    "industry_major": fields.String(required=True, description="Industry Major, eg: Health, Information Technology"),
-    "education_level": fields.String(required=True, description="education level"),
-    "career": fields.String(required=True, description="career eg: Doctor"),
-    "employment": fields.String(required=True, description="Employment eg: employed, self employed, unemployed"),
-    "is_schooling": fields.String(required=True, description="is schooling"),
-    "has_child": fields.String(required=True, description="does user have a child")}
+    {
+    "country": fields.String(required=True, description="user country (Required)"),
+    "region": fields.String(required=True, description="user region (required)"),
+    "sub_region": fields.String(required=False, description="sub region (optional)"),
+    "gender": fields.String(required=True, description="user gender (required)"),
+    "dob": fields.String(required=True, description="date of birth (%Y-%m-%d) (required)"),
+    "industry_major": fields.String(required=True, description="Industry Major, eg: Health, Information Technology (required)"),
+    "education_level": fields.String(required=True, description="education level (required)"),
+    "career": fields.String(required=True, description="career eg: Doctor (required)"),
+    "employment": fields.String(required=False, description="Employment eg: employed, self employed, unemployed (optional)"),
+    "is_schooling": fields.String(required=True, description="is schooling (required)"),
+    "has_child": fields.String(required=True, description="does user have a child (required)")}
 )
 
 update_fields_model = profile_api.model("UpdateFields", {
@@ -61,6 +61,7 @@ def get_json_data():
 @profile_api.route('/profiles')
 class ProfileResource(Resource):
     @jwt_required()
+    @profile_api.response(201, "success")
     @profile_api.expect(profile_model)
     def post(self):
         try:

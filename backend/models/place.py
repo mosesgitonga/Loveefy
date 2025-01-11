@@ -9,7 +9,7 @@ class Place(Base):
     created_at = Column(DateTime, default=func.now(), nullable=False)
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     country = Column(String(150), nullable=False, index=True)
-    region = Column(String(100), nullable=False, index=True)
+    region = Column(String(100), nullable=True, index=True)
     sub_region = Column(String(100), nullable=False)
     longitude = Column(DECIMAL(11, 8), nullable=True)
     latitude = Column(DECIMAL(10, 8), nullable=True)

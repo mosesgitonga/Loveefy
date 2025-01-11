@@ -30,7 +30,6 @@ logger = logging.getLogger('auth')
 user_model = auth_api.model('User', {
     'email': fields.String(required=True, description='User email'),
     'password': fields.String(required=True, description='User password'),
-    'username': fields.String(required=True, description='username required')
 })
 
 login_model = auth_api.model('Login', {
@@ -50,11 +49,26 @@ token_request_model = auth_api.model('TokenRequest', {
 del_account_model = auth_api.model('DeleteAccount', {
     "password": fields.String(required=True, description='user password')
 })
+login_response_model = auth_api.model('LoginResponse', {
+    'message': fields.String(description='Success message'),
+    'access_token': fields.String(description='JWT authentication token'), 
+    'current_user_id': fields.String(description="The user id")
+})
+
+registration_response_model = auth_api.model('RegistrationResponse', {
+    'message': fields.String(description='success message'),
+    "access_token": fields.String(description='The access token')
+}
+)
 
 
 @auth_api.route('/registers')
 class Register(Resource):
     @auth_api.expect(user_model)
+    @auth_api.response(201, 'success', registration_response_model)
+    @auth_api.response(400, 'Bad Request: Invalid input format or missing data')
+    @auth_api.response(500, 'Internal Server Error')
+    @auth_api.response(401, 'Unauthorized: Internal server error')
     def post(self):
         try:
             data = request.get_json()
@@ -77,6 +91,12 @@ class Register(Resource):
 
 @auth_api.route('/logins')
 class Login(Resource):
+    @auth_api.expect(login_model, validate=True)
+    @auth_api.response(200, 'Success', login_response_model)
+    @auth_api.response(400, 'Bad Request: Invalid input format or missing data')
+    @auth_api.response(401, 'Unauthorized: Invalid credentials')
+    @auth_api.response(500, 'Internal Server Error: Unexpected error occurred')
+    @auth_api.doc(description='Logs in a user and returns a JWT token on successful authentication.')
     @auth_api.expect(login_model)
     def post(self):
         try:

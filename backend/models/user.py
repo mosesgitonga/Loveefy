@@ -11,7 +11,7 @@ class User(Base):
     updated_at = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     email = Column(String(254), nullable=False, unique=True, index=True)
     password = Column(String(150), nullable=False)
-    setup_complete = Column(Boolean, nullable=True)
+    setup_complete = Column(Boolean, default=False, nullable=True)
 
     #place_id = Column(String(36), ForeignKey('places.id', ondelete='CASCADE'), unique=True, nullable=True, index=True)
     place = relationship("Place", back_populates="user", cascade="all, delete-orphan", uselist=False)
