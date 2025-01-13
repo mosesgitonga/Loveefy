@@ -272,7 +272,7 @@ class Recommender:
     # def calculate_child_preference_score(self, current_user_preference, other_user_profile):
     #     return 7 if "any" in current_user_preference.wants_child and other_user_profile.has_child == "yes" else 0
     
-    def fetch_recommendations(self, page=1, per_page=12):
+    def fetch_recommendations(self, page=1, per_page=40):
         try:
             current_user_id = get_jwt_identity()
             current_user = self.storage.get(User, id=current_user_id)
@@ -281,8 +281,8 @@ class Recommender:
             user_recommendations = [rec for rec in recommendations if rec.user_id1 == current_user_id or rec.user_id2 == current_user_id]
 
             if not user_recommendations:
-                logging.info("No recommendations found")
-                return [{"recommendations": []}], 200
+                recommendations = self.for_uninitialized_users(page=page, per_page=per_page)
+                return recommendations 
 
             user_ids = set()
             for rec in user_recommendations:
